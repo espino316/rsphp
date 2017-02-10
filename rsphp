@@ -1,0 +1,159 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Console manipulation for the aplication
+ *
+ * Please report bugs on https://github.com/espino316/rsphp/issues
+ *
+ * @author Luis Espino <luis@espino.info>
+ * @copyright Copyright (c) 2016, Luis Espino. All rights reserved.
+ * @license MIT License
+ */
+
+require_once "vendor/autoload.php";
+require_once "public/index.php";
+
+use RSPhp\Framework\RS;
+use RSPhp\Framework\FileHelper;
+
+$command = RS::processStdIn( $argv );
+$params = $command["parameters"];
+$command = $command["command"];
+
+if ( $command == 'version' ) {
+	echo RS::$version;
+	return;
+}
+
+if ( $command == "help" ) {
+    $content = FileHelper::read( "rsphp_help" );
+    RS::printLine( $content );
+}// end if help
+
+if ( $command == 'cleanapp' ) {
+	RS::cleanApp();
+	return;
+} // end if cleanapp
+
+if ( $command == "connection list" ) {
+    RS::listConnections();
+} // end if controller list
+
+if ( $command == "controller list" ) {
+    RS::listControllers();
+} // end if controller list
+
+if ( $command == "model list" ) {
+    RS::listModels();
+} // end if controller list
+
+if ( $command == "route list" ) {
+    RS::listRoutes();
+} // end if controller list
+
+if ( $command == "controller create" ) {
+
+	if ( !isset( $params["name"] ) ) {
+		RS::printLine( "Controller name must be specified" );
+		return;
+    } // end if not doc
+
+    if ( !isset( $params["doc"] ) ) {
+		RS::printLine( "Controller documentation must be specified" );
+		return;
+    } // end if not doc
+
+    RS::printLine("Creating controller");
+	RS::createController( $params["name"], $params["doc"] );
+	return;
+}
+
+//	function create model
+//	php rs.php model create <tableName>
+//	php rs.php model create attachments
+if ( $command == "model create" ) {
+
+    if ( !isset( $param["table"] ) ) {
+        RS::printLine( "Table name must be specified." );
+    } // end if isset param
+
+	RS::printLine("Model create");
+	//	The table name
+	$tableName = strtolower( $param["table"] );
+
+	RS::printLine("Beginning creation of model for table $tableName...");
+
+	// Model Create
+	RS::createModel( $tableName );
+	return;
+}
+
+if ( $command == "connection add" ) {
+    $port = null;
+
+    if ( isset( $param["port"] ) ) {
+        $port = $param["port"];
+    } // end if port
+
+    RS::addConnection(
+        $params["name"],
+        $params["driver"],
+        $params["hostName"],
+        $params["databaseName"],
+        $params["userName"],
+        $params["password"],
+        $port
+    );
+
+    RS::printLine( "Connection added." );
+} // end if command is connection add
+
+if ( $command == "datasource add" ) {
+    if ( isset( $params["text"] ) ) {
+        $text = $params["text"];
+        $isFile = false;
+    } // end if text
+
+    if ( isset( $params["file"] ) ) {
+        $text = $params["file"];
+        $isFile = true;
+    } // end if file
+
+    RS::addDataSource(
+        $params["connection"],
+        $params["name"],
+        $params["type"],
+        $text,
+        $isFile
+    );
+} // end if command datasource add
+
+if ( $command == "route add" ) {
+
+    RS::addRoute(
+        $params["method"],
+        $params["url"],
+        $params["newUrl"]
+    );
+
+    RS::printLine( "Route added." );
+} // end if command is connection add
+
+if ( $command == "view create new" ) {
+	$tableName = $params["table"];
+	RS::createViewNewRecord( $tableName );
+	return;
+} // end if view create new
+
+//  If create app, make directories structure
+if ( $command == "init" ) {
+    if ( isset( $params["default"] ) ) {
+        $dir = "default";
+    } else {
+        $dir = $params["default"];
+    } // end if
+
+    RS::init( $dir );
+} // end if create app
+
+RS::printLine("");

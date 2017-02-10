@@ -1,0 +1,14 @@
+{
+    "appName": "My Application",
+    "globals": {
+        "EMAIL_ADMIN": "mymail@miserver.com",
+        "DEVELOPMENT_ENVIRONMENT": "1",
+        "logSql": true,
+        "allowCORS": true
+    },
+    "configFiles": [],
+    "routes": [
+    ],
+    "dbConnections": [
+    ]
+}

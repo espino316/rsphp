@@ -1,0 +1,8 @@
+[
+    {
+        "connection": "default",
+        "name": "testDataSource",
+        "type": "query",
+        "text": "SELECT * FROM customers"
+    }
+]

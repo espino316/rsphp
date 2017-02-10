@@ -1,0 +1,39 @@
+RSPhp command line reference
+
+To list:
+    - Connections:
+        ./rsphp connections list
+    - Datasources:
+        ./rsphp datasource list
+    - Routes:
+        ./rsphp route list
+    - Controllers:
+        ./rsphp controller list
+    - Models:
+        ./rsphp model list
+
+To create a connection:
+    ./rsphp connection add --name=[name] --driver=[mysql|pgsql|dblib|sqlsrv] --hostName=[hostname|ipaddress] --userName="[user name]" --password=[password]
+
+To create a data source:
+    ./rsphp datasource add --name=[name] --connection=[connection name] --type=[SQLQUERY|JSON] --text="[The sql query"] --file="[path/to/file.sql]"
+
+        You can either use --text or --file, but not both
+        --file can use :ROOT variable to reference the site root path
+        --file can use :APPPATH variable to reference the site application path
+
+To create a route:
+    ./rsphp route add --method=[*|post|get] --url="[the url]" --newUrl="[the new Url]"
+
+    The url is relative to the site's home, so new Url starts with controller/function.
+    Example:
+        ./rsphp rout add --method=* --url="biblioteca/lista" --newUrl="library/getList"
+
+To create a controller:
+    ./rsphp controller create --name=[name] --doc="Controller documentation"
+
+To create a model:
+    ./rsphp model create --table=[table name]
+
+To create a view for new record of table:
+    ./rsphp view create new --table=[table_name]

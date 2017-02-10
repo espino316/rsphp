@@ -1,0 +1,29 @@
+{
+    "name": "espino316/rsphp",
+    "description": "A Real Simple Php Framework",
+    "keywords": ["framework", "espino", "rsphp"],
+    "homepage": "https://rsphp.espino.info",
+  	"license": "MIT",
+    "authors": [
+      {
+        "name": "Luis Espino",
+        "email": "luis@espino.info"
+      }
+    ],
+    "configuration": {
+      "secure-http": "true"
+    },
+    "require": {
+        "php": "^5.3.3 || ^7.0",
+        "pear/mail": "*",
+        "pear/net_smtp": "*",
+        "pear/mail_mime": "*",
+        "ext-mbstring": "*"
+    },
+    "autoload": {
+      "psr-4": {
+        "Application\\": "application",
+        "RSPhp\\Framework\\": "library/RSPhp/Framework"
+      }
+    }
+}
