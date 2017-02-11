@@ -296,7 +296,6 @@ class RS
         // Here we write the json
         $json = json_encode( $json, JSON_PRETTY_PRINT );
         FileHelper::write( $composerJson, $json );
-        self::_dumpAutoload();
         self::printLine("Composer file updated.");
 
         self::printLine("");

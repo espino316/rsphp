@@ -10,6 +10,14 @@
  * @license MIT License
  */
 
+//  Before anything, make a dump-autoload,
+//  to create the autoload file
+//  if the file is not existing only
+
+if ( !file_exists( "vendor/autoload.php" ) ) {
+    shell_exec( "composer dump-autoload" );
+} // end if not exists
+
 require_once "vendor/autoload.php";
 require_once "public/index.php";
 
