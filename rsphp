@@ -14,8 +14,13 @@
 //  to create the autoload file
 //  if the file is not existing only
 
+$cwd = getcwd();
+$rsPhpPath = dirname( __FILE__ );
+
 if ( !file_exists( "vendor/autoload.php" ) ) {
+    chdir( $rsPhpPath );
     shell_exec( "composer dump-autoload" );
+    chdir( $cwd );
 } // end if not exists
 
 require_once "vendor/autoload.php";
@@ -34,7 +39,7 @@ if ( $command == 'version' ) {
 }
 
 if ( $command == "help" ) {
-    $content = FileHelper::read( "rsphp_help" );
+    $content = FileHelper::read( $rsPhpPath . DS . "rsphp_help" );
     RS::printLine( $content );
 }// end if help
 
