@@ -162,13 +162,13 @@ class Config
      */
     private static function _loadDataSources()
     {
-        if ( !array_key_exists( self::$_data, "datasources" ) ) {
+        if ( !array_key_exists( "datasources", self::$_data ) ) {
             return;
         } // end if not exist datasources
-        $_dataSources = self::$_data['dataSources'];
+        $dataSources = self::$_data['dataSources'];
 
-        foreach ( $_dataSources as $ds ) {
-            $_dataSource = new DataSource(
+        foreach ( $dataSources as $ds ) {
+            $dataSource = new DataSource(
                 $ds['connection'],
                 $ds['name'],
                 $ds['type'],
@@ -184,7 +184,7 @@ class Config
                     } else {
                             $default = null;
                     }
-                       $_dataSource->addParam(
+                       $dataSource->addParam(
                            $param['name'],
                            $param['type'],
                            $default
@@ -195,13 +195,13 @@ class Config
             if (isset($ds['filters']) ) {
                      $filters = $ds['filters'];
                 foreach ( $filters as $key => $value ) {
-                    $_dataSource->addFilter(
+                    $dataSource->addFilter(
                         $key,
                         $value
                     );
                 } // end function foreach
             } // end if parameters
-            Db::$_dataSources[$ds['name']] = $dataSource;
+            Db::$dataSources[$ds['name']] = $dataSource;
         } // end foreach datasources
     } // end function _loadDataSources
 } // end class Config
