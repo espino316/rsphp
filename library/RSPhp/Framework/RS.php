@@ -58,11 +58,11 @@ class RS
      */
     static function printLine($text)
     {
-        if ( IS_CLI ) {
-            print_r( $text );
+        if (IS_CLI ) {
+            print_r($text);
             echo '' . PHP_EOL;
         } else {
-            print_r( $text );
+            print_r($text);
             echo '<br />';
         }// end if IS_CLI
     } // end function printLine
@@ -94,51 +94,57 @@ class RS
      *
      * @return Bool
      */
-    static function init( $dir ) {
-
+    static function init( $dir )
+    {
         //  Get the current working directory
-        $cwd = getcwd();
+        //  this script must be in vendor/rsphp/framework/library/RSPhp/Framework
+        $cwd = dirname(dirname(dirname(dirname(__FILE__))));
 
         //  Set the dir
-        if ( $dir == "default" ) {
-            $home = dirname(dirname(dirname(getcwd())));
+        if ($dir == "default" ) {
+            //  this dir is in the actual home,
+            //  it's an ../.. from the rsphp location
+            $home = dirname(dirname(dirname($cwd)));
         } else {
             $home = $dir;
         } // end if default
 
         //  Check if is directory
-        if ( !is_dir( $home ) ) {
-            self::printLine( "Not a directory." );
+        if (!is_dir($home) ) {
+            self::printLine("Not a directory.");
             return;
         } // end if not is dir
+
+        // print_r(array( "cwd"=>$cwd, "home"=>$home ));
+        // return;
 
         //  Create the directory structure:
         //
         //  Create the application directory
         $appPath = "$home/application";
-        if ( DirectoryHelper::exists( $appPath ) ) {
-            self::printLine( "Directory 'application' already exists" );
+        if (DirectoryHelper::exists($appPath) ) {
+            self::printLine("Directory 'application' already exists");
         } else {
-            DirectoryHelper::create( $appPath );
-            self::printLine( "Directory 'application' created" );
+            DirectoryHelper::create($appPath);
+            self::printLine("Directory 'application' created");
         } // end if exists $appPath
 
         //  Create the config directory
         $configPath = "$home/config";
-        if ( DirectoryHelper::exists( $configPath ) ) {
-            self::printLine( "Directory 'config' already exists" );
+        if (DirectoryHelper::exists($configPath) ) {
+            self::printLine("Directory 'config' already exists");
         } else {
-            DirectoryHelper::create( $configPath );
-            self::printLine( "Directory 'config' created" );
+            DirectoryHelper::create($configPath);
+            self::printLine("Directory 'config' created");
         } // end if exists $appPath
 
         //  Create the public directory
         $publicPath = "$home/public";
-        if ( DirectoryHelper::exists( $publicPath ) ) {
-            self::printLine( "Directory 'public' already exists" );
+        if (DirectoryHelper::exists($publicPath) ) {
+            self::printLine("Directory 'public' already exists");
         } else {
-            DirectoryHelper::create( $publicPath );
-            self::printLine( "Directory 'public' created" );
+            DirectoryHelper::create($publicPath);
+            self::printLine("Directory 'public' created");
         } // end if exists $appPath
 
         //  Copy the rsphp_help file
@@ -146,52 +152,52 @@ class RS
             "$cwd/rsphp_help",
             "$home/rsphp_help"
         );
-        self::printLine( "Help file created" );
+        self::printLine("Help file created");
 
         //  Copy the rsphp file
         FileHelper::copy(
             "$cwd/rsphp",
             "$home/rsphp"
         );
-        self::printLine( "Shell file created" );
+        self::printLine("Shell file created");
 
         //  Copy the .htaccess file
         FileHelper::copy(
             "$cwd/.htaccess",
             "$home/.htaccess"
         );
-        self::printLine( ".htaccess file created" );
+        self::printLine(".htaccess file created");
 
         //  Create the controllers directory
-        if ( DirectoryHelper::exists( "$appPath/Controllers" ) ) {
-            self::printLine( "Directory 'application/Controllers' already exists" );
+        if (DirectoryHelper::exists("$appPath/Controllers") ) {
+            self::printLine("Directory 'application/Controllers' already exists");
         } else {
-            DirectoryHelper::create( "$appPath/Controllers" );
-            self::printLine( "Directory 'application/Controllers' created" );
+            DirectoryHelper::create("$appPath/Controllers");
+            self::printLine("Directory 'application/Controllers' created");
         } // end if exists $appPath/Controllers
 
         //  Create the models directory
-        if ( DirectoryHelper::exists( "$appPath/Models" ) ) {
-            self::printLine( "Directory 'application/Models' already exists" );
+        if (DirectoryHelper::exists("$appPath/Models") ) {
+            self::printLine("Directory 'application/Models' already exists");
         } else {
-            DirectoryHelper::create( "$appPath/Models" );
-            self::printLine( "Directory 'application/Models' created" );
+            DirectoryHelper::create("$appPath/Models");
+            self::printLine("Directory 'application/Models' created");
         } // end if exists $appPath/Models
 
         //  Create the libraries directory
-        if ( DirectoryHelper::exists( "$appPath/Libraries" ) ) {
-            self::printLine( "Directory 'application/Libraries' already exists" );
+        if (DirectoryHelper::exists("$appPath/Libraries") ) {
+            self::printLine("Directory 'application/Libraries' already exists");
         } else {
-            DirectoryHelper::create( "$appPath/Libraries" );
-            self::printLine( "Directory 'application/Libraries' created" );
+            DirectoryHelper::create("$appPath/Libraries");
+            self::printLine("Directory 'application/Libraries' created");
         } // end if exists $appPath/Libraries
 
         //  Create the views directory
-        if ( DirectoryHelper::exists( "$appPath/Views" ) ) {
-            self::printLine( "Directory 'application/Views' already exists" );
+        if (DirectoryHelper::exists("$appPath/Views") ) {
+            self::printLine("Directory 'application/Views' already exists");
         } else {
-            DirectoryHelper::create( "$appPath/Views" );
-            self::printLine( "Directory 'application/Views' created" );
+            DirectoryHelper::create("$appPath/Views");
+            self::printLine("Directory 'application/Views' created");
         } // end if exists $appPath/Views
 
         //  Copy the app.json file
@@ -199,40 +205,40 @@ class RS
             "$cwd/config/app.json",
             "$configPath/app.json"
         );
-        self::printLine( "Config app file created" );
+        self::printLine("Config app file created");
 
         //  Encription keys
         $keysFilePath = "$configPath/tdeskeys.php";
 
-        if ( FileHelper::exists( $keysFilePath ) ) {
-            self::printLine( "Encryption keys file already exists" );
+        if (FileHelper::exists($keysFilePath) ) {
+            self::printLine("Encryption keys file already exists");
         } else {
-            self::setEncryptionKeys( $keysFilePath );
-            self::printLine( "Encryption keys file created" );
+            self::setEncryptionKeys($keysFilePath);
+            self::printLine("Encryption keys file created");
         } // end if then else keysFilePath exists
 
         //  Create the css directory
-        if ( DirectoryHelper::exists( "$publicPath/css" ) ) {
-            self::printLine( "Directory 'public/css' already exists" );
+        if (DirectoryHelper::exists("$publicPath/css") ) {
+            self::printLine("Directory 'public/css' already exists");
         } else {
-            DirectoryHelper::create( "$publicPath/css" );
-            self::printLine( "Directory 'public/css' created" );
+            DirectoryHelper::create("$publicPath/css");
+            self::printLine("Directory 'public/css' created");
         } // end if exists $publicPath/css
 
         //  Create the js directory
-        if ( DirectoryHelper::exists( "$publicPath/js" ) ) {
-            self::printLine( "Directory 'public/js' already exists" );
+        if (DirectoryHelper::exists("$publicPath/js") ) {
+            self::printLine("Directory 'public/js' already exists");
         } else {
-            DirectoryHelper::create( "$publicPath/js" );
-            self::printLine( "Directory 'public/js' created" );
+            DirectoryHelper::create("$publicPath/js");
+            self::printLine("Directory 'public/js' created");
         } // end if exists $publicPath/js
 
         //  Create the img directory
-        if ( DirectoryHelper::exists( "$publicPath/img" ) ) {
-            self::printLine( "Directory 'public/img' already exists" );
+        if (DirectoryHelper::exists("$publicPath/img") ) {
+            self::printLine("Directory 'public/img' already exists");
         } else {
-            DirectoryHelper::create( "$publicPath/img" );
-            self::printLine( "Directory 'public/img' created" );
+            DirectoryHelper::create("$publicPath/img");
+            self::printLine("Directory 'public/img' created");
         } // end if exists $publicPath/js
 
         //  Copy the index.php file
@@ -240,38 +246,85 @@ class RS
             "$cwd/public/index.php",
             "$publicPath/index.php"
         );
-        self::printLine( "Index file created" );
+        self::printLine("Index file created");
 
         //  Copy the public/.htaccess file
         FileHelper::copy(
             "$cwd/public/.htaccess",
             "$publicPath/.htaccess"
         );
-        self::printLine( "public/.htaccess file created" );
+        self::printLine("public/.htaccess file created");
 
-        self::printLine( "" );
-        self::printLine( "Success!!  All done :)" );
+        //  Correct composer.json
+        $composerJson = "$home/composer.json";
+        $json = FileHelper::read($composerJson);
+        $json = json_decode($json, true);
+
+        //  If no has autoload
+        if (!isset($json["autoload"]) ) {
+            $json["autoload"] = array(
+                "psr-4" => array(
+                    "Application\\" => "application"
+                )
+            );
+        } // end if not has autoload
+
+        // If autoload, but not psr-4
+        if (!isset($json["autoload"]["psr-4"]) ) {
+            $json["autoload"]["psr-4"] = array(
+                "Application\\" => "application"
+            );
+        } // end if not psr-4
+
+        // If psr-4, but no "Application"
+        if (!isset($json["autoload"]["psr-4"]["Application\\"]) ) {
+            $json["autoload"]["psr-4"]["Application\\"] = "application";
+        } // end if psr-4 but no "Application"
+
+        // If "Application" different than "application"
+        if ($json["autoload"]["psr-4"]["Application\\"] != "application" ) {
+            self::printLine(
+                "Error: composer autoload-psr-4->Application ".
+                " occupied by another library"
+            );
+            self::printLine(
+                "The framework may not function correctly."
+            );
+            return;
+        } // end if "Application different than "application"
+
+        // Here we write the json
+        $json = json_encode( $json, JSON_PRETTY_PRINT );
+        FileHelper::write( $composerJson, $json );
+        self::_dumpAutoload();
+        self::printLine("Composer file updated.");
+
+        self::printLine("");
+        self::printLine("Success!!  All done :)");
 
     } // end function createAppSite
 
     /**
      * List all data connections
+     *
+     * @return void
      */
-    static function listConnections() {
+    static function listConnections()
+    {
         $fileApp = ROOT.DS.'config'.DS.'app.json';
 
-        if ( file_exists( $fileApp ) ) {
-            $app = json_decode( file_get_contents( $fileApp ), true );
+        if (file_exists($fileApp) ) {
+            $app = json_decode(file_get_contents($fileApp), true);
 
-            if ( !isset( $app["dbConnections"] ) ) {
-                self::printLine( "No connections." );
+            if (!isset($app["dbConnections"]) ) {
+                self::printLine("No connections.");
                 return;
             } // end if no connections
 
             $connections = $app["dbConnections"];
 
             foreach ( $connections as $conn ) {
-                self::printLine( "    - " . $conn["name"] );
+                self::printLine("    - " . $conn["name"]);
                 self::printLine(
                     "        - driver: " . $conn["driver"]
                 );
@@ -282,22 +335,25 @@ class RS
                     "        - database: " . $conn["databaseName"]
                 );
 
-                self::printLine( "" );
+                self::printLine("");
             } // end foreach connection
         } // end if file exists
     } // end function connections
 
     /**
      * List all routes
+     *
+     * @return void
      */
-    static function listRoutes() {
+    static function listRoutes()
+    {
         $fileApp = ROOT.DS.'config'.DS.'app.json';
 
-        if ( file_exists( $fileApp ) ) {
-            $app = json_decode( file_get_contents( $fileApp ), true );
+        if (file_exists($fileApp) ) {
+            $app = json_decode(file_get_contents($fileApp), true);
 
-            if ( !isset( $app["routes"] ) ) {
-                self::printLine( "No routes." );
+            if (!isset($app["routes"]) ) {
+                self::printLine("No routes.");
                 return;
             } // end if no connections
 
@@ -311,23 +367,26 @@ class RS
                 $toPrint.= " => ";
                 $toPrint.= $route["newUrl"];
 
-                self::printLine( $toPrint );
-                self::printLine( "" );
+                self::printLine($toPrint);
+                self::printLine("");
             } // end foreach connection
         } // end if file exists
     } // end function connections
 
     /**
      * List all data sources
+     *
+     * @return void
      */
-    static function listDataSources() {
+    static function listDataSources()
+    {
         $fileDataSources = ROOT.DS.'config'.DS.'datasources.json';
 
         if (file_exists($fileDataSources) ) {
             $dataSources = json_decode(file_get_contents($fileDataSources), true);
-            print_r( $dataSources );
+            print_r($dataSources);
             foreach ( $dataSources as $index => $ds ) {
-                self::printLine( "    - " . $ds["name"] );
+                self::printLine("    - " . $ds["name"]);
                 self::printLine(
                     "        - connection: " . $ds["connection"]
                 );
@@ -335,12 +394,12 @@ class RS
                     "        - type: " . $ds["type"]
                 );
 
-                if ( isset( $ds["file"] ) ) {
+                if (isset($ds["file"]) ) {
                     self::printLine(
                         "        - file: " . $ds["file"]
                     );
                 } // end if isset file
-                self::printLine( "" );
+                self::printLine("");
             } // end foreach datasource
         } // end if file exists
     } // end function listDataSources
@@ -350,13 +409,14 @@ class RS
      *
      * @return void
      */
-    static function listControllers() {
-        $files = DirectoryHelper::getFiles( APPPATH . DS . "Controllers" );
+    static function listControllers()
+    {
+        $files = DirectoryHelper::getFiles(APPPATH . DS . "Controllers");
         foreach ( $files as $file ) {
-            $theController = basename( $file );
-            $theController = StringHelper::replace( ".php", "", $theController );
+            $theController = basename($file);
+            $theController = StringHelper::replace(".php", "", $theController);
             $theController = "    - " . $theController;
-            self::printLine( $theController );
+            self::printLine($theController);
         } // end foreach file
     } // end function listControllers
 
@@ -365,26 +425,27 @@ class RS
      *
      * @return void
      */
-    static function listModels() {
-        $files = DirectoryHelper::getFiles( APPPATH . DS . "Models" );
+    static function listModels()
+    {
+        $files = DirectoryHelper::getFiles(APPPATH . DS . "Models");
         foreach ( $files as $file ) {
-            $theModel = basename( $file );
-            $theModel = StringHelper::replace( ".php", "", $theModel );
+            $theModel = basename($file);
+            $theModel = StringHelper::replace(".php", "", $theModel);
             $theModel = "    - " . $theModel;
-            self::printLine( $theModel );
+            self::printLine($theModel);
         } // end foreach file
     } // end function listModels
 
     /**
      * Adds a connection to the configuration
      *
-     * @param String $name          The connection's name
-     * @param String $driver        The type of the datasource
-     * @param String $hostName      The actual query text or file path
-     * @param String $databaseName  Indicates if is a file (default false)
-     * @param String $userName      The user's name
-     * @param String $password      The user's password
-     * @param String|null $port     The database engine port
+     * @param String      $name         The connection's name
+     * @param String      $driver       The type of the datasource
+     * @param String      $hostName     The actual query text or file path
+     * @param String      $databaseName Indicates if is a file (default false)
+     * @param String      $userName     The user's name
+     * @param String      $password     The user's password
+     * @param String|null $port         The database engine port
      *
      * @return void
      */
@@ -401,24 +462,24 @@ class RS
         $indexToRemove = null;
         $removeIndex = false;
 
-        if ( !FileHelper::exists( $configFile ) ) {
+        if (!FileHelper::exists($configFile) ) {
             $json["dbConnections"] = array();
-            $json = json_encode( $json, JSON_PRETTY_PRINT );
-            FileHelper::write( $configFile, $json );
+            $json = json_encode($json, JSON_PRETTY_PRINT);
+            FileHelper::write($configFile, $json);
         } // end if not exists
 
         $connections = array();
-        $appConfig = FileHelper::read( $configFile );
-        $appConfig = json_decode( $appConfig, true );
+        $appConfig = FileHelper::read($configFile);
+        $appConfig = json_decode($appConfig, true);
 
-        if ( isset( $appConfig["dbConnections"] ) ) {
+        if (isset($appConfig["dbConnections"]) ) {
             $connections = $appConfig["dbConnections"];
         } // end if dbConnection exists
 
-        foreach( $connections as $index => $conn ) {
-            if ( $conn["name"] == $name ) {
-                self::printLine( "Data connection " . $name . " already exists" );
-                self::printLine( "Overriding..." );
+        foreach ( $connections as $index => $conn ) {
+            if ($conn["name"] == $name ) {
+                self::printLine("Data connection " . $name . " already exists");
+                self::printLine("Overriding...");
                 $removeIndex = true;
                 $indexToRemove = $index;
             } // end if conn name
@@ -437,14 +498,14 @@ class RS
             "pasword" => $password
         );
 
-        if ( $port ) {
+        if ($port ) {
             $connection["port"] = $port;
         } // end if port
 
         $connections[] = $connection;
         $appConfig["dbConnections"] = $connections;
         $json = json_encode($appConfig, JSON_PRETTY_PRINT);
-        FileHelper::write( $configFile, $json );
+        FileHelper::write($configFile, $json);
 
         return $connection;
     } // end function add connection
@@ -452,11 +513,11 @@ class RS
     /**
      * Adds a datasource to the configuration
      *
-     * @param String $connection    The connection's name
-     * @param String $name          The name of the datasource
-     * @param String $type          The type of the datasource
-     * @param String $text          The actual query text or file path
-     * @param boolean $isFile       Indicates if is a file (default false)
+     * @param String  $connection The connection's name
+     * @param String  $name       The name of the datasource
+     * @param String  $type       The type of the datasource
+     * @param String  $text       The actual query text or file path
+     * @param boolean $isFile     Indicates if is a file (default false)
      *
      * @return void
      */
@@ -491,7 +552,7 @@ class RS
         $dataSource['name'] = $name;
         $dataSource['type'] = $type;
 
-        if ( !$isFile ) {
+        if (!$isFile ) {
             $dataSource["text"] = $text;
         } else {
             $dataSource["file"] = $text;
@@ -506,6 +567,15 @@ class RS
         return $fileDataSources;
     } // end function addDataSource
 
+    /**
+     * Adds a route to the configuration
+     *
+     * @param String $method The http method
+     * @param String $url    The original url
+     * @param String $newUrl The new url
+     *
+     * @return Array
+     */
     static function addRoute(
         $method,
         $url,
@@ -515,27 +585,26 @@ class RS
         $indexToRemove = null;
         $removeIndex = false;
 
-        if ( !FileHelper::exists( $configFile ) ) {
+        if (!FileHelper::exists($configFile) ) {
             $json["dbConnections"] = array();
-            $json = json_encode( $json, JSON_PRETTY_PRINT );
-            FileHelper::write( $configFile, $json );
+            $json = json_encode($json, JSON_PRETTY_PRINT);
+            FileHelper::write($configFile, $json);
         } // end if not exists
 
         $routes = array();
-        $appConfig = FileHelper::read( $configFile );
-        $appConfig = json_decode( $appConfig, true );
+        $appConfig = FileHelper::read($configFile);
+        $appConfig = json_decode($appConfig, true);
 
-        if ( isset( $appConfig["routes"] ) ) {
+        if (isset($appConfig["routes"]) ) {
             $routes = $appConfig["routes"];
         } // end if dbConnection exists
 
-        foreach( $routes as $index => $route ) {
-            if (
-                $route["url"] == $url &&
-                $route["method"] == $method
+        foreach ( $routes as $index => $route ) {
+            if ($route["url"] == $url
+                && $route["method"] == $method
             ) {
-                self::printLine( "Route " . $url . " already exists" );
-                self::printLine( "Overriding..." );
+                self::printLine("Route " . $url . " already exists");
+                self::printLine("Overriding...");
                 $removeIndex = true;
                 $indexToRemove = $index;
             } // end if conn name
@@ -554,7 +623,7 @@ class RS
         $routes[] = $route;
         $appConfig["routes"] = $routes;
         $json = json_encode($appConfig, JSON_PRETTY_PRINT);
-        FileHelper::write( $configFile, $json );
+        FileHelper::write($configFile, $json);
 
         return $route;
     } // end function addRoute
@@ -575,10 +644,10 @@ class RS
 
         //  Loop the args, form the parameters and the command
         $cont = 0;
-        foreach( $args as $arg ) {
-            if ( StringHelper::startsWith( $arg, "--" ) ) {
+        foreach ( $args as $arg ) {
+            if (StringHelper::startsWith($arg, "--") ) {
                 $commandParams[] = $arg;
-            } elseif ( $cont > 0 ) {
+            } elseif ($cont > 0 ) {
                 $command[] = $arg;
             } // end if
 
@@ -587,14 +656,14 @@ class RS
         } // end foreach
 
         //  Set the command
-        $command = implode( " ", $command );
+        $command = implode(" ", $command);
 
         //  Loop the command parameters
-        foreach( $commandParams as $commandParam ) {
-            $paramLine = StringHelper::replace( "--", "", $commandParam );
-            $parts = explode( "=", $paramLine, 2 );
+        foreach ( $commandParams as $commandParam ) {
+            $paramLine = StringHelper::replace("--", "", $commandParam);
+            $parts = explode("=", $paramLine, 2);
             $value = "";
-            if ( isset( $parts[1] ) ) {
+            if (isset($parts[1]) ) {
                 $value = $parts[1];
             } // end if parts 1
             $params[ $parts[0] ] = $value;
@@ -839,22 +908,20 @@ class RS
         $controller .= 'Controller';
         $defaultController .= 'Controller';
 
-        if (
-            (int)method_exists(
-                "\\Application\\Controllers\\".$controller,
-                $action
-            )
+        if ((int)method_exists(
+            "\\Application\\Controllers\\".$controller,
+            $action
+        )
         ) {
             $dispatch = "Application\\Controllers\\$controller";
             $dispatch = new $dispatch();
             call_user_func_array(array($dispatch,$action), $queryString);
         } else {
             $action = $controllerName;
-            if (
-                (int)method_exists(
-                    "\\Application\\Controllers\\".$defaultController,
-                    $action
-                )
+            if ((int)method_exists(
+                "\\Application\\Controllers\\".$defaultController,
+                $action
+            )
             ) {
                 $dispatch = "Application\\Controllers\\$defaultController";
                 $dispatch = new $dispatch();
@@ -865,10 +932,9 @@ class RS
                     ),
                     $queryString
                 );
-            } else if (
-                file_exists(
-                    ROOT.DS.$action
-                )
+            } else if (file_exists(
+                ROOT.DS.$action
+            )
             ) {
                  self::serveFile(ROOT.DS.$action);
             } else {
@@ -915,7 +981,7 @@ class RS
     static function createController( $name, $description )
     {
 
-        $ucName = ucwords( $name );
+        $ucName = ucwords($name);
         $controllerName = $ucName.'Controller';
         $filename = $controllerName.".php";
         $filename = ROOT.DS.'application'.DS.'controllers'.DS.$filename;
@@ -948,8 +1014,20 @@ class $controllerName extends Controller
 } // end class $controllerName";
 
         file_put_contents($filename, $template);
+        self::_dumpAutoload();
         return $filename;
     } // end function createController
+
+    /**
+     * Composer dump autoload
+     *
+     * @return void
+     */
+    private static function _dumpAutoload()
+    {
+        $output = shell_exec("composer dump-autoload");
+        self::printLine($output);
+    } // end private function _dumpAutoload
 
     /**
      * Remove all files and directories in /application
@@ -1141,61 +1219,68 @@ class $controllerName extends Controller
     {
         try {
             $classDefinition = '<?php
-      class @tableNameModel extends Model {
 
-      @publicProperties
+namespace Application\Controllers;
 
-        /**
-         * Returns an instance of ActorModel
-         * @param long $@id
-         */
-        function load($@id) {
+use RSPhp\Framework\Controller;
 
-          $result =
-            parent::$db->from($this->getTableName())
-            ->where("@id", $@id)
-            ->first();
+/**
+ * Entity model for @tableNameModel
+ */
+class @tableNameModel extends Model {
 
-      @loadProperties
+    @publicProperties
 
-        } // end function load
+    /**
+     * Returns an instance of ActorModel
+     * @param long $@id
+     */
+    public function load($@id) {
 
-        /**
-         * Save the model to the database table
-         * @param string $forceInsert
-         */
-        function save($forceInsert = FALSE) {
+        $result =
+            parent::$db->from($this->getTableName())->
+            where("@id", $@id)->
+            first();
 
-          $params = array(
+        @loadProperties
+
+    } // end function load
+
+    /**
+     * Save the model to the database table
+     * @param string $forceInsert
+     */
+    function save($forceInsert = FALSE) {
+
+        $params = array(
             @saveProperties
-          );
+        );
 
-          $where = array(
-            \'@id\' => $this->@id
-          );
+        $where = array(
+            "@id" => $this->@id
+        );
 
-          if ($forceInsert) {
+        if ($forceInsert) {
             parent::$db->insert(
-              $this->getTableName(),
-              $params
+                $this->getTableName(),
+                $params
             );
-          } else {
+        } else {
             parent::$db->upsert(
-              $this->getTableName(),
-              $params,
-              $where
+                $this->getTableName(),
+                $params,
+                $where
             );
-          } // end if then else
+        } // end if then else
 
-          if ( $this->@id === null ) {
+        if ( $this->@id === null ) {
             $this->@id =
-              parent::$db->from($this->getTableName())
-              ->where($params)
-              ->max("@id");
-          }
-        } // end function save
-
-      } // end class @tableNameModel';
+                parent::$db->from($this->getTableName())->
+                where($params)->
+                max("@id");
+        }
+    } // end function save
+} // end class @tableNameModel';
 
             if (!isset(DB::$connections) ) {
                  throw new Exception("No connections are set up", 1);
@@ -1264,11 +1349,12 @@ class $controllerName extends Controller
 
             unlink($filename);
             file_put_contents($filename, $text);
+            self::_dumpAutoload();
             self::printLine("Model for table $tableName created in $filename.");
             self::printLine("");
 
         } catch( Exception $ex ) {
-            print_r($ex);
+            self::printLine($ex);
         } // end try catch
     } // end function createModel
 
