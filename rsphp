@@ -17,14 +17,14 @@
 $cwd = getcwd();
 $rsPhpPath = dirname( __FILE__ );
 
-if ( !file_exists( "vendor/autoload.php" ) ) {
+if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
     chdir( $rsPhpPath );
     shell_exec( "composer dump-autoload" );
     chdir( $cwd );
 } // end if not exists
 
-require_once "vendor/autoload.php";
-require_once "public/index.php";
+require_once "$rsPhpPath/vendor/autoload.php";
+require_once "$rsPhpPath/public/index.php";
 
 use RSPhp\Framework\RS;
 use RSPhp\Framework\FileHelper;
