@@ -362,7 +362,7 @@ class View
 
             if ($isFragment ) {
                 $body = $dom->getElementsByTagName('body');
-                $body = $body[0];
+                $body = $body->item(0);
                 $html = self::domInnerHTML($body);
             } else {
                 $html = @$dom->saveHTML();

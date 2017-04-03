@@ -133,6 +133,7 @@ class Config
         } // if isset dbConnections
 
         //	Routes
+        $routes = array();
         if (isset($config["routes"]) ) {
             foreach ( $config['routes'] as $route ) {
                 $routes[]
