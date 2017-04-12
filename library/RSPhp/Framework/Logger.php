@@ -30,6 +30,8 @@ namespace RSPhp\Framework;
  */
 class Logger
 {
+    static $folder = ROOT.DS.'logs'.DS;
+
     /**
      * Clear the log files
      *
@@ -53,58 +55,78 @@ class Logger
     } // end function clearLogs
 
     /**
-     * Writes to the sql log
+     * Writes to the specific log
      *
+     * @param string $log The log to write
      * @param mixed[] $text The text or array to log
      *
      * @return void
      */
-    static function debugSql($text)
+    private static function writeLog( $log, $text)
     {
         try {
-            $filename = ROOT . DS . 'tmp' . DS . 'logs' . DS . 'debugSql.txt';
-            if (is_writable($filename) ) {
+            $filename = self::$folder . $log . '_log';
+            if (is_writable( self::$folder ) ) {
                 if (is_array($text) ) {
                     $text = print_r($text, true);
                 }
-                $text = date('Y-m-d H:i:s') . '		' . $text . '
-	';
+                $text = date('Y-m-d H:i:s') . "\t" . $text . "\n";
                 file_put_contents($filename, $text, FILE_APPEND | LOCK_EX);
             } else {
-                error_log($text);
+                error_log( print_r( $text, true ) );
             } // end if then else is writable
         } catch (Exception $ex) {
-            error_log($text);
+            error_log( print_r( $text, true ) );
             error_log($ex->getMessage());
         } // end try catch
     } // end function debugSql
 
     /**
-     * Writes to the log
+     * Writes to the debug log
      *
      * @param mixed[] $text The text|array to log
      *
      * @return void
      */
-    static function debug($text)
+    static function debug( $text )
     {
-        try {
-            $filename = ROOT . DS . 'tmp' . DS . 'logs' . DS . 'debug.txt';
+        self::writeLog( "debug", $text );
+    } // end function debug
 
-            if (is_writable($filename) ) {
-                if (is_array($text) || is_object($text) ) {
-                    $text = print_r($text, true);
-                }
-                $text = date('Y-m-d H:i:s') . '		' . $text . '
-	';
-                file_put_contents($filename, $text, FILE_APPEND | LOCK_EX);
-            } else {
-                error_log($text);
-            } // end if then else is writable
-        } catch (Exception $ex) {
-            error_log($text);
-            error_log($ex->getMessage());
-        } // end try catch
+    /**
+     * Writes to the info log
+     *
+     * @param mixed[] $text The text|array to log
+     *
+     * @return void
+     */
+    static function info( $text )
+    {
+        self::writeLog( "info", $text );
+    } // end function info
+
+    /**
+     * Writes to the error log
+     *
+     * @param mixed[] $text The text|array to log
+     *
+     * @return void
+     */
+    static function error( $text )
+    {
+        self::writeLog( "error", $text );
+    } // end function debug
+
+    /**
+     * Writes to the sql log
+     *
+     * @param mixed[] $text The text|array to log
+     *
+     * @return void
+     */
+    static function sql( $text )
+    {
+        self::writeLog( "sql", $text );
     } // end function debug
 
     /**
@@ -112,20 +134,10 @@ class Logger
      *
      * @return void
      */
-    static function showDebug()
+    static function show( $log )
     {
-        $filename = ROOT . DS . 'tmp' . DS . 'logs' . DS . 'debug.txt';
+        $filename = $folder.$log."_log";
         echo file_get_contents($filename);
     } // end function showDebug
 
-    /**
-     * Prints the sql log content
-     *
-     * @return void
-     */
-    static function showDebugSql()
-    {
-        $filename = ROOT . DS . 'tmp' . DS . 'logs' . DS . 'debugSql.txt';
-        echo file_get_contents($filename);
-    } // end function showDebugSql
 } // end class Logger

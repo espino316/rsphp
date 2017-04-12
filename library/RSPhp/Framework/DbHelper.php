@@ -352,8 +352,8 @@ class DbHelper
 
         //	If logSql, then log Sql
         if (App::get('logSql') ) {
-            Logger::debugSql($sql);
-            Logger::debugSql($queryParams);
+            Logger::sql($sql);
+            Logger::sql($queryParams);
         } // end if App::get('logSql')
 
         //	Execute statement
@@ -435,8 +435,8 @@ class DbHelper
 
         //	If logSql, then log Sql
         if (App::get('logSql') ) {
-            Logger::debugSql($sql);
-            Logger::debugSql($queryParams);
+            Logger::sql($sql);
+            Logger::sql($queryParams);
         } // end if App::get('logSql')
 
         //	Execute statement
@@ -597,8 +597,8 @@ class DbHelper
 
         //	If logSql, then log Sql
         if (App::get('logSql') ) {
-            Logger::debugSql($sql);
-            Logger::debugSql($queryParams);
+            Logger::sql($sql);
+            Logger::sql($queryParams);
         } // end if App::get('logSql')
 
         $statement->execute($queryParams);
@@ -681,8 +681,8 @@ class DbHelper
 
         //	If logSql, then log Sql
         if (App::get('logSql') ) {
-            Logger::debugSql($sql);
-            Logger::debugSql($queryParams);
+            Logger::sql($sql);
+            Logger::sql($queryParams);
         } // end if App::get('logSql')
 
         //	Desicion if params
@@ -756,8 +756,8 @@ class DbHelper
 
         //	If logSql, then log Sql
         if (App::get('logSql') ) {
-            Logger::debugSql($sql);
-            Logger::debugSql($queryParams);
+            Logger::sql($sql);
+            Logger::sql($queryParams);
         } // end if App::get('logSql')
 
         //	Desicion if params
@@ -826,8 +826,8 @@ class DbHelper
 
         //	If logSql, then log Sql
         if (App::get('logSql') ) {
-            Logger::debugSql($sql);
-            Logger::debugSql($queryParams);
+            Logger::sql($sql);
+            Logger::sql($queryParams);
         } // end if App::get('logSql')
 
         //	Prepare
@@ -876,8 +876,8 @@ class DbHelper
 
         //	If logSql, then log Sql
         if (App::get('logSql') ) {
-            Logger::debugSql($sql);
-            Logger::debugSql($queryParams);
+            Logger::sql($sql);
+            Logger::sql($queryParams);
         } // end if App::get('logSql')
 
         //	Prepare

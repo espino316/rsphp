@@ -147,6 +147,15 @@ class RS
             self::printLine("Directory 'public' created");
         } // end if exists $appPath
 
+        //  Create the tmp directory
+        $logsPath = "$home/logs";
+        if (DirectoryHelper::exists($logsPath) ) {
+            self::printLine("Directory 'logs' already exists");
+        } else {
+            DirectoryHelper::create($logsPath);
+            self::printLine("Directory 'logs' created");
+        } // end if exists $logsPath
+
         //  Copy the rsphp_help file
         FileHelper::copy(
             "$cwd/rsphp_help",
