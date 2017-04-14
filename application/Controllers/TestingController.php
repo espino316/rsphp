@@ -3,6 +3,7 @@
 namespace Application\Controllers;
 
 use RSPhp\Framework\Controller;
+use RSPhp\Framework\View;
 
 /**
  * Controller for testing

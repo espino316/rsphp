@@ -131,7 +131,7 @@ class Input
         } // end if $name
 
         if (!preg_match("/(\S*)\.[a-z]{3,4}/", $name) ) {
-            $ext = FileHelper::getExtension($file['name']);
+            $ext = File::getExtension($file['name']);
             $name = $name.'.'.$ext;
         } // end not has extension
 
@@ -165,8 +165,8 @@ class Input
             } // end MIME TYPES
         } // end if conditions
 
-        if (FileHelper::exists($fileNameDestination) ) {
-            FileHelper::delete($fileNameDestination);
+        if (File::exists($fileNameDestination) ) {
+            File::delete($fileNameDestination);
         } // end if exists, delete
 
         if (!move_uploaded_file($file['tmp_name'], $fileNameDestination) ) {

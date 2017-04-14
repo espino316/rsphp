@@ -3,9 +3,9 @@
 namespace RSPhp\Framework;
 
 use PhpUnit\Framework\TestCase;
-use RSPhp\Framework\DateHelper;
+use RSPhp\Framework\Date;
 
-class DateHelperTest extends TestCase {
+class DateTest extends TestCase {
 
     public function testDateDiff()
     {
@@ -14,7 +14,7 @@ class DateHelperTest extends TestCase {
 
         $this->assertEquals(
             round( 2.9172745075671, 2 ),
-            round( DateHelper::diff( 'y', $date1, $date2 ), 2 )
+            round( Date::diff( 'y', $date1, $date2 ), 2 )
         );
     } // end function testDateDiff
 
@@ -34,17 +34,17 @@ class DateHelperTest extends TestCase {
         switch ( $type ) {
             case 'y':
                 $this->assertEquals(
-                    DateHelper::addYears( $date, $increment ),
+                    Date::addYears( $date, $increment ),
                     $expected
                 );
             break;
             case 'm':
                 $this->assertEquals(
-                    DateHelper::addMonths( $date, $increment ),
+                    Date::addMonths( $date, $increment ),
                     $expected
                 );
             break;
         } // end switch
     } // end function testAddX
 
-} // end class DateHelperTest
+} // end class DateTest

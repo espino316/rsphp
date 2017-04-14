@@ -1,10 +1,10 @@
 <?php
 /**
- * UriHelper.php
+ * Uri.php
  *
  * PHP Version 5
  *
- * UriHelper File Doc Comment
+ * Uri File Doc Comment
  *
  * @category  FrameworkCore
  * @package   RSPhp\Framework
@@ -28,7 +28,7 @@ namespace RSPhp\Framework;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class UriHelper
+class Uri
 {
 
     protected static $segments;
@@ -204,7 +204,7 @@ class UriHelper
      */
     static function getTrackInfo()
     {
-         $info['time'] = '"'.DateHelper::now().'"';
+         $info['time'] = '"'.Date::now().'"';
          $info['ip'] = '"'.determineIP().'"';;
          $info['url'] = '""';
          $info['referer'] = '""';
@@ -241,4 +241,4 @@ class UriHelper
 
          return $info;
     } // end getTrackInfo
-} // end class UriHelper
+} // end class Uri

@@ -139,7 +139,7 @@ class View
 
             if ($data != null ) {
                 foreach ( array_keys($data) as $itemKey ) {
-                    if (StringHelper::contains($itemKey, "$") ) {
+                    if (String::contains($itemKey, "$") ) {
                         if (is_array($data[$itemKey]) ) {
                             $data[$itemKey] 
                                 = self::_convertToObjects(
@@ -182,7 +182,7 @@ class View
                 } // end foreach
             } // end if data
             $view = self::dataBind($view, $data);
-            $view = StringHelper::specialCharsToHTML($view);
+            $view = String::specialCharsToHTML($view);
             return $view;
         } else {
             throw new Exception("View $filePath does not exists.");
@@ -218,7 +218,7 @@ class View
 
         if ($data != null ) {
             foreach ( array_keys($data) as $itemKey ) {
-                if (StringHelper::contains($itemKey, "$") ) {
+                if (String::contains($itemKey, "$") ) {
                     if (is_object($data[$itemKey]) ) {
 
                         $properties = get_object_vars($data[$itemKey]);
@@ -285,7 +285,7 @@ class View
 
                     $viewName = $item->getAttribute('data-view');
 
-                    if (StringHelper::contains($viewName, '$') ) {
+                    if (String::contains($viewName, '$') ) {
                         if (isset($data[$viewName]) ) {
                             $viewName = $data[$viewName];
                         } // end if is set data [ viewName ]
@@ -313,7 +313,7 @@ class View
 
         /*	Here begins data-bind attibute */
         $isFragment = true;
-        if (StringHelper::contains($html, '<html') ) {
+        if (String::contains($html, '<html') ) {
             $isFragment = false;
         }
 
@@ -340,10 +340,10 @@ class View
                               $replacement['replace']
                                   = $item->ownerDocument->saveHTML($item);
                               $toReplace[] = $replacement;
-                    } else if (StringHelper::contains($name, "[") ) {
+                    } else if (String::contains($name, "[") ) {
                                  $arr = explode("[", $name);
                                  $key1 = $arr[0];
-                                 $key2 = StringHelper::replace("]", "", $arr[1]);
+                                 $key2 = String::replace("]", "", $arr[1]);
                         if (isset($data[$key1][$key2]) ) {
                             $replacement = null;
                             $replacement['search']
@@ -439,7 +439,7 @@ class View
     {
 
         $isFragment = true;
-        if (StringHelper::contains($html, '<html') ) {
+        if (String::contains($html, '<html') ) {
             $isFragment = false;
         }
 
@@ -462,11 +462,9 @@ class View
                 && $item->hasAttribute('data-value-field')
             ) {
                 $data
-                    = Db::getResultFromDataSource(
-                        $item->getAttribute(
-                            'data-source'
-                        )
-                    );
+                    = Db::getDataSource(
+                        $item->getAttribute( "data-source" )
+                    )->getResultSet();
 
                 $value = '';
                 if ($item->hasAttribute('data-bind') ) {
@@ -481,7 +479,7 @@ class View
 
                 //	Get the SELECT
                 $select
-                    = HtmlHelper::formSelect(
+                    = Html::formSelect(
                         $item->getAttribute('id'),
                         $data,
                         $item->getAttribute('data-value-field'),
@@ -550,7 +548,7 @@ class View
     {
 
         $isFragment = true;
-        if (StringHelper::contains($html, '<html') ) {
+        if (String::contains($html, '<html') ) {
             $isFragment = false;
         }
 
@@ -584,7 +582,7 @@ class View
                         'data-current-page-segment',
                         null
                     );
-                $currentPage = UriHelper::getSegment($currentPageSegment);
+                $currentPage = Uri::getSegment($currentPageSegment);
                 $paginationUrl
                     = self::domGetAttribute($item, 'data-pagination-url', null);
 
@@ -598,11 +596,8 @@ class View
                 //	Get the data
                 $dsName = $item->getAttribute('data-source');
                 $result
-                    = Db::getResultFromDataSource(
-                        $dsName,
-                        null,
-                        $pageItems,
-                        $currentPage
+                    = Db::getDataSource( $dsName )->getResultSet(
+                        null, $pageItems, $currentPage
                     );
 
                 if ($pagination ) {
@@ -934,10 +929,7 @@ class View
                                         null
                                     );
                                 $selectData
-                                    = Db::getResultFromDataSource(
-                                        $dsName,
-                                        null
-                                    );
+                                    = Db::getDataSource( $dsName )->getResultSet();
 
                                 if ($selectData ) {
 
@@ -1009,7 +1001,7 @@ class View
 
                 //	Get the SELECT
                 $dataTable
-                    = HtmlHelper::dataTable(
+                    = Html::dataTable(
                         $data,
                         $options,
                         true
@@ -1091,7 +1083,7 @@ class View
     {
         $dom = new DOMDocument();
         $prefix = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        if (!StringHelper::startsWith($html, $prefix) ) {
+        if (!String::startsWith($html, $prefix) ) {
             $html = $prefix."\n".$html;
         }
         @$dom->loadHTML($html);

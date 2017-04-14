@@ -1,10 +1,10 @@
 <?php
 /**
- * FileHelper.php
+ * File.php
  *
  * PHP Version 5
  *
- * FileHelper File Doc Comment
+ * File File Doc Comment
  *
  * @category  FrameworkCore
  * @package   RSPhp\Framework
@@ -28,7 +28,7 @@ namespace RSPhp\Framework;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class FileHelper
+class File
 {
 
     /**
@@ -148,4 +148,4 @@ class FileHelper
         readfile($file);
     } // end function writeToResponse
 
-} // end class File Helper
+} // end class File

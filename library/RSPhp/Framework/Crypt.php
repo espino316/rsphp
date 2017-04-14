@@ -1,10 +1,10 @@
 <?php
 /**
- * CryptHelper.php
+ * Crypt.php
  *
  * PHP Version 5
  *
- * CryptHelper File Doc Comment
+ * Crypt File Doc Comment
  *
  * @category  FrameworkCore
  * @package   RSPhp\Framework
@@ -28,14 +28,14 @@ namespace RSPhp\Framework;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class CryptHelper
+class Crypt
 {
 
     protected $tripleDesKey;
     protected $tripleDesVector;
 
     /**
-     * Creates an instance of a CryptHelper class
+     * Creates an instance of a Crypt class
      *
      * @return void
      */
@@ -112,4 +112,4 @@ class CryptHelper
         mcrypt_generic_deinit($cipher);
         return $result;
     } // end function tripleDesDecrypt
-} // end class CryptHelper
+} // end class Crypt

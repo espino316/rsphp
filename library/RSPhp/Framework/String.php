@@ -1,6 +1,6 @@
 <?php
 /**
- * StringHelper.php
+ * String.php
  *
  * PHP Version 5
  *
@@ -28,7 +28,7 @@ namespace RSPhp\Framework;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class StringHelper
+class String
 {
     /**
      * Determines is the string is upper

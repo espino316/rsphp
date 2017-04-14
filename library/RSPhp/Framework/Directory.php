@@ -1,10 +1,10 @@
 <?php
 /**
- * DirectoryHelper.php
+ * Directory.php
  *
  * PHP Version 5
  *
- * DirectoryHelper File Doc Comment
+ * Directory File Doc Comment
  *
  * @category  FrameworkCore
  * @package   RSPhp\Framework
@@ -30,7 +30,7 @@ use Exception;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class DirectoryHelper
+class Directory
 {
 
     /**
@@ -75,7 +75,7 @@ class DirectoryHelper
                 if ($extensions ) {
                     $continue = 1;
                     foreach ( $extensions as $ext ) {
-                        if (StringHelper::endsWith($file, $ext) ) {
+                        if (String::endsWith($file, $ext) ) {
                             $continue = 0;
                             continue;
                         } // end if
@@ -194,4 +194,4 @@ class DirectoryHelper
 
         return $result;
     } // end function getDirectories
-} // end class DirectoryHelper
+} // end class Directory

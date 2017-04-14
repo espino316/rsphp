@@ -1,10 +1,10 @@
 <?php
 /**
- * DateHelper.php
+ * Date.php
  *
  * PHP Version 5
  *
- * DateHelper File Doc Comment
+ * Date File Doc Comment
  *
  * @category  FrameworkCore
  * @package   RSPhp\Framework
@@ -31,7 +31,7 @@ use DateInterval;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class DateHelper
+class Date
 {
     /**
      * Returns a string representing the current date
@@ -228,4 +228,4 @@ class DateHelper
 
         return abs($result);
     } // end function diff
-} // end class DateHelper
+} // end class Date

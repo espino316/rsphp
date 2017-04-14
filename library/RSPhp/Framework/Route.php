@@ -66,7 +66,7 @@ class Route
     function match( $url )
     {
 
-        if (StringHelper::contains($this->uri, ":") ) {
+        if (String::contains($this->uri, ":") ) {
             $segments = explode("/", $this->uri);
             $newSegments = explode("/", $this->newUri);
             $urlSegments = explode("/", $url);
@@ -80,7 +80,7 @@ class Route
                 if (!empty($pattern) ) {
                     $pattern.="\\/";
                 }
-                if (StringHelper::contains($value, ":") ) {
+                if (String::contains($value, ":") ) {
                     $pattern .= "(\d+)";
                 } else {
                     $pattern .= $value;
@@ -92,7 +92,7 @@ class Route
                 $patterns = array();
                 $replacements = array();
                 foreach ( $segments as $key => $value ) {
-                    if (StringHelper::contains($value, ":") ) {
+                    if (String::contains($value, ":") ) {
                         $segments[$key] = $urlSegments[$key];
                         $patterns[] = "/$value/";
                         $replacements[] = $urlSegments[$key];

@@ -55,7 +55,7 @@ class Session
 
                 //	Decrypt the cookie
                 //	and set the array
-                $crypt = new CryptHelper();
+                $crypt = new Crypt();
                 self::$_data
                     = json_decode(
                         $crypt->tripleDesDecrypt(
@@ -71,7 +71,7 @@ class Session
             } // end else
         } else {
             //	There is session, then decrypt session and pass to array
-            $crypt = new CryptHelper();
+            $crypt = new Crypt();
             self::$_data
                 = json_decode(
                     $crypt->tripleDesDecrypt(
@@ -106,7 +106,7 @@ class Session
         self::$_data[$itemKey] = $itemValue;
         self::$_data['clear'] = false;
         //	Crypt
-        $crypt = new CryptHelper();
+        $crypt = new Crypt();
         $str = json_encode(self::$_data);
         $val = $crypt->tripleDesEncrypt(
             json_encode(self::$_data)
@@ -166,7 +166,7 @@ class Session
         //	Set the item
         self::$_data['clear'] = true;
         //	Crypt
-        $crypt = new CryptHelper();
+        $crypt = new Crypt();
         $str = json_encode(self::$_data);
         $val = $crypt->tripleDesEncrypt(
             json_encode(self::$_data)
@@ -189,7 +189,7 @@ class Session
     static function getRaw()
     {
         //	Crypt
-        $crypt = new CryptHelper();
+        $crypt = new Crypt();
         $row['name'] = 'PHPSESSID';
         $row['value'] = session_id();
         $result[] = $row;
@@ -212,7 +212,7 @@ class Session
     static function setRaw( $rawData )
     {
         $_SESSION[self::$cookieName] = $rawData;
-        $crypt = new CryptHelper();
+        $crypt = new Crypt();
         self::$_data
             = json_decode(
                 $crypt->tripleDesDecrypt(

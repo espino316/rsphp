@@ -16,8 +16,8 @@
 
 namespace RSPhp\Framework;
 
-use RSPhp\Framework\DirectoryHelper;
-
+use RSPhp\Framework\Directory;
+use RSPhp\Framework\DbConnection;
 /**
  * Config Class Doc Comment
  *
@@ -42,7 +42,7 @@ class Config
     {
 
         $folder = ROOT.DS.'config';
-        $files = DirectoryHelper::getFiles($folder, array( '.json' ));
+        $files = Directory::getFiles($folder, array( '.json' ));
         foreach ( $files as $file ) {
             self::_loadConfig($file);
         } // end foreach
@@ -127,7 +127,10 @@ class Config
         //	Data Connections
         if (isset($config["dbConnections"]) ) {
             foreach ( $config['dbConnections'] as $dbConn ) {
-                Db::$connections[$dbConn['name']] = new DbConnection($dbConn);
+                Db::setConnection(
+                    $dbConn["name"],
+                    new DbConnection( $dbConn )
+                );
                 //print_r( Db:$connections['default'] );
             } // end foreach
         } // if isset dbConnections
@@ -202,7 +205,7 @@ class Config
                     );
                 } // end function foreach
             } // end if parameters
-            Db::$dataSources[$ds['name']] = $dataSource;
+            Db::setDataSource( $db["name"], $dataSource );
         } // end foreach datasources
     } // end function _loadDataSources
 } // end class Config

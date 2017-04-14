@@ -1,15 +1,15 @@
 <?php
 use PHPUnit\Framework\TestCase;
-use RSPhp\Framework\DbHelper;
+use RSPhp\Framework\Db;
 
-class DbHelperTest extends TestCase
+class DbTest extends TestCase
 {
     /**
      * @expectedException invalidArgumentException
      */
     public function testConnectionNoArguments()
     {
-        $db = new DbHelper();
+        $db = new Db();
     } // end public function testQuery
 
     /**
@@ -17,7 +17,7 @@ class DbHelperTest extends TestCase
      */
     public function testConnectionIncompleteArguments()
     {
-        $db = new DbHelper(
+        $db = new Db(
             array(
                 "driver" => "pgsql",
                 "hostName" => "localhost",
@@ -32,7 +32,7 @@ class DbHelperTest extends TestCase
 
     public function testConnectionArguments()
     {
-        $db = new DbHelper(
+        $db = new Db(
             array(
                 "driver" => "pgsql",
                 "hostName" => "localhost",
@@ -47,7 +47,7 @@ class DbHelperTest extends TestCase
 
     public function testConnectionArgumentsNowhere()
     {
-        $db = new DbHelper(
+        $db = new Db(
             array(
                 "driver" => "pgsql",
                 "hostName" => "192.168.1.1",
@@ -83,4 +83,4 @@ class DbHelperTest extends TestCase
             count( $result ) >= 1
         );
     } // end function testConnectServerOff
-} // end class DbHelperTest
+} // end class DbTest

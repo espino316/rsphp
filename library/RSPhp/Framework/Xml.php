@@ -1,6 +1,6 @@
 <?php
 /**
- * XmlHelper.php
+ * Xml.php
  *
  * PHP Version 5
  *
@@ -28,7 +28,7 @@ namespace RSPhp\Framework;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class XmlHelper
+class Xml
 {
 
     /**
@@ -79,4 +79,4 @@ class XmlHelper
             } // end if then else is numeric
         } // end if then else is array
     } // end function arrayToXml
-} // end class XmlHelper
+} // end class Xml

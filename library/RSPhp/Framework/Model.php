@@ -33,7 +33,7 @@ class Model
 
     /**
      *
-     * @var DbHelper
+     * @var Db
      */
     protected static $db;
 
@@ -46,7 +46,7 @@ class Model
      */
     function __construct($dbConnName = null)
     {
-        self::$db = new DbHelper($dbConnName);
+        self::$db = new Db($dbConnName);
     } // end function __construct
 
     /**
@@ -154,7 +154,7 @@ class Model
      * @param String or array $columnName The column name
      * @param String          $value      The column value
      *
-     * @return DbHelper
+     * @return Db
      */
     static function where($columnName, $value = null)
     {
@@ -168,7 +168,7 @@ class Model
      * @param String $columnName The column name
      * @param Object $value      The column value
      *
-     * @return DbHelper
+     * @return Db
      */
     static function orWhere($columnName, $value)
     {
@@ -182,7 +182,7 @@ class Model
      * @param String      $column  The column name
      * @param String|null $ascDesc ASC|DESC|null
      *
-     * @return DbHelper
+     * @return Db
      */
     static function orderBy($column, $ascDesc = null)
     {
@@ -196,7 +196,7 @@ class Model
      * @param Int      $limit   The number of rows to return
      * @param Int|null $startAt The initial row
      *
-     * @return DbHelper
+     * @return Db
      */
     static function top($limit, $startAt = null)
     {
@@ -212,7 +212,7 @@ class Model
     protected static function setDB()
     {
         if (self::$db === null ) {
-            self::$db = new DbHelper();
+            self::$db = new Db();
         }
         self::$db->from(self::tableName());
         self::$db->setReturnClass(get_called_class());

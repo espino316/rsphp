@@ -49,7 +49,7 @@ class Controller
      */
     function xmlResponse( $data )
     {
-        XmlHelper::xmlResponse($data);
+        Xml::xmlResponse($data);
     } // end function xmlResponse
 
     /**
@@ -63,11 +63,11 @@ class Controller
     {
 
         $output = ob_get_contents();
-        if (StringHelper::contains($output, '<b>Notice</b>: ') ) {
+        if (String::contains($output, '<b>Notice</b>: ') ) {
             ob_end_clean();
             $data = array();
             $data['error'] = "Notice error." . $output;
-        } else if (StringHelper::contains($output, '<b>Warning</b>: ') ) {
+        } else if (String::contains($output, '<b>Warning</b>: ') ) {
             ob_end_clean();
             $data = array();
             $data['error'] = "Warning error." . $output;

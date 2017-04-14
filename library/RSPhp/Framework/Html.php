@@ -1,6 +1,6 @@
 <?php
 /**
- * HtmlHelper.php
+ * Html.php
  *
  * PHP Version 5
  *
@@ -28,7 +28,7 @@ namespace RSPhp\Framework;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class HtmlHelper
+class Html
 {
 
     /**
