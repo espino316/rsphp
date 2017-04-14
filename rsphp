@@ -27,7 +27,7 @@ require_once "$rsPhpPath/vendor/autoload.php";
 require_once "$rsPhpPath/public/index.php";
 
 use RSPhp\Framework\RS;
-use RSPhp\Framework\FileHelper;
+use RSPhp\Framework\File;
 
 $command = RS::processStdIn( $argv );
 $params = $command["parameters"];
@@ -39,7 +39,7 @@ if ( $command == 'version' ) {
 }
 
 if ( $command == "help" ) {
-    $content = FileHelper::read( $rsPhpPath . DS . "rsphp_help" );
+    $content = File::read( $rsPhpPath . DS . "rsphp_help" );
     RS::printLine( $content );
 }// end if help
 

@@ -1,4 +1,10 @@
 <?php
+define('DS', DIRECTORY_SEPARATOR);
+define('ROOT', dirname( dirname( __FILE__ ) ) );
+define('TAB', "\t");
+define('CRLF', "\r\n");
+define('NEW_LINE',"\r\n");
+define( 'IS_CLI', (php_sapi_name() === 'cli') );
 
 use PHPUnit\Framework\TestCase;
 use RSPhp\Framework\App;

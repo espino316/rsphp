@@ -16,8 +16,6 @@
 
 namespace RSPhp\Framework;
 
-use RSPhp\Framework\Directory;
-use RSPhp\Framework\DbConnection;
 /**
  * Config Class Doc Comment
  *
