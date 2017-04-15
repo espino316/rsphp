@@ -331,4 +331,15 @@ class String
         }
     } // end function isBase64
 
+    /**
+     * Trims a string
+     *
+     * @param String $string The string to trim
+     *
+     * @return String
+     */
+    public static function trim( $str, $charMask = " \t\n\r\0\x0B" )
+    {
+        return trim( $str, $charMask );
+    } // end function trim
 } // end class

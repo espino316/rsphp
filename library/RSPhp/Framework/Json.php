@@ -52,8 +52,27 @@ class Json
      */
     public static function encode( $data )
     {
-        return json_econde( $data );
+        return json_encode( $data );
     } // end function encode
 
+    /**
+     * Returns last error string
+     *
+     * @return String
+     */
+    public static function lastErrorMsg()
+    {
+        return json_last_error_msg();
+    } // end function lastErrorMsg
+
+    /**
+     * Returns last error
+     *
+     * @return Int
+     */
+    public static function lastError()
+    {
+        return json_last_error();
+    } // end function lastErrorMsg
 } // end class Json
 

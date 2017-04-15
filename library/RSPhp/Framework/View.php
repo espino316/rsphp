@@ -131,9 +131,17 @@ class View
     static function loadToString($viewName, $data = null)
     {
         $filePath
-            = ROOT . DS . 'application' . DS . 'views' . DS . $viewName . '.php';
+            = ROOT.DS.'application'.DS.'views'.DS.$viewName.'.php';
 
-        if (file_exists($filePath)) {
+        $exists = File::exists( $filePath );
+
+        if ( !$exists ) {
+            $filePath
+                = ROOT.DS.'application'.DS.'views'.DS.$viewName.'.html';
+            $exists = File::exists( $filePath );
+        } // end if not exists
+
+        if ( $exists ) {
             $view = self::_requireToVar($filePath);
             $view = str_replace('$baseUrl', BASE_URL, $view);
 
@@ -141,7 +149,7 @@ class View
                 foreach ( array_keys($data) as $itemKey ) {
                     if (String::contains($itemKey, "$") ) {
                         if (is_array($data[$itemKey]) ) {
-                            $data[$itemKey] 
+                            $data[$itemKey]
                                 = self::_convertToObjects(
                                     $data[$itemKey]
                                 );
@@ -156,9 +164,9 @@ class View
                                         = get_object_vars($properties[$key]);
 
                                     foreach (
-                                        array_keys($subProperties) as $subKey 
+                                        array_keys($subProperties) as $subKey
                                     ) {
-                                        $view 
+                                        $view
                                             = stri_replace(
                                                 $itemKey."->".$key."->".$subKey,
                                                 $subProperties[$subKey],
@@ -167,7 +175,7 @@ class View
                                     }
 
                                 } else {
-                                    $view 
+                                    $view
                                         = str_replace(
                                             $itemKey."->".$key,
                                             $properties[$key],
@@ -244,10 +252,10 @@ class View
                                 );
                         }
                     } else {
-                        $template 
+                        $template
                             = str_replace(
-                                $itemKey, 
-                                $data[$itemKey], 
+                                $itemKey,
+                                $data[$itemKey],
                                 $template
                             );
                     } // end if is object

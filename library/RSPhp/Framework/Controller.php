@@ -49,7 +49,7 @@ class Controller
      */
     function xmlResponse( $data )
     {
-        Xml::xmlResponse($data);
+        Output::xml( $data );
     } // end function xmlResponse
 
     /**
@@ -61,26 +61,7 @@ class Controller
      */
     function jsonResponse( $data )
     {
-
-        $output = ob_get_contents();
-        if (String::contains($output, '<b>Notice</b>: ') ) {
-            ob_end_clean();
-            $data = array();
-            $data['error'] = "Notice error." . $output;
-        } else if (String::contains($output, '<b>Warning</b>: ') ) {
-            ob_end_clean();
-            $data = array();
-            $data['error'] = "Warning error." . $output;
-        }
-
-        header('Content-Type: application/json');
-
-        if (App::get('allowCORS') ) {
-            $this->setCORSHeaders();
-        }
-
-        $result = json_encode($data);
-        echo $result;
+        Output::json( $data );
     } // end function jsonResponse
 
     /**
@@ -114,3 +95,4 @@ class Controller
     } // end function setCORS
 
 } // end class Controller
+

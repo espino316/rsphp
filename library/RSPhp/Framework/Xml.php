@@ -16,6 +16,8 @@
 
 namespace RSPhp\Framework;
 
+use SimpleXmlElement;
+
 /**
  * Helper for XML manipulation
  *
@@ -30,26 +32,21 @@ namespace RSPhp\Framework;
  */
 class Xml
 {
+    private static $_baseElement = "<?xml version=\"1.0\"?><data></data>";
 
     /**
-     * Writes data as xml to the response
+     * Returns Xml String from an array
      *
-     * @param Array $data The data to writo to response in xml format
+     * @param Array $data The array to convert
      *
-     * @return void
+     * @return String
      */
-    static function xmlResponse( $data )
+    public static function getString( $data )
     {
-        $xmlData = new SimpleXMLElement('<?xml version="1.0"?><data></data>');
-        self::arrayToXml($data, $xmlData);
-        $result = $xmlData->asXML();
-        ob_end_clean();
-        header('Content-Type: application/xml');
-        if (App::get('allowCORS') ) {
-            $this->setCORSHeaders();
-        }
-        echo $result;
-    } // end function xmlResponse
+        $xmlData = new SimpleXMLElement( self::$_baseElement );
+        self::_arrayToXml($data, $xmlData);
+        return $xmlData->asXML();
+    } // end function getString
 
     /**
      * Convert an array to xml
@@ -59,7 +56,7 @@ class Xml
      *
      * @return void
      */
-    static function arrayToXml( $data, &$xmlData )
+    private static function _arrayToXml( $data, &$xmlData )
     {
         foreach ( $data as $key => $value ) {
             if (is_object($value) ) {
