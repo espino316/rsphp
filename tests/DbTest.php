@@ -1,5 +1,6 @@
 <?php
 use PHPUnit\Framework\TestCase;
+use RSPhp\Framework\DbConnection;
 use RSPhp\Framework\Db;
 
 class DbTest extends TestCase
@@ -83,4 +84,25 @@ class DbTest extends TestCase
             count( $result ) >= 1
         );
     } // end function testConnectServerOff
+
+    public function testSetDbConnection()
+    {
+        $dbConn = new DbConnection(
+            array(
+                "driver" => "pgsql",
+                "hostName" => "192.168.1.1",
+                "databaseName" => "rsphp",
+                "userName" => "postgres",
+                "password" => "Sp1n4l01"
+            )
+        );
+
+        Db::setDbConnection( "testConnection", $dbConn );
+
+        $this->assertTrue(
+            Db::hasDbConnections()
+        );
+
+    } // end function testConnectionArgumentsNowhere
+
 } // end class DbTest

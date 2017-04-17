@@ -125,7 +125,7 @@ class Config
         //	Data Connections
         if (isset($config["dbConnections"]) ) {
             foreach ( $config['dbConnections'] as $dbConn ) {
-                Db::setConnection(
+                Db::setDbConnection(
                     $dbConn["name"],
                     new DbConnection( $dbConn )
                 );
