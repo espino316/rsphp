@@ -1205,7 +1205,7 @@ class $controllerName extends Controller
                     $select.'</td></tr>'.CRLF;
             } else {
                 $html .= TAB.'<tr><td>'.$row['column_name'].'</td><td>'.
-                    Html::formText($row['column_name'], '').
+                    Html::formInputText($row['column_name'], '').
                     '</td></tr>'.CRLF;
             }
         }

@@ -19,6 +19,7 @@ namespace RSPhp\Framework;
 use DOMDocument;
 use DOMNode;
 use DOMElement;
+use stdClass;
 
 /**
  * Print HTML and manage views
@@ -299,7 +300,7 @@ class View
                         } // end if is set data [ viewName ]
                     } // end if contains $
 
-                    $view = View::loadToString($viewName);
+                    $view = View::loadToString($viewName, $data);
 
                     //	Replacement
                     $replacement = null;

@@ -57,7 +57,7 @@ class Html
      *
      * @return void
      */
-    static function setJSLog($msg)
+    static function JSLog($msg)
     {
         echo "<script language='javascript'>console.log('$msg');</script>";
     } // end function setJSLog
@@ -627,7 +627,7 @@ class Html
      *
      * @return void
      */
-    static function formText(
+    static function formInputText(
         $name,
         $value = "",
         $attributes = null
@@ -649,7 +649,7 @@ class Html
         } // end if then else attributes
 
         return $inputText;
-    } // end function formText
+    } // end function formInputText
 
     /**
      * Print a line
@@ -678,7 +678,7 @@ class Html
      *
      * @return void|String
      */
-    static function getCheckBoxGroup(
+    static function formCheckBoxGroup(
         $data,
         $legend,
         $controlName,
