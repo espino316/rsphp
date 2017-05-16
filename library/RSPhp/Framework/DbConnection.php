@@ -48,6 +48,7 @@ class DbConnection
      */
     function __construct( $options )
     {
+        print_r( $options );
 
         $this->driver = $options['driver'];
         $this->hostName = $options['hostName'];

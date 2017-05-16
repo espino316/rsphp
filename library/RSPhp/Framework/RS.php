@@ -680,6 +680,10 @@ class RS
             $params[ $parts[0] ] = $value;
         } // end foreach
 
+        print_r( array(
+                "command" => $command,
+                "parameters" => $params
+            ));
         return array(
                 "command" => $command,
                 "parameters" => $params
@@ -1232,9 +1236,7 @@ class $controllerName extends Controller
         try {
             $classDefinition = '<?php
 
-namespace Application\Controllers;
-
-use RSPhp\Framework\Controller;
+namespace Application\Models;
 
 /**
  * Entity model for @tableNameModel
@@ -1294,7 +1296,7 @@ class @tableNameModel extends Model {
     } // end function save
 } // end class @tableNameModel';
 
-            if (!isset(DB::$connections) ) {
+            if (! Db::hasDbConnections() ) {
                  throw new Exception("No connections are set up", 1);
             } // end if isset DBConn
             $db = new Db();
@@ -1357,7 +1359,7 @@ class @tableNameModel extends Model {
             $text = str_replace("@loadProperties", $loadProperties, $text);
             $text = str_replace("@saveProperties", $saveProperties, $text);
 
-            $filename = "application/models/" . strtolower($tableName) . "model.php";
+            $filename = "application/models/" . ucfirst($tableName) . "Model.php";
 
             unlink($filename);
             file_put_contents($filename, $text);
