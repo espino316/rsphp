@@ -40,7 +40,7 @@ class Geocoder
     function getGeoLocation($address)
     {
         //	string Accents
-        $address = String::stripAccents($address);
+        $address = Str::stripAccents($address);
 
         // url encode the address
         $address = urlencode($address);

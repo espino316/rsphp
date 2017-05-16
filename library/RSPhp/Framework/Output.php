@@ -208,11 +208,11 @@ class Output
     {
 
         $output = self::getContents();
-        if (String::contains($output, '<b>Notice</b>: ') ) {
+        if (Str::contains($output, '<b>Notice</b>: ') ) {
             self::endClean();
             $data = array();
             $data['error'] = "Notice error." . $output;
-        } else if (String::contains($output, '<b>Warning</b>: ') ) {
+        } else if (Str::contains($output, '<b>Warning</b>: ') ) {
             self::endClean();
             $data = array();
             $data['error'] = "Warning error." . $output;

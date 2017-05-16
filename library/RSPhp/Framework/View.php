@@ -148,7 +148,7 @@ class View
 
             if ($data != null ) {
                 foreach ( array_keys($data) as $itemKey ) {
-                    if (String::contains($itemKey, "$") ) {
+                    if (Str::contains($itemKey, "$") ) {
                         if (is_array($data[$itemKey]) ) {
                             $data[$itemKey]
                                 = self::_convertToObjects(
@@ -191,7 +191,7 @@ class View
                 } // end foreach
             } // end if data
             $view = self::dataBind($view, $data);
-            $view = String::specialCharsToHTML($view);
+            $view = Str::specialCharsToHTML($view);
             return $view;
         } else {
             throw new Exception("View $filePath does not exists.");
@@ -227,7 +227,7 @@ class View
 
         if ($data != null ) {
             foreach ( array_keys($data) as $itemKey ) {
-                if (String::contains($itemKey, "$") ) {
+                if (Str::contains($itemKey, "$") ) {
                     if (is_object($data[$itemKey]) ) {
 
                         $properties = get_object_vars($data[$itemKey]);
@@ -294,7 +294,7 @@ class View
 
                     $viewName = $item->getAttribute('data-view');
 
-                    if (String::contains($viewName, '$') ) {
+                    if (Str::contains($viewName, '$') ) {
                         if (isset($data[$viewName]) ) {
                             $viewName = $data[$viewName];
                         } // end if is set data [ viewName ]
@@ -322,7 +322,7 @@ class View
 
         /*	Here begins data-bind attibute */
         $isFragment = true;
-        if (String::contains($html, '<html') ) {
+        if (Str::contains($html, '<html') ) {
             $isFragment = false;
         }
 
@@ -349,10 +349,10 @@ class View
                               $replacement['replace']
                                   = $item->ownerDocument->saveHTML($item);
                               $toReplace[] = $replacement;
-                    } else if (String::contains($name, "[") ) {
+                    } else if (Str::contains($name, "[") ) {
                                  $arr = explode("[", $name);
                                  $key1 = $arr[0];
-                                 $key2 = String::replace("]", "", $arr[1]);
+                                 $key2 = Str::replace("]", "", $arr[1]);
                         if (isset($data[$key1][$key2]) ) {
                             $replacement = null;
                             $replacement['search']
@@ -448,7 +448,7 @@ class View
     {
 
         $isFragment = true;
-        if (String::contains($html, '<html') ) {
+        if (Str::contains($html, '<html') ) {
             $isFragment = false;
         }
 
@@ -557,7 +557,7 @@ class View
     {
 
         $isFragment = true;
-        if (String::contains($html, '<html') ) {
+        if (Str::contains($html, '<html') ) {
             $isFragment = false;
         }
 
@@ -1092,7 +1092,7 @@ class View
     {
         $dom = new DOMDocument();
         $prefix = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        if (!String::startsWith($html, $prefix) ) {
+        if (!Str::startsWith($html, $prefix) ) {
             $html = $prefix."\n".$html;
         }
         @$dom->loadHTML($html);

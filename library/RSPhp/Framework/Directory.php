@@ -75,7 +75,7 @@ class Directory
                 if ($extensions ) {
                     $continue = 1;
                     foreach ( $extensions as $ext ) {
-                        if (String::endsWith($file, $ext) ) {
+                        if (Str::endsWith($file, $ext) ) {
                             $continue = 0;
                             continue;
                         } // end if

@@ -2,13 +2,13 @@
 
 use PHPUnit\Framework\TestCase;
 use RSPhp\Framework\View;
-use RSPhp\Framework\String;
+use RSPhp\Framework\Str;
 
 class ViewTest extends TestCase
 {
     public function testLoadToStringPhp()
     {
-        $string = String::trim( View::loadToString( "testPhp" ) );
+        $string = Str::trim( View::loadToString( "testPhp" ) );
         $this->assertTrue(
             $string == "<h1>Hola</h1>"
         );
@@ -16,7 +16,7 @@ class ViewTest extends TestCase
 
     public function testLoadToStringHtml()
     {
-        $string = String::trim( View::loadToString( "testHtml" ) );
+        $string = Str::trim( View::loadToString( "testHtml" ) );
         $this->assertTrue(
             $string == "<h1>Hola</h1>"
         );

@@ -140,8 +140,8 @@ class DataSource
     ) {
 
         if ($this->type == 'JSON') {
-            $fileName = String::replace(':ROOT', ROOT, $this->file);
-            $fileName = String::replace('/', DS, $fileName);
+            $fileName = Str::replace(':ROOT', ROOT, $this->file);
+            $fileName = Str::replace('/', DS, $fileName);
             $result = File::read($fileName);
             $result = json_decode($result, true);
 
@@ -159,8 +159,8 @@ class DataSource
             if ($this->text) {
                 $sql = $this->text;
             } elseif ($this->file) {
-                $fileName = String::replace(':ROOT', ROOT, $this->file);
-                $fileName = String::replace('/', DS, $fileName);
+                $fileName = Str::replace(':ROOT', ROOT, $this->file);
+                $fileName = Str::replace('/', DS, $fileName);
                 $sql = File::read($fileName);
             }
 

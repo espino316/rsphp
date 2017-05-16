@@ -19,7 +19,7 @@ namespace RSPhp\Framework;
 use Exception;
 use RSPhp\Framework\Controller;
 use RSPhp\Framework\View;
-use RSPhp\Framework\String;
+use RSPhp\Framework\Str;
 use RSPhp\Framework\File;
 use RSPhp\Framework\Directory;
 use RSPhp\Framework\Html;
@@ -425,7 +425,7 @@ class RS
         $files = Directory::getFiles(APPPATH . DS . "Controllers");
         foreach ( $files as $file ) {
             $theController = basename($file);
-            $theController = String::replace(".php", "", $theController);
+            $theController = Str::replace(".php", "", $theController);
             $theController = "    - " . $theController;
             self::printLine($theController);
         } // end foreach file
@@ -441,7 +441,7 @@ class RS
         $files = Directory::getFiles(APPPATH . DS . "Models");
         foreach ( $files as $file ) {
             $theModel = basename($file);
-            $theModel = String::replace(".php", "", $theModel);
+            $theModel = Str::replace(".php", "", $theModel);
             $theModel = "    - " . $theModel;
             self::printLine($theModel);
         } // end foreach file
@@ -656,7 +656,7 @@ class RS
         //  Loop the args, form the parameters and the command
         $cont = 0;
         foreach ( $args as $arg ) {
-            if (String::startsWith($arg, "--") ) {
+            if (Str::startsWith($arg, "--") ) {
                 $commandParams[] = $arg;
             } elseif ($cont > 0 ) {
                 $command[] = $arg;
@@ -671,7 +671,7 @@ class RS
 
         //  Loop the command parameters
         foreach ( $commandParams as $commandParam ) {
-            $paramLine = String::replace("--", "", $commandParam);
+            $paramLine = Str::replace("--", "", $commandParam);
             $parts = explode("=", $paramLine, 2);
             $value = "";
             if (isset($parts[1]) ) {
@@ -969,11 +969,11 @@ class RS
     {
         ob_end_clean();
 
-        if (String::endsWith($file, '.xml') ) {
+        if (Str::endsWith($file, '.xml') ) {
             header('Content-type: application/xml');
         } // end if ends with xml
 
-        if (String::endsWith($file, '.json') ) {
+        if (Str::endsWith($file, '.json') ) {
             header('Content-type: application/json');
         } // end if ends with xml
 
@@ -1160,7 +1160,7 @@ class $controllerName extends Controller
                 $row2['display_field'] = $firstRow['display_field'];
 
                 $text = "SELECT value_field, display_field FROM table_name";
-                $text = String::stringReplace($firstRow, $text);
+                $text = Str::stringReplace($firstRow, $text);
 
                 $type = 'SQLQUERY';
                 $connection = 'default';

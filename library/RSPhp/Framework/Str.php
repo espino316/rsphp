@@ -1,6 +1,6 @@
 <?php
 /**
- * String.php
+ * Str.php
  *
  * PHP Version 5
  *
@@ -28,25 +28,25 @@ namespace RSPhp\Framework;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class String
+class Str
 {
     /**
      * Determines is the string is upper
      *
-     * @param String $string The string to verify
+     * @param Str $str The string to verify
      *
-     * @return String
+     * @return Str
      */
-    static function isUppercase( $string )
+    static function isUppercase( $str )
     {
-        return ctype_upper($string);
+        return ctype_upper($str);
     } // end function isUppercase
 
     /**
      * Returns true if $str contains $val
      *
-     * @param String $str The string container
-     * @param String $val The string to search in the container
+     * @param Str $str The string container
+     * @param Str $val The string to search in the container
      *
      * @return Boolean
      */
@@ -58,8 +58,8 @@ class String
     /**
      * Determines if a string starts with another
      *
-     * @param String $haystack The string to search in
-     * @param String $needle   The string to search for
+     * @param Str $haystack The string to search in
+     * @param Str $needle   The string to search for
      *
      * @return Boolean
      */
@@ -74,8 +74,8 @@ class String
     /**
      * Determines if a string ends with another
      *
-     * @param String $haystack The string to search in
-     * @param String $needle   The string to search for
+     * @param Str $haystack The string to search in
+     * @param Str $needle   The string to search for
      *
      * @return Boolean
      */
@@ -90,10 +90,10 @@ class String
     /**
      * Returns the left part of an string
      *
-     * @param String $str    The string to manipulate
+     * @param Str $str    The string to manipulate
      * @param Int    $length The number of characters to return
      *
-     * @return String
+     * @return Str
      */
     static function left($str, $length)
     {
@@ -103,10 +103,10 @@ class String
     /**
      * Returns the right part of an string
      *
-     * @param String $str    The string to manipulate
+     * @param Str $str    The string to manipulate
      * @param Int    $length The number of characters to return
      *
-     * @return String
+     * @return Str
      */
     static function right($str, $length)
     {
@@ -116,53 +116,53 @@ class String
     /**
      * Remove the strip accents from a string
      *
-     * @param String $string The string to modify
+     * @param Str $str The string to modify
      *
-     * @return String The string modified
+     * @return Str The string modified
      */
-    static function stripAccents( $string )
+    static function stripAccents( $str )
     {
-        $string = str_replace("�", "a", $string);
-        $string = str_replace("�", "e", $string);
-        $string = str_replace("�", "i", $string);
-        $string = str_replace("�", "o", $string);
-        $string = str_replace("�", "u", $string);
-        $string = str_replace("�", "A", $string);
-        $string = str_replace("�", "E", $string);
-        $string = str_replace("�", "I", $string);
-        $string = str_replace("�", "O", $string);
-        $string = str_replace("�", "U", $string);
-        $string = str_replace("�", "n", $string);
-        $string = str_replace("�", "N", $string);
-        return $string;
+        $str = str_replace("�", "a", $str);
+        $str = str_replace("�", "e", $str);
+        $str = str_replace("�", "i", $str);
+        $str = str_replace("�", "o", $str);
+        $str = str_replace("�", "u", $str);
+        $str = str_replace("�", "A", $str);
+        $str = str_replace("�", "E", $str);
+        $str = str_replace("�", "I", $str);
+        $str = str_replace("�", "O", $str);
+        $str = str_replace("�", "U", $str);
+        $str = str_replace("�", "n", $str);
+        $str = str_replace("�", "N", $str);
+        return $str;
     } // end function stripAccents
 
     /**
-     * Replaces the key with the value of $dictionary in $string
+     * Replaces the key with the value of $dictionary in $str
      *
      * @param Array  $dictionary Dictionary with key and value
-     * @param String $string     The string in which the replacements
+     * @param Str $str     The string in which the replacements
      * are gonna be made
      *                  are gonna be made
      *
-     * @return String
+     * @return Str
      */
-    static function stringReplace( $dictionary, $string )
+    static function stringReplace( $dictionary, $str )
     {
         foreach ($dictionary as $key => $value) {
-            $string = str_replace($key, $value, $string);
+            $str = str_replace($key, $value, $str);
         } // end foreach $dictionary
-        return $string;
+        return $str;
     } // end function stringReplace
 
     /**
      * Converts special chars to HTML equivalents
      *
-     * @param String $string The string to converts
+     * @param Str $str The string to converts
      *
-     * @return String
+     * @return Str
      */
-    static function specialCharsToHTML( $string )
+    static function specialCharsToHTML( $str )
     {
         $search = array(
           'á', 'é', 'í', 'ó', 'ú',
@@ -175,21 +175,21 @@ class String
           '&ntilde;', '&Ntilde;', '&iquest;', '&iexcl;'
         );
 
-        $string = str_replace($search, $replace, $string);
-        return $string;
+        $str = str_replace($search, $replace, $str);
+        return $str;
     } // end function specialCharsToHTML
 
     /**
      * Converts to upper including accents
      *
-     * @param String $string The string to modify
+     * @param Str $str The string to modify
      *
-     * @return String
+     * @return Str
      */
-    static function toUpper( $string )
+    static function toUpper( $str )
     {
 
-        $string = strtoupper($string);
+        $str = strtoupper($str);
 
         $search = array(
           'á', 'é', 'í', 'ó', 'ú', 'ñ'
@@ -198,21 +198,21 @@ class String
           'Á', 'É', 'Í', 'Ó', 'Ú', 'Ñ'
         );
 
-        $string = str_replace($search, $replace, $string);
-        return $string;
+        $str = str_replace($search, $replace, $str);
+        return $str;
     } // end function to Upper
 
     /**
      * Converts to lower including accents
      *
-     * @param String $string The string to modify
+     * @param Str $str The string to modify
      *
-     * @return String
+     * @return Str
      */
-    static function toLower( $string )
+    static function toLower( $str )
     {
 
-        $string = strtoupper($string);
+        $str = strtoupper($str);
 
         $search = array(
           'Á', 'É', 'Í', 'Ó', 'Ú', 'Ñ'
@@ -221,18 +221,18 @@ class String
           'á', 'é', 'í', 'ó', 'ú', 'ñ'
         );
 
-        $string = str_replace($search, $replace, $string);
-        return $string;
+        $str = str_replace($search, $replace, $str);
+        return $str;
     } // end function toLower
 
     /**
      * Return a chunked string in unicode
      *
-     * @param String $str The string to modify
+     * @param Str $str The string to modify
      * @param Int    $l   The number of chunks
-     * @param String $e   The separator
+     * @param Str $e   The separator
      *
-     * @return String
+     * @return Str
      */
     static function chunkSplitUnicode($str, $l = 76, $e = "\r\n")
     {
@@ -247,9 +247,9 @@ class String
     } // end function chunkSplitUnicode
 
     /**
-     * Returns a GUID String
+     * Returns a GUID Str
      *
-     * @return String
+     * @return Str
      */
     static function GUID()
     {
@@ -274,16 +274,16 @@ class String
     /**
      * Replaces a string within another
      *
-     * @param String $search  The string to search
-     * @param String $replace The string to replace
-     * @param String $string  The string to search in
+     * @param Str $search  The string to search
+     * @param Str $replace The string to replace
+     * @param Str $str  The string to search in
      *
-     * @return String
+     * @return Str
      */
-    static function replace( $search, $replace, $string )
+    static function replace( $search, $replace, $str )
     {
-        $string = str_replace($search, $replace, $string);
-        return $string;
+        $str = str_replace($search, $replace, $str);
+        return $str;
     } // end function  replace
 
     /**
@@ -292,7 +292,7 @@ class String
      * @param Int     $len        The length of the desired string
      * @param Boolean $useSymbols Indicates if the return string will have symbols
      *
-     * @return String
+     * @return Str
      */
     static function random( $len, $useSymbols = false )
     {
@@ -318,7 +318,7 @@ class String
     /**
      * Determines if is a string is base 64
      *
-     * @param String $str The string to verify
+     * @param Str $str The string to verify
      *
      * @return Boolean
      */
@@ -334,9 +334,9 @@ class String
     /**
      * Trims a string
      *
-     * @param String $string The string to trim
+     * @param Str $str The string to trim
      *
-     * @return String
+     * @return Str
      */
     public static function trim( $str, $charMask = " \t\n\r\0\x0B" )
     {
