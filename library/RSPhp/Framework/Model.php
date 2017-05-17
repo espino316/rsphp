@@ -104,7 +104,9 @@ class Model
     function getTableName()
     {
         if ($this->tableName == null) {
-            return substr_replace(get_class($this), "", -5);
+            $tableName = substr_replace(get_class($this), "", -5);
+            $tableName = str_replace( "Application\\Models\\", "", $tableName );
+            return $tableName;
         } else {
             return $this->tableName;
         }
@@ -117,7 +119,9 @@ class Model
      */
     static function tableName()
     {
-        return substr_replace(get_called_class(), "", -5);
+        $tableName = substr_replace(get_called_class(), "", -5);
+        $tableName = str_replace( "Application\\Models\\", "", $tableName );
+        return $tableName;
     } // end function
 
     /**
@@ -129,7 +133,7 @@ class Model
     {
         self::setDB();
         return self::$db->first(
-            self::TableName(),
+            self::tableName(),
             get_called_class()
         );
     } // end function first
@@ -143,7 +147,7 @@ class Model
     {
         self::setDB();
         return self::$db->get(
-            self::TableName(),
+            self::tableName(),
             get_called_class()
         );
     } // end function get

@@ -1876,7 +1876,7 @@ class Db
 
         $publicProperties = '';
         foreach ( $result as $row ) {
-            $publicProperties .= "\t" . $row['property'] . PHP_EOL;
+            $publicProperties .= "\t" . $row['property'] . "\n";
         } // end foreach
 
         return $publicProperties;

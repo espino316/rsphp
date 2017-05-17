@@ -63,7 +63,7 @@ class RS
     {
         if (IS_CLI ) {
             print_r($text);
-            echo '' . PHP_EOL;
+            echo "\n";
         } else {
             print_r($text);
             echo '<br />';
@@ -306,8 +306,8 @@ class RS
         } // end if "Application different than "application"
 
         // Here we write the json
-        $json = json_encode( $json, JSON_PRETTY_PRINT );
-        File::write( $composerJson, $json );
+        $json = json_encode($json, JSON_PRETTY_PRINT);
+        File::write($composerJson, $json);
         self::printLine("Composer file updated.");
 
         self::printLine("");
@@ -395,7 +395,6 @@ class RS
 
         if (file_exists($fileDataSources) ) {
             $dataSources = json_decode(file_get_contents($fileDataSources), true);
-            print_r($dataSources);
             foreach ( $dataSources as $index => $ds ) {
                 self::printLine("    - " . $ds["name"]);
                 self::printLine(
@@ -680,10 +679,6 @@ class RS
             $params[ $parts[0] ] = $value;
         } // end foreach
 
-        print_r( array(
-                "command" => $command,
-                "parameters" => $params
-            ));
         return array(
                 "command" => $command,
                 "parameters" => $params
@@ -701,6 +696,8 @@ class RS
 
         $method = "CLI";
         $sapi = php_sapi_name();
+        $url = "";
+        $baseUrl = "";
         if ($sapi != 'cli' ) {
             //	Gets the protocol
             if (isset($_SERVER['HTTPS']) ) {
@@ -1052,15 +1049,19 @@ class $controllerName extends Controller
      */
     static function cleanApp()
     {
-        $dirs[] = ROOT.DS.'application'.DS.'controllers';
-        $dirs[] = ROOT.DS.'application'.DS.'data';
-        $dirs[] = ROOT.DS.'application'.DS.'libraries';
-        $dirs[] = ROOT.DS.'application'.DS.'models';
-        $dirs[] = ROOT.DS.'application'.DS.'views';
+        $dirs[] = ROOT.DS.'application'.DS.'Controllers';
+        $dirs[] = ROOT.DS.'application'.DS.'Data';
+        $dirs[] = ROOT.DS.'application'.DS.'Libraries';
+        $dirs[] = ROOT.DS.'application'.DS.'Models';
+        $dirs[] = ROOT.DS.'application'.DS.'Views';
         $dirs[] = ROOT.DS.'public'.DS.'css';
         $dirs[] = ROOT.DS.'public'.DS.'files';
         $dirs[] = ROOT.DS.'public'.DS.'images';
+        $dirs[] = ROOT.DS.'public'.DS.'img';
         $dirs[] = ROOT.DS.'public'.DS.'js';
+        $dirs[] = ROOT.DS.'application';
+        $dirs[] = ROOT.DS.'public';
+        $dirs[] = ROOT.DS.'config';
 
         foreach ( $dirs as $dir ) {
              RS::printLine($dir);
@@ -1068,6 +1069,7 @@ class $controllerName extends Controller
             //self::printLine( scandir( $dir ) );
 
             if (Directory::exists($dir) ) {
+                RS::printLine("Directory exists");
                 $files = scandir($dir);
                 foreach ( $files as $file ) {
                     if ($file == '.' || $file == '..' ) {
@@ -1083,6 +1085,7 @@ class $controllerName extends Controller
                         unlink($file);
                     } // end if is dir
                 } // end foreach $file
+                Directory::delete( $dir, true );
             } // end if dir exists
         } // end foreach dir
     } // end function cleanApp
@@ -1234,9 +1237,14 @@ class $controllerName extends Controller
     static function createModel( $tableName )
     {
         try {
+            if ( ! Db::hasDbConnections() ) {
+                throw new Exception( "No connections are set. Try adding a connection first." );
+            } // end if no connections
             $classDefinition = '<?php
 
 namespace Application\Models;
+
+use RSPhp\Framework\Model;
 
 /**
  * Entity model for @tableNameModel
@@ -1341,7 +1349,7 @@ class @tableNameModel extends Model {
                  $columnName = $row[$colNameStr];
                  $loadProperties .=
                      "\t\t$"."this->$columnName = $".
-                     "result['$columnName'];". PHP_EOL;
+                     "result['$columnName'];\n";
             }
 
             //	Save properties
@@ -1349,7 +1357,7 @@ class @tableNameModel extends Model {
             foreach ( $columns as $row ) {
                  $columnName = $row[$colNameStr];
                  $saveProperties .=
-                     "\t\t\t'$columnName' => $"."this->$columnName,". PHP_EOL;
+                     "\t\t\t'$columnName' => $"."this->$columnName,\n";
             }
 
             $text = $classDefinition;
@@ -1361,14 +1369,17 @@ class @tableNameModel extends Model {
 
             $filename = "application/models/" . ucfirst($tableName) . "Model.php";
 
-            unlink($filename);
+            if ( file_exists( $filename ) ) {
+                unlink($filename);
+            } // end if file exists
+
             file_put_contents($filename, $text);
             self::_dumpAutoload();
             self::printLine("Model for table $tableName created in $filename.");
             self::printLine("");
 
         } catch( Exception $ex ) {
-            self::printLine($ex);
+            self::printLine($ex->getMessage());
         } // end try catch
     } // end function createModel
 
@@ -1390,7 +1401,7 @@ class @tableNameModel extends Model {
         $result = $db->query($sql, $queryParams);
 
         foreach ( $result as $row ) {
-            $loadProperties .= "\t\t" . $row['property'] . PHP_EOL;
+            $loadProperties .= "\t\t" . $row['property'] . "\n";
         }
 
         return $loadProperties;

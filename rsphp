@@ -86,13 +86,13 @@ if ( $command == "controller create" ) {
 //	php rs.php model create attachments
 if ( $command == "model create" ) {
 
-    if ( !isset( $param["table"] ) ) {
+    if ( !isset( $params["table"] ) ) {
         RS::printLine( "Table name must be specified." );
     } // end if isset param
 
 	RS::printLine("Model create");
 	//	The table name
-	$tableName = strtolower( $param["table"] );
+	$tableName = strtolower( $params["table"] );
 
 	RS::printLine("Beginning creation of model for table $tableName...");
 
@@ -104,8 +104,8 @@ if ( $command == "model create" ) {
 if ( $command == "connection add" ) {
     $port = null;
 
-    if ( isset( $param["port"] ) ) {
-        $port = $param["port"];
+    if ( isset( $params["port"] ) ) {
+        $port = $params["port"];
     } // end if port
 
     RS::addConnection(

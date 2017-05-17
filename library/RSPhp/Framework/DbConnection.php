@@ -48,13 +48,15 @@ class DbConnection
      */
     function __construct( $options )
     {
-        print_r( $options );
-
         $this->driver = $options['driver'];
         $this->hostName = $options['hostName'];
         $this->databaseName = $options['databaseName'];
         $this->userName = $options['userName'];
-        $this->password = $options['password'];
+        if ( !isset( $options["password"] ) ) {
+            $this->password = "";
+        } else {
+            $this->password = $options['password'];
+        } // end if not password
 
         if (array_key_exists('port', $options) ) {
             $this->port = $options['port'];
