@@ -64,6 +64,10 @@ if ( $command == "route list" ) {
     RS::listRoutes();
 } // end if controller list
 
+if ( $command == "datasource list" ) {
+    RS::listDataSources();
+} // end if controller list
+
 if ( $command == "controller create" ) {
 
 	if ( !isset( $params["name"] ) ) {

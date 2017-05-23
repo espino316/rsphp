@@ -441,7 +441,7 @@ class Html
                                 $attributes = $column['attributes'];
                             } // end if is set attributes
                             $tbody .= "<td $visible $conditional >" .
-                                        <textarea $attributes name=\"";
+                                        "<textarea $attributes name=\"";
                             $tbody .= $tableId."__".$key."__textbox__".$cont."\">";
                             $tbody .= $row[$column["name"]]  . "</textarea></td>";
 

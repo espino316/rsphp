@@ -395,6 +395,14 @@ class RS
 
         if (file_exists($fileDataSources) ) {
             $dataSources = json_decode(file_get_contents($fileDataSources), true);
+            if ( !array_key_exists( "datasources", $dataSources ) ) {
+                throw new \Exception(
+                    "datasources key do not exists in datasources.json"
+                );
+            } // end if array key "datasources" not exists
+
+            $dataSources = $dataSources["datasources"];
+
             foreach ( $dataSources as $index => $ds ) {
                 self::printLine("    - " . $ds["name"]);
                 self::printLine(
@@ -544,14 +552,20 @@ class RS
 
         if (file_exists($fileDataSources) ) {
             $dataSources = json_decode(file_get_contents($fileDataSources), true);
-            foreach ( $dataSources as $index => $ds ) {
-                if ($ds['name'] == $name ) {
-                    self::printLine('Data source ' . $name . ' already exists');
-                    self::printLine('Overriding...');
-                    $removeIndex = true;
-                    $indexToRemove = $index;
-                } // end if $name == $name
-            } // end foreach datasource
+            if ( !array_key_exists( "datasources", $dataSources ) ) {
+                // remove the datasources, must contain "datasources" key
+                $dataSources = null;
+            } else {
+                $dataSources = $dataSources["datasources"];
+                foreach ( $dataSources as $index => $ds ) {
+                    if ($ds['name'] == $name ) {
+                        self::printLine('Data source ' . $name . ' already exists');
+                        self::printLine('Overriding...');
+                        $removeIndex = true;
+                        $indexToRemove = $index;
+                    } // end if $name == $name
+                } // end foreach datasource
+            } // end if array key do not exists
         } // end if file exists
 
         if ($removeIndex ) {
@@ -569,7 +583,11 @@ class RS
         } // end if isFile
 
         $dataSources[] = $dataSource;
-        $json = json_encode($dataSources, JSON_PRETTY_PRINT);
+        $result = array(
+            "datasources" => $dataSources
+        );
+
+        $json = json_encode($result, JSON_PRETTY_PRINT);
         file_put_contents($fileDataSources, $json);
 
         self::printLine('Datasource added');

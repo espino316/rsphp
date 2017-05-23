@@ -304,7 +304,7 @@ class View
 
                     //	Replacement
                     $replacement = null;
-                    $replacement['search'] = $item->ownerDocument->saveHTML($item);
+                    $replacement['search'] = $item->ownerDocument->saveXML($item);
                     $replacement['replace'] = $view;
                     $toReplace[] = $replacement;
                 } // end if has attributes
@@ -342,12 +342,12 @@ class View
                     if (isset($data[$name]) ) {
                               $replacement = null;
                               $replacement['search']
-                                  = $item->ownerDocument->saveHTML($item);
+                                  = $item->ownerDocument->saveXML($item);
 
                               $item->setAttribute('value', $data[$name]);
 
                               $replacement['replace']
-                                  = $item->ownerDocument->saveHTML($item);
+                                  = $item->ownerDocument->saveXML($item);
                               $toReplace[] = $replacement;
                     } else if (Str::contains($name, "[") ) {
                                  $arr = explode("[", $name);
@@ -356,12 +356,12 @@ class View
                         if (isset($data[$key1][$key2]) ) {
                             $replacement = null;
                             $replacement['search']
-                                = $item->ownerDocument->saveHTML($item);
+                                = $item->ownerDocument->saveXML($item);
 
                             $item->setAttribute('value', $data[$key1][$key2]);
 
                             $replacement['replace']
-                                = $item->ownerDocument->saveHTML($item);
+                                = $item->ownerDocument->saveXML($item);
                             $toReplace[] = $replacement;
                         } // end if isset
                     } // end if data[name]
@@ -374,7 +374,7 @@ class View
                 $body = $body->item(0);
                 $html = self::domInnerHTML($body);
             } else {
-                $html = @$dom->saveHTML();
+                $html = @$dom->saveXML();
             }
 
             if (!empty($toReplace) ) {
@@ -402,13 +402,13 @@ class View
                     if (isset($data[$name]) ) {
                               $replacement = null;
                               $replacement['search']
-                                  = $item->ownerDocument->saveHTML($item);
+                                  = $item->ownerDocument->saveXML($item);
 
                               $textNode = $dom->createTextnode($data[$name]);
                               $item->appendChild($textNode);
 
                               $replacement['replace']
-                                  = $item->ownerDocument->saveHTML($item);
+                                  = $item->ownerDocument->saveXML($item);
                               $toReplace[] = $replacement;
                     } // end if data[name]
                 } // end if has attributes
@@ -420,7 +420,7 @@ class View
                 $body = $body[0];
                 $html = self::domInnerHTML($body);
             } else {
-                $html = @$dom->saveHTML();
+                $html = @$dom->saveXML();
             }
 
             if (!empty($toReplace) ) {
@@ -499,7 +499,7 @@ class View
 
                 //	Replacement
                 $replacement = null;
-                $replacement['search'] = $item->ownerDocument->saveHTML($item);
+                $replacement['search'] = $item->ownerDocument->saveXML($item);
                 $replacement['replace'] = $select;
                 $toReplace[] = $replacement;
             } // end if has attributes
@@ -511,7 +511,7 @@ class View
             $body = $body[0];
             $html = self::domInnerHTML($body);
         } else {
-            $html = @$dom->saveHTML();
+            $html = @$dom->saveXML();
         }
 
         if (!empty($toReplace) ) {
@@ -565,7 +565,6 @@ class View
 
         //	DataSource Selects
         $items = $dom->getElementsByTagName('table');
-
         $count = $items->length - 1;
 
         if ($count == -1 ) {
@@ -1018,7 +1017,7 @@ class View
 
                 //	Replacement
                 $replacement = null;
-                $replacement['search'] = $item->ownerDocument->saveHTML($item);
+                $replacement['search'] = $item->ownerDocument->saveXML($item);
                 $replacement['replace'] = $dataTable;
                 $toReplace[] = $replacement;
             } // end if has attributes
@@ -1030,7 +1029,7 @@ class View
             $body = $body[0];
             $html = self::domInnerHTML($body);
         } else {
-            $html = @$dom->saveHTML();
+            $html = @$dom->saveXML();
         }
 
         if (!empty($toReplace) ) {
@@ -1074,8 +1073,8 @@ class View
          $innerHTML = "";
          $children  = $element->childNodes;
 
-        foreach ($children as $child) {
-            $innerHTML .= $element->ownerDocument->saveHTML($child);
+         foreach ($children as $child) {
+            $innerHTML .= $element->ownerDocument->saveXML($child);
         }
 
          return $innerHTML;

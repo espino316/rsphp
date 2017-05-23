@@ -123,7 +123,7 @@ class Db
      */
     public static function setDataSource( $dsName, $ds )
     {
-        self::$datasources[$dsName] = $ds;
+        self::$_dataSources[$dsName] = $ds;
     } // end function setDataSource
 
     /**

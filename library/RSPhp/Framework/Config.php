@@ -14,6 +14,7 @@
  * @link      https://rsphp.espino.info/
  */
 
+
 namespace RSPhp\Framework;
 
 /**
@@ -38,20 +39,24 @@ class Config
      */
     static function load()
     {
-
-        $folder = ROOT.DS.'config';
-        $files = Directory::getFiles($folder, array( '.json' ));
-        foreach ( $files as $file ) {
-            self::_loadConfig($file);
-        } // end foreach
-
-        if (isset(self::$_data['configFiles']) ) {
-            foreach ( self::$_data['configFiles'] as $file ) {
+        try {
+            $folder = ROOT.DS.'config';
+            $files = Directory::getFiles($folder, array( '.json' ));
+            foreach ( $files as $file ) {
                 self::_loadConfig($file);
-            } // end foreach configFiles
-        } // end if configFiles
+            } // end foreach
 
-        self::_processConfig();
+            if (isset(self::$_data['configFiles']) ) {
+                foreach ( self::$_data['configFiles'] as $file ) {
+                    self::_loadConfig($file);
+                } // end foreach configFiles
+            } // end if configFiles
+
+            self::_processConfig();
+        } catch ( \Exception $ex ) {
+            RS::printLine( "ERROR:" );
+            RS::printLine( $ex->getMessage() );
+        }
     } // end function load
 
     /**
@@ -102,7 +107,7 @@ class Config
             $config = json_decode($config, true);
              self::$_data = array_merge(self::$_data, $config);
         } else {
-            throw new Exception("$file do not exists");
+            throw new \Exception("$file do not exists");
         } // end if file exists
     } // end function _loadConfig
 
@@ -165,9 +170,11 @@ class Config
     private static function _loadDataSources()
     {
         if ( !array_key_exists( "datasources", self::$_data ) ) {
+            Logger::debug( "datasources not exists in config" );
             return;
         } // end if not exist datasources
-        $dataSources = self::$_data['dataSources'];
+
+        $dataSources = self::$_data['datasources'];
 
         foreach ( $dataSources as $ds ) {
             $dataSource = new DataSource(
@@ -203,7 +210,8 @@ class Config
                     );
                 } // end function foreach
             } // end if parameters
-            Db::setDataSource( $db["name"], $dataSource );
+
+            Db::setDataSource( $ds["name"], $dataSource );
         } // end foreach datasources
     } // end function _loadDataSources
 } // end class Config
