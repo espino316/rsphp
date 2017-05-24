@@ -39,22 +39,25 @@ class Geocoder
      */
     function getGeoLocation($address)
     {
+
         //	string Accents
         $address = Str::stripAccents($address);
 
         // url encode the address
         $address = urlencode($address);
 
+        $googleMapsKey = App::get("googleMapsKey");
+
         // google map geocode api url
-        $url
-            = "http://maps.google.com/maps/api/geocode/json?sensor=false&address=" .
-                "{$address}";
+        $url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=$address&components=locality:ES&key=$googleMapsKey";
 
         // get the json response
         $resp_json = file_get_contents($url);
 
         // decode the json
-        $resp = json_decode($resp_json, true);
+        $resp = json_decode($resp_json);
+
+        return $resp;
 
         // response status will be 'OK', if able to geocode given address
         if ($resp['status']=='OK') {

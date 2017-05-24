@@ -220,10 +220,6 @@ class Output
 
         header('Content-Type: application/json');
 
-        if (App::get('allowCORS') ) {
-            $this->setCORSHeaders();
-        }
-
         $result = Json::encode($data);
         echo $result;
     } // end function jsonResponse

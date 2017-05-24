@@ -513,7 +513,7 @@ class RS
             "hostName" => $hostName,
             "databaseName" => $databaseName,
             "userName" => $userName,
-            "pasword" => $password
+            "password" => $password
         );
 
         if ($port ) {

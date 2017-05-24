@@ -46,7 +46,7 @@ class Db
      *
      * @var PDO The actual connection
      */
-    protected $conn;
+    public $conn;
 
     /**
      *
@@ -111,7 +111,7 @@ class Db
      *
      * @var string
      */
-    protected $returnClassName;
+    public $returnClassName;
 
     /**
      * Sets a datasource into the array of datasources
@@ -244,7 +244,7 @@ class Db
      *
      * @return void
      */
-    private function _clear()
+    public function clear()
     {
         $this->from = null;
         $this->joinStatement = null;
@@ -253,14 +253,14 @@ class Db
         $this->selectStatement = null;
         $this->whereParams = null;
         $this->whereStatement = null;
-    } // end function _clear
+    } // end function clear
 
     /**
      * Connect to the database
      *
      * @return void
      */
-    protected function connect()
+    public function connect()
     {
         try {
 
@@ -790,11 +790,21 @@ class Db
 
         //	Disconnect
         $this->conn = null;
-        $this->_clear();
+        $this->clear();
 
         //	Return the resultset
         return $resultset;
     } // end query
+
+    /**
+     * Returns a DbReader
+     *
+     * @return DbReader
+     */
+    function getReader($sql, $queryParams = null, $className = null)
+    {
+        return new DbReader( $this, $sql, $queryParams, $className );
+    } // end function getReader
 
     /**
      * Query the database. Returns a bidimensional array as resultset
@@ -865,7 +875,7 @@ class Db
 
         //	Disconnect
         $this->conn = null;
-        $this->_clear();
+        $this->clear();
 
         //	Return the resultset
         return $resultset;
@@ -916,7 +926,7 @@ class Db
 
         $result = $statement->fetchColumn();
         $this->conn = null;
-        $this->_clear();
+        $this->clear();
 
         return $result;
     } // end query
@@ -965,7 +975,7 @@ class Db
         }
 
         $this->conn = null;
-        $this->_clear();
+        $this->clear();
 
         return true;
     } // end query

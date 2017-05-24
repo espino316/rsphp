@@ -49,6 +49,9 @@ class Controller
      */
     function xmlResponse( $data )
     {
+        if (App::get('allowCORS') ) {
+            $this->setCORSHeaders();
+        } // end if allowCORS
         Output::xml( $data );
     } // end function xmlResponse
 
@@ -61,6 +64,9 @@ class Controller
      */
     function jsonResponse( $data )
     {
+        if (App::get('allowCORS') ) {
+            $this->setCORSHeaders();
+        } // end if allowCORS
         Output::json( $data );
     } // end function jsonResponse
 
@@ -93,6 +99,5 @@ class Controller
             'Access-Control-Request-Method, Access-Control-Request-Headers'
         );
     } // end function setCORS
-
 } // end class Controller
 
