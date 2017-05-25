@@ -20,6 +20,7 @@ use DOMDocument;
 use DOMNode;
 use DOMElement;
 use stdClass;
+use Exception;
 
 /**
  * Print HTML and manage views
@@ -132,13 +133,13 @@ class View
     static function loadToString($viewName, $data = null)
     {
         $filePath
-            = ROOT.DS.'application'.DS.'views'.DS.$viewName.'.php';
+            = ROOT.DS.'application'.DS.'Views'.DS.$viewName.'.php';
 
         $exists = File::exists( $filePath );
 
         if ( !$exists ) {
             $filePath
-                = ROOT.DS.'application'.DS.'views'.DS.$viewName.'.html';
+                = ROOT.DS.'application'.DS.'Views'.DS.$viewName.'.html';
             $exists = File::exists( $filePath );
         } // end if not exists
 
