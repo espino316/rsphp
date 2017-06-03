@@ -11,6 +11,8 @@ To list:
         ./rsphp controller list
     - Models:
         ./rsphp model list
+    - Views:
+        ./rsphp view list
 
 To create a connection:
     ./rsphp connection add --name=[name] --driver=[mysql|pgsql|dblib|sqlsrv] --hostName=[hostname|ipaddress] --userName="[user name]" --password=[password]
@@ -34,6 +36,9 @@ To create a controller:
 
 To create a model:
     ./rsphp model create --table=[table name]
+
+To add a view:
+    ./rsphp view add --name=[Folder\ViewName | ViewName] --type=[page|content]
 
 To create a view for new record of table:
     ./rsphp view create new --table=[table_name]

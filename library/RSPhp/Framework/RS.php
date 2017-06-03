@@ -166,12 +166,14 @@ class RS
         );
         self::printLine("Help file created");
 
-        //  Copy the rsphp file
-        File::copy(
-            "$cwd/rsphp",
-            "$home/rsphp"
+        //  Create the rsphp file
+        File::write( "$home/rsphp", "( vendor/espino316/rsphp/rsphp $* )" );
+        File::write(
+            "$home/rsphp.bat",
+            "@echo off\nphp vendor/espino316/rsphp/rsphp %*"
         );
         self::printLine("Shell file created");
+        self::printLine("Bat file created");
 
         //  Copy the .htaccess file
         File::copy(
@@ -1022,6 +1024,9 @@ namespace Application\Controllers;
 
 use RSPhp\Framework\Controller;
 use RSPhp\Framework\View;
+use RSPhp\Framework\Input;
+use RSPhp\Framework\Uri;
+use Exception;
 
 /**
  * $description
@@ -1443,4 +1448,29 @@ class @tableNameModel extends Model {
         $data['$error'] = $ex->getMessage();
         View::load('rs/error', $data);
     } // end function handleExeption
+
+    /**
+     * Creates a view
+     */
+    static function createView( $viewName, $viewType ) {
+        if ( Str::endsWith( $viewName, ".html" ) {
+            $viewName = Str::replace( ".html", "", $viewName );
+        } // end if contains ".html"
+
+        $viewName = ROOT.DS."application".DS."Views".$viewName.".html",
+
+        if ( $viewType == "content" ) {
+            File::write(
+                $viewName,
+                ""
+            ); // end File::write
+        } // end if content
+
+        if ( $viewType == "page" ) {
+            File::write(
+                $viewName,
+                File::read( dirname( __FILE__ ) . "templates/page.html"
+            ); // end File::write
+        } // end if page
+    } // end function createView
 } // end function class RS

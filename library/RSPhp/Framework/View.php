@@ -193,10 +193,11 @@ class View
             } // end if data
             $view = self::dataBind($view, $data);
             $view = Str::specialCharsToHTML($view);
+            $view = Str::replace( self::$_xmlTag, "", $view );
             return $view;
         } else {
             throw new Exception("View $filePath does not exists.");
-        }
+        } // end if file do not exists
     } // end function loadToString
 
     /**
@@ -280,6 +281,8 @@ class View
     {
 
         $dom = self::getDomFromHTML($html);
+        //$html = @$dom->saveHTML();
+        //echo $html; return;
 
         //	DataSource Selects
         $items = $dom->getElementsByTagName('section');
@@ -305,7 +308,7 @@ class View
 
                     //	Replacement
                     $replacement = null;
-                    $replacement['search'] = $item->ownerDocument->saveXML($item);
+                    $replacement['search'] = $item->ownerDocument->saveHTML($item);
                     $replacement['replace'] = $view;
                     $toReplace[] = $replacement;
                 } // end if has attributes
@@ -343,12 +346,12 @@ class View
                     if (isset($data[$name]) ) {
                               $replacement = null;
                               $replacement['search']
-                                  = $item->ownerDocument->saveXML($item);
+                                  = $item->ownerDocument->saveHTML($item);
 
                               $item->setAttribute('value', $data[$name]);
 
                               $replacement['replace']
-                                  = $item->ownerDocument->saveXML($item);
+                                  = $item->ownerDocument->saveHTML($item);
                               $toReplace[] = $replacement;
                     } else if (Str::contains($name, "[") ) {
                                  $arr = explode("[", $name);
@@ -357,12 +360,12 @@ class View
                         if (isset($data[$key1][$key2]) ) {
                             $replacement = null;
                             $replacement['search']
-                                = $item->ownerDocument->saveXML($item);
+                                = $item->ownerDocument->saveHTML($item);
 
                             $item->setAttribute('value', $data[$key1][$key2]);
 
                             $replacement['replace']
-                                = $item->ownerDocument->saveXML($item);
+                                = $item->ownerDocument->saveHTML($item);
                             $toReplace[] = $replacement;
                         } // end if isset
                     } // end if data[name]
@@ -375,7 +378,7 @@ class View
                 $body = $body->item(0);
                 $html = self::domInnerHTML($body);
             } else {
-                $html = @$dom->saveXML();
+                $html = @$dom->saveHTML();
             }
 
             if (!empty($toReplace) ) {
@@ -403,25 +406,25 @@ class View
                     if (isset($data[$name]) ) {
                               $replacement = null;
                               $replacement['search']
-                                  = $item->ownerDocument->saveXML($item);
+                                  = $item->ownerDocument->saveHTML($item);
 
                               $textNode = $dom->createTextnode($data[$name]);
                               $item->appendChild($textNode);
 
                               $replacement['replace']
-                                  = $item->ownerDocument->saveXML($item);
+                                  = $item->ownerDocument->saveHTML($item);
                               $toReplace[] = $replacement;
                     } // end if data[name]
                 } // end if has attributes
                 $count--;
             } // end while item data-source
 
-            if ($isFragment ) {
+            if ( $isFragment ) {
                 $body = $dom->getElementsByTagName('body');
                 $body = $body[0];
                 $html = self::domInnerHTML($body);
             } else {
-                $html = @$dom->saveXML();
+                $html = $dom->saveHTML();
             }
 
             if (!empty($toReplace) ) {
@@ -500,7 +503,7 @@ class View
 
                 //	Replacement
                 $replacement = null;
-                $replacement['search'] = $item->ownerDocument->saveXML($item);
+                $replacement['search'] = $item->ownerDocument->saveHTML($item);
                 $replacement['replace'] = $select;
                 $toReplace[] = $replacement;
             } // end if has attributes
@@ -512,7 +515,7 @@ class View
             $body = $body[0];
             $html = self::domInnerHTML($body);
         } else {
-            $html = @$dom->saveXML();
+            $html = @$dom->saveHTML();
         }
 
         if (!empty($toReplace) ) {
@@ -1018,7 +1021,7 @@ class View
 
                 //	Replacement
                 $replacement = null;
-                $replacement['search'] = $item->ownerDocument->saveXML($item);
+                $replacement['search'] = $item->ownerDocument->saveHTML($item);
                 $replacement['replace'] = $dataTable;
                 $toReplace[] = $replacement;
             } // end if has attributes
@@ -1030,7 +1033,7 @@ class View
             $body = $body[0];
             $html = self::domInnerHTML($body);
         } else {
-            $html = @$dom->saveXML();
+            $html = @$dom->saveHTML();
         }
 
         if (!empty($toReplace) ) {
@@ -1075,7 +1078,7 @@ class View
          $children  = $element->childNodes;
 
          foreach ($children as $child) {
-            $innerHTML .= $element->ownerDocument->saveXML($child);
+            $innerHTML .= $element->ownerDocument->saveHTML($child);
         }
 
          return $innerHTML;
@@ -1091,11 +1094,11 @@ class View
     public static function getDomFromHTML( $html )
     {
         $dom = new DOMDocument();
-        $prefix = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        $prefix = self::$_xmlTag;
         if (!Str::startsWith($html, $prefix) ) {
             $html = $prefix."\n".$html;
         }
-        @$dom->loadHTML($html);
+        $dom->loadHTML($html);
         return $dom;
 
         /*
@@ -1106,5 +1109,7 @@ class View
 
         */
     } // end function getDomFromHTML
+
+    private static $_xmlTag =  '<?xml version="1.0" encoding="UTF-8"?>';
 
 } // end class view

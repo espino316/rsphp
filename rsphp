@@ -15,7 +15,7 @@
 //  if the file is not existing only
 
 $cwd = getcwd();
-$rsPhpPath = dirname( __FILE__ );
+$rsPhpPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
 
 if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
     chdir( $rsPhpPath );
@@ -155,6 +155,22 @@ if ( $command == "route add" ) {
 
     RS::printLine( "Route added." );
 } // end if command is connection add
+
+if ( $command == "view add" ) {
+
+    if ( ! array_key_exists( "name", $params ) {
+        throw new Exception( "Must specify view name" );
+    } // end if not array key exists
+
+    if ( ! array_key_exists( "type", $params ) {
+        $params["type"] = "content";
+    } // end if not array key exists
+
+    RS::createView(
+        $params["name"],
+        $params["type"]
+    ); // end createView
+} // end if command is view add
 
 if ( $command == "view create new" ) {
 	$tableName = $params["table"];
