@@ -24,7 +24,10 @@ if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
 } // end if not exists
 
 require_once "$rsPhpPath/vendor/autoload.php";
-require_once "$rsPhpPath/public/index.php";
+
+if ( file_exists( "$rsPhpPath/public/index.php" ) ) {
+    require_once "$rsPhpPath/public/index.php";
+} // end if file exists
 
 use RSPhp\Framework\RS;
 use RSPhp\Framework\File;
@@ -158,11 +161,11 @@ if ( $command == "route add" ) {
 
 if ( $command == "view add" ) {
 
-    if ( ! array_key_exists( "name", $params ) {
+    if ( ! array_key_exists( "name", $params ) ) {
         throw new Exception( "Must specify view name" );
     } // end if not array key exists
 
-    if ( ! array_key_exists( "type", $params ) {
+    if ( ! array_key_exists( "type", $params ) ) {
         $params["type"] = "content";
     } // end if not array key exists
 

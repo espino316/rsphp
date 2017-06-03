@@ -1453,11 +1453,11 @@ class @tableNameModel extends Model {
      * Creates a view
      */
     static function createView( $viewName, $viewType ) {
-        if ( Str::endsWith( $viewName, ".html" ) {
+        if ( Str::endsWith( $viewName, ".html" ) ) {
             $viewName = Str::replace( ".html", "", $viewName );
         } // end if contains ".html"
 
-        $viewName = ROOT.DS."application".DS."Views".$viewName.".html",
+        $viewName = ROOT.DS."application".DS."Views".DS.$viewName.".html";
 
         if ( $viewType == "content" ) {
             File::write(
@@ -1467,9 +1467,11 @@ class @tableNameModel extends Model {
         } // end if content
 
         if ( $viewType == "page" ) {
+            $templatesPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
+            $templatesPath .= DS."templates";
             File::write(
                 $viewName,
-                File::read( dirname( __FILE__ ) . "templates/page.html"
+                File::read( $templatesPath . "/page.html" )
             ); // end File::write
         } // end if page
     } // end function createView
