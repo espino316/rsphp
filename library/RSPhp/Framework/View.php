@@ -281,10 +281,8 @@ class View
     {
 
         $dom = self::getDomFromHTML($html);
-        //$html = @$dom->saveHTML();
-        //echo $html; return;
 
-        //	DataSource Selects
+        //	Sections
         $items = $dom->getElementsByTagName('section');
         $count = $items->length - 1;
 
@@ -313,7 +311,7 @@ class View
                     $toReplace[] = $replacement;
                 } // end if has attributes
                 $count--;
-            } // end while item data-source
+            } // end while section
 
             if (!empty($toReplace) ) {
                 foreach ( $toReplace as $replacement ) {
@@ -373,14 +371,6 @@ class View
                 $count--;
             } // end while item data-source
 
-            if ($isFragment ) {
-                $body = $dom->getElementsByTagName('body');
-                $body = $body->item(0);
-                $html = self::domInnerHTML($body);
-            } else {
-                $html = @$dom->saveHTML();
-            }
-
             if (!empty($toReplace) ) {
                 foreach ( $toReplace as $replacement ) {
                     $old = $replacement['search'];
@@ -388,6 +378,16 @@ class View
                     $html = str_replace($old, $new, $html);
                 } // end foreach $replacement
             } // end if $toReplace not empty
+
+            if ($isFragment ) {
+                $body = $dom->getElementsByTagName('body');
+                $body = $body->item(0);
+                $html = self::domInnerHTML($body);
+            } else {
+                $dom->formatOutput = true;
+                $html = $dom->saveHTML();
+            } // end if isFragment
+
         } // end if $count > -1
 
         // Spans
@@ -419,14 +419,6 @@ class View
                 $count--;
             } // end while item data-source
 
-            if ( $isFragment ) {
-                $body = $dom->getElementsByTagName('body');
-                $body = $body[0];
-                $html = self::domInnerHTML($body);
-            } else {
-                $html = $dom->saveHTML();
-            }
-
             if (!empty($toReplace) ) {
                 foreach ( $toReplace as $replacement ) {
                     $old = $replacement['search'];
@@ -434,6 +426,15 @@ class View
                     $html = str_replace($old, $new, $html);
                 } // end foreach $replacement
             } // end if $toReplace not empty
+
+            if ( $isFragment ) {
+                $body = $dom->getElementsByTagName('body');
+                $body = $body[0];
+                $html = self::domInnerHTML($body);
+            } else {
+                $dom->formatOutput = true;
+                $html = $dom->saveHTML();
+            }
         } // end if $count > -1
 
         return $html;
@@ -503,28 +504,32 @@ class View
 
                 //	Replacement
                 $replacement = null;
-                $replacement['search'] = $item->ownerDocument->saveHTML($item);
-                $replacement['replace'] = $select;
+                $replacement['parent'] = $item->parentNode;
+                $replacement['search'] = $item;
+                $replacement['replace'] = self::getDomNode( $select );
                 $toReplace[] = $replacement;
             } // end if has attributes
             $count--;
         } // end while item data-source
+
+        if (!empty($toReplace) ) {
+            foreach ( $toReplace as $replacement ) {
+                $old = $replacement['search'];
+                $new = $replacement['replace'];
+                $parent = $replacement['parent'];
+                $new = $parent->ownerDocument->importNode( $new, true );
+                $parent->replaceChild( $new, $old );
+            } // end foreach $replacement
+        } // end if $toReplace not empty
 
         if ($isFragment ) {
             $body = $dom->getElementsByTagName('body');
             $body = $body[0];
             $html = self::domInnerHTML($body);
         } else {
-            $html = @$dom->saveHTML();
+            $dom->formatOutput = true;
+            $html = $dom->saveHTML();
         }
-
-        if (!empty($toReplace) ) {
-            foreach ( $toReplace as $replacement ) {
-                $old = $replacement['search'];
-                $new = $replacement['replace'];
-                $html = str_replace($old, $new, $html);
-            } // end foreach $replacement
-        } // end if $toReplace not empty
 
         return $html;
     } // end function _selectsDataBind
@@ -612,7 +617,7 @@ class View
                         null, $pageItems, $currentPage
                     );
 
-                if ($pagination ) {
+                if ( $pagination ) {
                        $data = $result['results'];
                        $options['pages'] = $result['pages'];
                 } else {
@@ -620,10 +625,10 @@ class View
                 } // end if pagination
 
                 if (isset($item->firstChild) ) {
-                         $tr = $item->firstChild;
+                    $tr = $item->firstChild;
                     if ($tr->tagName == 'tr' ) {
-                        $options["attributes"]["class"] = "table table-hover";
 
+                        $options["attributes"]["class"] = "table table-hover";
                         $ths = $tr->getElementsByTagName('th');
                         foreach ($ths as $th) {
 
@@ -1021,28 +1026,32 @@ class View
 
                 //	Replacement
                 $replacement = null;
-                $replacement['search'] = $item->ownerDocument->saveHTML($item);
-                $replacement['replace'] = $dataTable;
+                $replacement['parent'] = $item->parentNode;
+                $replacement['search'] = $item;
+                $replacement['replace'] = self::getDomNode( $dataTable );
                 $toReplace[] = $replacement;
             } // end if has attributes
             $count--;
         } // end while item data-source
+
+        if (!empty($toReplace) ) {
+            foreach ( $toReplace as $replacement ) {
+                $old = $replacement['search'];
+                $new = $replacement['replace'];
+                $parent = $replacement['parent'];
+                $new = $parent->ownerDocument->importNode( $new, true );
+                $parent->replaceChild( $new, $old );
+            } // end foreach $replacement
+        } // end if $toReplace not empty
 
         if ($isFragment ) {
             $body = $dom->getElementsByTagName('body');
             $body = $body[0];
             $html = self::domInnerHTML($body);
         } else {
-            $html = @$dom->saveHTML();
+            $dom->formatOutput = true;
+            $html = $dom->saveHTML();
         }
-
-        if (!empty($toReplace) ) {
-            foreach ( $toReplace as $replacement ) {
-                $old = $replacement['search'];
-                $new = $replacement['replace'];
-                $html = str_replace($old, $new, $html);
-            } // end foreach $replacement
-        } // end if $toReplace not empty
 
         return $html;
     } // end function _selectsDataBind
@@ -1078,11 +1087,21 @@ class View
          $children  = $element->childNodes;
 
          foreach ($children as $child) {
-            $innerHTML .= $element->ownerDocument->saveHTML($child);
+             $element->ownerDocument->formatOutput = true;
+             $innerHTML .= $element->ownerDocument->saveHTML($child);
         }
 
          return $innerHTML;
     } // end function DOMinnerHTML
+
+    public static function getDomNode( $html )
+    {
+        $dom = new DOMDocument();
+        $dom->loadHTML( "<html>$html</html>" );
+        $body = $dom->getElementsByTagName('body');
+        $body = $body[0];
+        return $body->firstChild;
+    } // end public static function getDomNode
 
     /**
      * Returns a DOM Document from HTML string
@@ -1098,7 +1117,7 @@ class View
         if (!Str::startsWith($html, $prefix) ) {
             $html = $prefix."\n".$html;
         }
-        $dom->loadHTML($html);
+        @$dom->loadHTML($html);
         return $dom;
 
         /*

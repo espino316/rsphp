@@ -138,6 +138,17 @@ class Db
         if (isset(self::$_dataSources[$dsName]) ) {
             return self::$_dataSources[$dsName];
         } else {
+            $fileName = APPPATH.DS."datasources".DS."default".DS.$dsName.".sql";
+            if ( File::exists( $fileName ) ) {
+                //  Create new datasource
+                $dataSource = new DataSource(
+                    "default",
+                    $dsName,
+                    "SQLQUERY",
+                    File::read( $fileName )
+                ); // end add dataSources
+                return $dataSource;
+            } // end if file exists
             return null;
         } // end if then else
     } // end getDataSource

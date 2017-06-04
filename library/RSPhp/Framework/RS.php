@@ -674,11 +674,19 @@ class RS
 
         //  Loop the args, form the parameters and the command
         $cont = 0;
+        $isParam = false;
         foreach ( $args as $arg ) {
             if (Str::startsWith($arg, "--") ) {
+                $isParam = true;
                 $commandParams[] = $arg;
             } elseif ($cont > 0 ) {
-                $command[] = $arg;
+                if ( $isParam ) {
+                    $tmp = $commandParams[count($commandParams)-1];
+                    $tmp .= " $arg";
+                    $commandParams[count($commandParams)-1] = $tmp;
+                } else {
+                    $command[] = $arg;
+                } // end if then else isParam
             } // end if
 
             // Increment the counter
