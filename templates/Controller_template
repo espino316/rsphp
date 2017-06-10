@@ -1,0 +1,30 @@
+w<?php
+
+namespace Application\Controllers;
+
+use RSPhp\Framework\Controller;
+use RSPhp\Framework\View;
+use RSPhp\Framework\Input;
+use RSPhp\Framework\Uri;
+use Exception;
+
+/**
+ * @description
+ */
+class @controllerName extends Controller
+{
+    /**
+     * Creates a new instance of @controllerName
+     */
+    function __construct()
+    {
+    } // end function constructs
+
+    /**
+     * The home %baseUrl/@name/
+     */
+    function index()
+    {
+    } // end function index
+
+} // end class @controllerName";

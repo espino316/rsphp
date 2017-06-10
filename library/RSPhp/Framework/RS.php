@@ -100,7 +100,7 @@ class RS
     static function init( $dir )
     {
         //  Get the current working directory
-        //  this script must be in vendor/rsphp/framework/library/RSPhp/Framework
+        //  this script must be in vendor/espino316/rsphp/library/RSPhp/Framework
         $cwd = dirname(dirname(dirname(dirname(__FILE__))));
 
         //  Set the dir
@@ -312,6 +312,9 @@ class RS
         File::write($composerJson, $json);
         self::printLine("Composer file updated.");
 
+        self::printLine( "Creating default controller" );
+        require_once( "$home/public/index.php" );
+        self::createController( "Default", "Default controller" );
         self::printLine("");
         self::printLine("Success!!  All done :)");
 
@@ -478,6 +481,22 @@ class RS
         $password,
         $port = null
     ) {
+        //  First we test the connection
+        $db = new Db(
+            array(
+                "driver" => $driver,
+                "hostName" => $hostName,
+                "databaseName" => $databaseName,
+                "userName" => $userName,
+                "password" => $password,
+                "port" => $port
+            ) // end array connection
+        ); // end new Db
+
+        //  Test connection
+        $db->connect();
+        $db->conn = null;
+
         $configFile = ROOT.DS.'config'.DS.'app.json';
         $indexToRemove = null;
         $removeIndex = false;
@@ -1026,36 +1045,19 @@ class RS
         $filename = $controllerName.".php";
         $filename = ROOT.DS.'application'.DS.'controllers'.DS.$filename;
 
-        $template = "<?php
-
-namespace Application\Controllers;
-
-use RSPhp\Framework\Controller;
-use RSPhp\Framework\View;
-use RSPhp\Framework\Input;
-use RSPhp\Framework\Uri;
-use Exception;
-
-/**
- * $description
- */
-class $controllerName extends Controller
-{
-    /**
-     * Creates a new instance of $controllerName
-     */
-    function __construct()
-    {
-    } // end function constructs
-
-    /**
-     * The home %baseUrl/$name/
-     */
-    function index()
-    {
-    } // end function index
-
-} // end class $controllerName";
+        $path = dirname( __FILE__ );
+        $path = dirname( $path );
+        $path = dirname( $path );
+        $path = dirname( $path );
+        $template = File::read( $path.DS."templates".DS."Controller_template" );
+        $template  = View::populateTemplate(
+            $template,
+            array(
+                "@controllerName" => $controllerName,
+                "@description" => $description,
+                "@name" => $ucName,
+            ) // end array data
+        ); // end View::
 
         file_put_contents($filename, $template);
         self::_dumpAutoload();
@@ -1093,11 +1095,13 @@ class $controllerName extends Controller
         $dirs[] = ROOT.DS.'application';
         $dirs[] = ROOT.DS.'public';
         $dirs[] = ROOT.DS.'config';
+        $dirs[] = ROOT.DS.'logs';
+        $dirs[] = ROOT.DS.'rsphp';
+        $dirs[] = ROOT.DS.'rsphp.bat';
+        $dirs[] = ROOT.DS.'rsphp_help';
 
         foreach ( $dirs as $dir ) {
              RS::printLine($dir);
-            //self::printLine( $dir );
-            //self::printLine( scandir( $dir ) );
 
             if (Directory::exists($dir) ) {
                 RS::printLine("Directory exists");
@@ -1113,10 +1117,14 @@ class $controllerName extends Controller
                         Directory::delete($file, true);
                     } else {
                         self::printLine('remove file '.$file);
-                        unlink($file);
+                        File::delete($file);
                     } // end if is dir
                 } // end foreach $file
                 Directory::delete( $dir, true );
+            } else {
+                if ( File::exists ( $dir ) ) {
+                    File::delete( $dir );
+                } // end if file exists
             } // end if dir exists
         } // end foreach dir
     } // end function cleanApp
@@ -1271,69 +1279,12 @@ class $controllerName extends Controller
             if ( ! Db::hasDbConnections() ) {
                 throw new Exception( "No connections are set. Try adding a connection first." );
             } // end if no connections
-            $classDefinition = '<?php
 
-namespace Application\Models;
-
-use RSPhp\Framework\Model;
-
-/**
- * Entity model for @tableNameModel
- */
-class @tableNameModel extends Model {
-
-    @publicProperties
-
-    /**
-     * Returns an instance of ActorModel
-     * @param long $@id
-     */
-    public function load($@id) {
-
-        $result =
-            parent::$db->from($this->getTableName())->
-            where("@id", $@id)->
-            first();
-
-        @loadProperties
-
-    } // end function load
-
-    /**
-     * Save the model to the database table
-     * @param string $forceInsert
-     */
-    function save($forceInsert = FALSE) {
-
-        $params = array(
-            @saveProperties
-        );
-
-        $where = array(
-            "@id" => $this->@id
-        );
-
-        if ($forceInsert) {
-            parent::$db->insert(
-                $this->getTableName(),
-                $params
-            );
-        } else {
-            parent::$db->upsert(
-                $this->getTableName(),
-                $params,
-                $where
-            );
-        } // end if then else
-
-        if ( $this->@id === null ) {
-            $this->@id =
-                parent::$db->from($this->getTableName())->
-                where($params)->
-                max("@id");
-        }
-    } // end function save
-} // end class @tableNameModel';
+            $path = dirname( __FILE__ );
+            $path = dirname( $path );
+            $path = dirname( $path );
+            $path = dirname( $path );
+            $classDefinition = File::read( $path.DS."templates".DS."Model_template" );
 
             if (! Db::hasDbConnections() ) {
                  throw new Exception("No connections are set up", 1);
@@ -1383,6 +1334,18 @@ class @tableNameModel extends Model {
                      "result['$columnName'];\n";
             }
 
+            //	Undefined properties
+            $undefinedProperties = "";
+            $colNameStr = 'COLUMN_NAME';
+            if (!isset($columns[0][$colNameStr])) {
+                $colNameStr = 'column_name';
+            }
+
+            foreach ($columns as $row) {
+                $columnName = $row[$colNameStr];
+                $undefinedProperties .= "\t\t$"."this->$columnName = Undefined::instance();\n";
+            }
+
             //	Save properties
             $saveProperties = "";
             foreach ( $columns as $row ) {
@@ -1396,6 +1359,7 @@ class @tableNameModel extends Model {
             $text = str_replace("@id", strtolower($id), $text);
             $text = str_replace("@publicProperties", $publicProperties, $text);
             $text = str_replace("@loadProperties", $loadProperties, $text);
+            $text = str_replace("@undefinedProperties", $undefinedProperties, $text);
             $text = str_replace("@saveProperties", $saveProperties, $text);
 
             $filename = "application/models/" . ucfirst($tableName) . "Model.php";
@@ -1461,11 +1425,28 @@ class @tableNameModel extends Model {
      * Creates a view
      */
     static function createView( $viewName, $viewType ) {
-        if ( Str::endsWith( $viewName, ".html" ) ) {
-            $viewName = Str::replace( ".html", "", $viewName );
-        } // end if contains ".html"
+        $viewsFolder = ROOT.DS."application".DS."Views";
 
-        $viewName = ROOT.DS."application".DS."Views".DS.$viewName.".html";
+        if ( Str::contains( $viewName, "/" ) ) {
+            $values = explode( "/", $viewName );
+            $max = count( $values ) - 2;
+            $cont = 0;
+            while ( $cont <= $max ) {
+                $dir = $viewsFolder.DS.$values[$cont];
+                if ( ! Directory::exists( $dir ) ) {
+                    Directory::create( $dir );
+                } // end if Directory not exists
+                $cont++;
+            } // end while cont
+
+            $viewName = Str::replace( "/", DS, $viewName );
+
+        } // end if contains "/"
+
+        $viewName = $viewsFolder.DS.$viewName;
+        if ( ! Str::endsWith( $viewName, ".html" ) ) {
+            $viewName .= ".html";
+        } // end if contains ".html"
 
         if ( $viewType == "content" ) {
             File::write(
@@ -1482,5 +1463,7 @@ class @tableNameModel extends Model {
                 File::read( $templatesPath . "/page.html" )
             ); // end File::write
         } // end if page
+
+        self::printLine( "View $viewName created." );
     } // end function createView
 } // end function class RS

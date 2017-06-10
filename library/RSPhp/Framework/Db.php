@@ -730,19 +730,6 @@ class Db
      */
     function queryTable($tableName, $queryParams = null, $className = null)
     {
-
-        //	remove nulls
-        if ($queryParams != null ) {
-            foreach ( array_keys($queryParams) as $key ) {
-                if ($queryParams[$key] == null
-                    && ! is_numeric($queryParams[$key])
-                    && $queryParams[$key] !== 0
-                ) {
-                    unset($queryParams[$key]);
-                }
-            } // end foreach key
-        } // end if $queryParams is null
-
         $where = "";
         if ($queryParams != null ) {
             foreach ( array_keys($queryParams) as $key ) {

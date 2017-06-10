@@ -28,10 +28,27 @@ namespace RSPhp\Framework;
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class Undefined
+final class Undefined
 {
-    function __construct()
+    /**
+     * Returns singleton
+     *
+     * @return Undefined
+     */
+    public static function instance()
+    {
+        static $instance = null;
+        if ( $instance == null ) {
+            $instance = new Undefined();
+        } // end if null
+        return $instance;
+    } // end function Instance
+
+    /**
+     * Private construct, no public instances
+     */
+    private function __construct()
     {
         // Do nothing
     } // end function __construct
-} // end class App
+} // end class Undefined

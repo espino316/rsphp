@@ -16,6 +16,8 @@
 
 namespace RSPhp\Framework;
 
+use Exception;
+
 /**
  * Helper for file management
  *
@@ -52,6 +54,9 @@ class File
      */
     public static function read( $file )
     {
+        if ( ! file_exists( $file ) ) {
+            throw new Exception( "File $file do not exists" );
+        } // end if not exists
         return file_get_contents($file);
     } // end function read
 

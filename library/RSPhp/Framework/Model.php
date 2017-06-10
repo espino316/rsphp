@@ -222,4 +222,26 @@ class Model
         self::$db->setReturnClass(get_called_class());
     } // end protected static function setDB
 
+    /**
+     * Removes the db undefined
+     *
+     * @param Array $queryParams The parameters to remove the nulls
+     *
+     * @return null
+     */
+    protected static function removeUndefined( $queryParams )
+    {
+        foreach( $queryParams as $key => $value ) {
+            print_r( array( $key => $value ) );
+            if (
+                gettype( $value ) == "object" &&
+                get_class( $value ) == "Undefined"
+            ) {
+                unset( $queryParams[$key] );
+            } // end if object
+        }
+
+        return $queryParams;
+    } // end protected static function removeUndefined
+
 } // end class Model

@@ -1,0 +1,74 @@
+<?php
+
+namespace Application\Models;
+
+use RSPhp\Framework\Model;
+
+/**
+ * Entity model for @tableNameModel
+ */
+class @tableNameModel extends Model {
+
+    @publicProperties
+
+    /**
+     * Creates an instance of @tableNameModel
+     */
+    public function __constructor()
+    {
+        @undefinedProperties
+    } // end function __constructor
+
+    /**
+     * Returns an instance of ActorModel
+     * @param long $@id
+     */
+    public function load($@id) {
+
+        $result =
+            parent::$db->from($this->getTableName())->
+            where("@id", $@id)->
+            first();
+
+        @loadProperties
+
+    } // end function load
+
+    /**
+     * Save the model to the database table
+     * @param string $forceInsert
+     */
+    function save($forceInsert = FALSE) {
+
+        $params = array(
+            @saveProperties
+        );
+
+        $where = array(
+            "@id" => $this->@id
+        );
+
+        $params = parent::removeUndefined($params);
+        $where = parent::removeUndefined($where);
+
+        if ($forceInsert) {
+            parent::$db->insert(
+                $this->getTableName(),
+                $params
+            );
+        } else {
+            parent::$db->upsert(
+                $this->getTableName(),
+                $params,
+                $where
+            );
+        } // end if then else
+
+        if ( $this->@id === null ) {
+            $this->@id =
+                parent::$db->from($this->getTableName())->
+                where($params)->
+                max("@id");
+        }
+    } // end function save
+} // end class @tableNameModel
