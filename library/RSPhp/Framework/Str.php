@@ -138,6 +138,24 @@ class Str
     } // end function stripAccents
 
     /**
+     * Replaces a string within another
+     *
+     * @param Str $search  The string to search
+     * @param Str $replace The string to replace
+     * @param Str $str  The string to search in
+     *
+     * @return Str
+     */
+    static function replace( $search, $replace, $str = null )
+    {
+        if ( is_array( $search ) && ! $str ) {
+            return self::_dictReplace( $search, $replace );
+        } // end if is array and no str
+        $str = str_replace($search, $replace, $str);
+        return $str;
+    } // end function  replace
+
+    /**
      * Replaces the key with the value of $dictionary in $str
      *
      * @param Array  $dictionary Dictionary with key and value
@@ -147,7 +165,7 @@ class Str
      *
      * @return Str
      */
-    static function stringReplace( $dictionary, $str )
+    private static function _dictReplace( $dictionary, $str )
     {
         foreach ($dictionary as $key => $value) {
             $str = str_replace($key, $value, $str);
@@ -270,21 +288,6 @@ class Str
             return $uuid;
         }
     } // end function GUID
-
-    /**
-     * Replaces a string within another
-     *
-     * @param Str $search  The string to search
-     * @param Str $replace The string to replace
-     * @param Str $str  The string to search in
-     *
-     * @return Str
-     */
-    static function replace( $search, $replace, $str )
-    {
-        $str = str_replace($search, $replace, $str);
-        return $str;
-    } // end function  replace
 
     /**
      * Returns a random string of $len characters
