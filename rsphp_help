@@ -15,7 +15,7 @@ To list:
         ./rsphp view list
 
 To create a connection:
-    ./rsphp connection add --name=[name] --driver=[mysql|pgsql|dblib|sqlsrv] --hostName=[hostname|ipaddress] --userName="[user name]" --password=[password]
+    ./rsphp connection add --name=[name] --driver=[mysql|pgsql|dblib|sqlsrv] --hostName=[hostname|ipaddress] --databaseName=[databaseName] --userName="[user name]" --password=[password]
 
 To create a data source:
     ./rsphp datasource add --name=[name] --connection=[connection name] --type=[SQLQUERY|JSON] --text="[The sql query"] --file="[path/to/file.sql]"

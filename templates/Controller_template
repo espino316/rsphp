@@ -1,4 +1,4 @@
-w<?php
+<?php
 
 namespace Application\Controllers;
 
@@ -27,4 +27,4 @@ class @controllerName extends Controller
     {
     } // end function index
 
-} // end class @controllerName";
+} // end class @controllerName;

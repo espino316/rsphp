@@ -1050,13 +1050,13 @@ class RS
         $path = dirname( $path );
         $path = dirname( $path );
         $template = File::read( $path.DS."templates".DS."Controller_template" );
-        $template  = View::populateTemplate(
-            $template,
+        $template  = Str::replace(
             array(
                 "@controllerName" => $controllerName,
                 "@description" => $description,
                 "@name" => $ucName,
-            ) // end array data
+            ), // end array data
+            $template
         ); // end View::
 
         file_put_contents($filename, $template);
