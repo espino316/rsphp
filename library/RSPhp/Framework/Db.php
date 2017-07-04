@@ -382,17 +382,6 @@ class Db
      */
     function insert( $tableName, $params )
     {
-
-        //	remove nulls
-        foreach ( array_keys($params) as $key ) {
-            if ($params[$key] == null
-                && ! is_numeric($params[$key])
-                && $params[$key] !== 0
-            ) {
-                unset($params[$key]);
-            }
-        }
-
         //	Connect
         $this->connect();
 
@@ -565,25 +554,6 @@ class Db
      */
     function upsert($tableName, $params, $where)
     {
-
-        //	remove nulls
-        foreach ( array_keys($params) as $key ) {
-            if ($params[$key] == null
-                && ! is_numeric($params[$key])
-                && $params[$key] !== 0
-            ) {
-                unset($params[$key]);
-            }
-        }
-
-        foreach ( array_keys($where) as $key ) {
-
-            if ($where[$key] == null
-                && ! is_numeric($where[$key])
-            ) {
-                unset($where[$key]);
-            }
-        }
 
         //	Connect
         $this->connect();
@@ -764,12 +734,12 @@ class Db
         }
 
         if ($className != null) {
-            $resultset = $statement->fetchAll(PDO::FETCH_CLASS, $className);
+            $resultset = $statement->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, $className);
         } else {
 
             if ($this->returnClassName !== null ) {
                 $resultset
-                    = $statement->fetchAll(PDO::FETCH_CLASS, $this->returnClassName);
+                    = $statement->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, $this->returnClassName);
             } else {
                 //	The result set to return
                 $resultset = array();
@@ -815,19 +785,6 @@ class Db
      */
     function query($sql, $queryParams = null, $className = null)
     {
-
-        //	remove nulls
-        if ($queryParams != null ) {
-            foreach ( array_keys($queryParams) as $key ) {
-                if ($queryParams[$key] == null
-                    && ! is_numeric($queryParams[$key])
-                    && $queryParams[$key] !== 0
-                ) {
-                    unset($queryParams[$key]);
-                }
-            } // end foreach key
-        } // end if $queryParams is null
-
         //	Connect
         $this->connect();
 
@@ -849,12 +806,12 @@ class Db
         }
 
         if ($className !== null) {
-            $resultset = $statement->fetchAll(PDO::FETCH_CLASS, $className);
+            $resultset = $statement->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, $className);
         } else {
 
             if ($this->returnClassName !== null ) {
                 $resultset
-                    = $statement->fetchAll(PDO::FETCH_CLASS, $this->returnClassName);
+                    = $statement->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, $this->returnClassName);
             } else {
                 //	The result set to return
                 $resultset = array();
@@ -889,19 +846,6 @@ class Db
      */
     function scalar($sql, $queryParams)
     {
-
-        //	remove nulls
-        if ($queryParams != null ) {
-            foreach ( array_keys($queryParams) as $key ) {
-                if ($queryParams[$key] == null
-                    && ! is_numeric($queryParams[$key])
-                    && $queryParams[$key] !== 0
-                ) {
-                    unset($queryParams[$key]);
-                }
-            } // end foreach key
-        } // end if $queryParams is null
-
         //	Connect
         $this->connect();
 
@@ -939,19 +883,6 @@ class Db
      */
     function nonQuery($sql, $queryParams)
     {
-
-        //	remove nulls
-        if ($queryParams != null ) {
-            foreach ( array_keys($queryParams) as $key ) {
-                if ($queryParams[$key] == null
-                    && ! is_numeric($queryParams[$key])
-                    && $queryParams[$key] !== 0
-                ) {
-                    unset($queryParams[$key]);
-                }
-            } // end foreach key
-        } // end if $queryParams is null
-
         //	Connect
         $this->connect();
 

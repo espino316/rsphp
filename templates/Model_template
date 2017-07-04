@@ -17,6 +17,9 @@ class @tableNameModel extends Model {
     public function __constructor()
     {
         @undefinedProperties
+
+        // Call parent constructor
+        parent::__construct();
     } // end function __constructor
 
     /**
@@ -64,7 +67,7 @@ class @tableNameModel extends Model {
             );
         } // end if then else
 
-        if ( $this->@id === null ) {
+        if ( $this->@id === Undefined::instance() ) {
             $this->@id =
                 parent::$db->from($this->getTableName())->
                 where($params)->
