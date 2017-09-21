@@ -62,6 +62,16 @@ class Uri
     } // end function getSegment
 
     /**
+     * Get Segments
+     *
+     * @return Array
+     */
+    static function getSegments()
+    {
+        return self::$segments;
+    } // end function getSegments
+
+    /**
      * Retrieve the number of segments
      *
      * @return Int

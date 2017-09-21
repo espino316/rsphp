@@ -919,7 +919,7 @@ class RS
 
                 $route->match($url);
 
-                if ($route->method == "*" || $route->method == $method) {
+                if ($route->method == "*" || strtoupper($route->method) == strtoupper($method)) {
                     $url = str_replace($route->uri, $route->newUri, $url);
                 } // end if method
             } // end foreach
@@ -995,11 +995,11 @@ class RS
                 ROOT.DS.$action
             )
             ) {
-                 self::serveFile(ROOT.DS.$action);
+                self::serveFile(ROOT.DS.$action);
             } else {
                 throw new Exception(
                     'Controller or action do not exist: ' .
-                    $controller . ' / ' . $action . 'nor file ' .
+                    $controller . ' / ' . $action . ' nor file ' .
                     ROOT.DS.$action
                 );
             } // end if then else file method or file exists

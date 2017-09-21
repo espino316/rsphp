@@ -236,5 +236,28 @@ class Output
         echo Xml::getString( $data );
     } // end function xmlResponse
 
-} // end class Output
+    /**
+     * Sets a header
+     *
+     * @param String $key The header key
+     * @param String $value The header value
+     *
+     * @return null
+     */
+    static function setHeader( $key, $value )
+    {
+        header("$key: $value");
+    } // end function setHeader
 
+    /**
+     * Sets a status
+     *
+     * @param Int $code The status code
+     *
+     * @return null
+     */
+    static function setStatusCode($statusCode)
+    {
+        http_response_code($statusCode);
+    } // end function setStatusCode
+} // end class Output

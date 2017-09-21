@@ -59,7 +59,7 @@ class Http
      *
      * @return null
      */
-    private static function _request(
+    private static function request(
         $method, $url, $data = null, $headers = null
     ) {
         //  Refresh headers
@@ -70,10 +70,11 @@ class Http
         if ( $method == "GET" && $data && is_array( $data ) ) {
             $url .= "?" . http_build_query( $data );
             $curl = curl_init( $url );
+        } else if ( $method == "GET" ) {
+            $curl = curl_init( $url );
         } else {
             $curl = curl_init();
         } // end if
-
 
         if ( $headers && is_array( $headers ) ) {
             $headersData = array();
@@ -91,19 +92,19 @@ class Http
         $options = array(
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HEADER => false,
-                CURLOPT_HEADER_OUT => true,
+                CURLINFO_HEADER_OUT => true,
                 CURLOPT_HEADERFUNCTION => array(
-                    "RSPhp/Framework/Http",
-                    "headerCallBack"
+                    "Http",
+                    "headersCallBack"
                 ) // end callback data
             ); // end options array
 
         switch ( $method ) {
             case "POST":
                 $options[CURLOPT_URL] = $url;
-                $options[CURLOPT_POST] => true;
+                $options[CURLOPT_POST] = true;
                 if ( $data ) {
-                    $options[CURLOPT_POSTFIELDS] => $data;
+                    $options[CURLOPT_POSTFIELDS] = $data;
                 } // end if data
             break;
 
@@ -111,7 +112,7 @@ class Http
                 $options[CURLOPT_URL] = $url;
                 $options[CURLOPT_CUSTOMREQUEST] = "PUT";
                 if ( $data ) {
-                    $options[CURLOPT_POSTFIELDS] => $data;
+                    $options[CURLOPT_POSTFIELDS] = $data;
                 } // end if data
             break;
 
@@ -119,7 +120,7 @@ class Http
                 $options[CURLOPT_URL] = $url;
                 $options[CURLOPT_CUSTOMREQUEST] = "DELETE";
                 if ( $data ) {
-                    $options[CURLOPT_POSTFIELDS] => $data;
+                    $options[CURLOPT_POSTFIELDS] = $data;
                 } // end if data
             break;
 
@@ -127,7 +128,7 @@ class Http
                 $options[CURLOPT_URL] = $url;
                 $options[CURLOPT_CUSTOMREQUEST] = "OPTIONS";
                 if ( $data ) {
-                    $options[CURLOPT_POSTFIELDS] => $data;
+                    $options[CURLOPT_POSTFIELDS] = $data;
                 } // end if data
             break;
 
@@ -135,7 +136,7 @@ class Http
                 $options[CURLOPT_URL] = $url;
                 $options[CURLOPT_CUSTOMREQUEST] = "HEADER";
                 if ( $data ) {
-                    $options[CURLOPT_POSTFIELDS] => $data;
+                    $options[CURLOPT_POSTFIELDS] = $data;
                 } // end if data
             break;
         } // end switch
@@ -143,7 +144,13 @@ class Http
         curl_setopt_array( $curl, $options ); // end curl setopt array
 
         $response = curl_exec( $curl );
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if(curl_error($curl))
+        {
+            throw new Exception( curl_error($curl) );
+        }
+
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close( $curl );
 
         $response = new HttpResponse(
@@ -163,7 +170,7 @@ class Http
      */
     public static function get( $url, $data = null, $headers = null )
     {
-        return self::_request( "GET", $url, $data, $headers );
+        return self::request( "GET", $url, $data, $headers );
     } // end function request
 
     /**
@@ -177,7 +184,7 @@ class Http
      */
     public static function post( $url, $data = null, $headers = null )
     {
-        return self::_request( "POST", $url, $data, $headers );
+        return self::request( "POST", $url, $data, $headers );
     } // end function request
 
     /**
@@ -191,7 +198,7 @@ class Http
      */
     public static function put( $url, $data = null, $headers = null )
     {
-        return self::_request( "PUT", $url, $data, $headers );
+        return self::request( "PUT", $url, $data, $headers );
     } // end function request
 
     /**
@@ -205,7 +212,7 @@ class Http
      */
     public static function delete( $url, $data = null, $headers = null )
     {
-        return self::_request( "DELETE", $url, $data, $headers );
+        return self::request( "DELETE", $url, $data, $headers );
     } // end function request
 
     /**
@@ -219,6 +226,6 @@ class Http
      */
     public static function delete( $url, $data = null, $headers = null )
     {
-        return self::_request( "OPTIONS", $url, $data, $headers );
+        return self::request( "OPTIONS", $url, $data, $headers );
     } // end function request
 } // end class Http

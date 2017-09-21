@@ -16,6 +16,11 @@
 
 namespace RSPhp\Framework;
 
+use Exception;
+use PEAR;
+use Mail_mime;
+use Mail;
+
 /**
  * Send emails
  *
@@ -46,6 +51,48 @@ class Mailer
     private static $_isValid = true;
 
     /**
+     * Sets the configuration
+     *
+     * @param Array $config The configuration array
+     *
+     * @return void
+     */
+    static function setConfig( $config )
+    {
+        if ( ! is_array( $config ) ) {
+            throw new Exception( "Config must be an array" );
+        } // end if is_array
+
+        if ( count( $config ) < 3 ) {
+            throw new Exception( "Config must have at least three arguments" );
+        } // end if config
+
+        if ( !array_key_exists( "mailServer", $config ) ||
+            !array_key_exists( "mailUser", $config ) ||
+            !array_key_exists( "mailPassword", $config )
+        ) {
+            throw new Exception( "Config must have mailServer, mailUser, mailPassword" );
+        } // end if not key exists
+
+        foreach( $config as $key => $value ) {
+            switch ( $key ) {
+                case "mailServer":
+                    App::set( "MAIL_SERVER", $value );
+                break;
+                case "mailUser":
+                    App::set( "MAIL_USER", $value );
+                break;
+                case "mailPassword":
+                    App::set( "MAIL_PWD", $value );
+                break;
+                case "mailPort":
+                    App::set( "MAIL_PORT", $value );
+                break;
+            } // end switch
+        } // end foreach
+    } // end static function setConfig
+
+    /**
      * Adds an attachment to the message
      *
      * @param String $file The attachment path
@@ -70,13 +117,14 @@ class Mailer
      */
     static function send()
     {
-
-        include_once "Mail.php";
-        include_once "Mail/mime.php";
-
         $host = App::get('MAIL_SERVER');
         $username = App::get('MAIL_USER');
         $password = App::get('MAIL_PWD');
+        $port = App::get('MAIL_PORT');
+
+        if ( ! $port ) {
+            $port = 25;
+        } // end if not port
 
         $headers['From'] = self::$from;
         $headers['To'] = self::$to;
@@ -89,6 +137,7 @@ class Mailer
         $config['auth'] = true;
         $config['username'] = $username;
         $config['password'] = $password;
+        $config['port'] = $port;
 
         if (count(self::$attachments) ) {
             $mime = new Mail_mime("\r\n");

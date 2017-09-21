@@ -955,9 +955,7 @@ class Db
                 if (is_null($columnName[$colName])
                     && ! is_numeric($columnName[$colName])
                 ) {
-
                     unset($columnName[$colName]);
-
                 } else {
                     $cont = count($this->whereParams) + 1;
                     $paramName = str_replace(".", "_", $colName) . $cont;
@@ -1222,12 +1220,12 @@ class Db
 
                     } else {
                         $primaryKeys = $this->getPrimaryKeys($this->from);
-                        $orderBy = $primaryKeys[0]['column_name'];
+                        $orderBy = $primaryKeys[0];
                     }
                 } else {
                     throw new Exception("Statement has no from");
                 } // end if from
-                $sql = str_replce('@orderByStatement', " ORDER BY $orderBy ", $sql);
+                $sql = str_replace('@orderByStatement', " ORDER BY $orderBy ", $sql);
             } // end if orderByStatement
         } // end if limitType 3
 
@@ -2003,10 +2001,15 @@ class Db
         $queryParams['tableName'] = $tableName;
         $queryParams['databaseName'] = $this->dbConn->databaseName;
 
-         $result = $this->query($sql, $queryParams);
+        $results = $this->query($sql, $queryParams);
+        $result = array();
+        if ( $results ) {
+            foreach( $results as $row ) {
+                $result[] = reset($row);
+            } // end foreach
+        } // end if $result
 
         return $result;
-
     } // end function getPrimaryKeys
 
     /**
