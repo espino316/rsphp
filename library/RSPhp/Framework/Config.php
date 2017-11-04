@@ -30,7 +30,7 @@ namespace RSPhp\Framework;
 class Config
 {
 
-    private static $_data = array();
+    private static $data = array();
 
     /**
      * Loads the configuration
@@ -43,16 +43,16 @@ class Config
             $folder = ROOT.DS.'config';
             $files = Directory::getFiles($folder, array( '.json' ));
             foreach ( $files as $file ) {
-                self::_loadConfig($file);
+                self::loadConfig($file);
             } // end foreach
 
-            if (isset(self::$_data['configFiles']) ) {
-                foreach ( self::$_data['configFiles'] as $file ) {
-                    self::_loadConfig($file);
+            if (isset(self::$data['configFiles']) ) {
+                foreach ( self::$data['configFiles'] as $file ) {
+                    self::loadConfig($file);
                 } // end foreach configFiles
             } // end if configFiles
 
-            self::_processConfig();
+            self::processConfig();
         } catch ( \Exception $ex ) {
             RS::printLine( "ERROR:" );
             RS::printLine( $ex->getMessage() );
@@ -69,10 +69,10 @@ class Config
     static function get($key = null)
     {
         if ($key == null ) {
-             return self::$_data;
+             return self::$data;
         } else {
-            if (array_key_exists($key, self::$_data)) {
-                return self::$_data[$key];
+            if (array_key_exists($key, self::$data)) {
+                return self::$data[$key];
             } else {
                 return null;
             } // end if array key exists
@@ -89,7 +89,7 @@ class Config
      */
     static function set( $key, $value )
     {
-        self::$_data[$key] = $value;
+        self::$data[$key] = $value;
     } // end function set
 
     /**
@@ -99,26 +99,26 @@ class Config
      *
      * @return void
      */
-    private static function _loadConfig( $file )
+    private static function loadConfig( $file )
     {
         //	Read json into array
         if (file_exists($file) ) {
             $config = file_get_contents($file);
             $config = json_decode($config, true);
-             self::$_data = array_merge(self::$_data, $config);
+             self::$data = array_merge(self::$data, $config);
         } else {
             throw new \Exception("$file do not exists");
         } // end if file exists
-    } // end function _loadConfig
+    } // end function loadConfig
 
     /**
      * Process the configuration
      *
      * @return void
      */
-    private static function _processConfig()
+    private static function processConfig()
     {
-        $config = self::$_data;
+        $config = self::$data;
 
         //	Appname
         if (isset($config['appName']) ) {
@@ -137,6 +137,15 @@ class Config
                 //print_r( Db:$connections['default'] );
             } // end foreach
         } // if isset dbConnections
+
+        if (isset($config["webConnections"]) ) {
+            foreach ( $config['webConnections'] as $webConn ) {
+                Web::setWebConnection(
+                    $webConn["name"],
+                    new WebConnection( $webConn )
+                );
+            } // end foreach
+        } // if isset webConnections
 
         //	Routes
         $routes = array();
@@ -159,22 +168,22 @@ class Config
         } // end if isset globals
 
         //	Load dataSources
-        self::_loadDataSources();
-    } // end function _processConfig
+        self::loadDataSources();
+    } // end function processConfig
 
     /**
      * Load the datasources from the configuration
      *
      * @return void
      */
-    private static function _loadDataSources()
+    private static function loadDataSources()
     {
-        if ( !array_key_exists( "datasources", self::$_data ) ) {
+        if ( !array_key_exists( "datasources", self::$data ) ) {
             Logger::debug( "datasources not exists in config" );
             return;
         } // end if not exist datasources
 
-        $dataSources = self::$_data['datasources'];
+        $dataSources = self::$data['datasources'];
 
         foreach ( $dataSources as $ds ) {
             $dataSource = new DataSource(
@@ -213,5 +222,5 @@ class Config
 
             Db::setDataSource( $ds["name"], $dataSource );
         } // end foreach datasources
-    } // end function _loadDataSources
+    } // end function loadDataSources
 } // end class Config

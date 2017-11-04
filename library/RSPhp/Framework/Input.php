@@ -111,7 +111,11 @@ class Input
      */
     static function load()
     {
-        $headers = getallheaders();
+        $headers = array();
+        if ( self::getMethod() != "CLI" ) {
+            $headers = getallheaders();
+        } // end if not cli get headers
+
         foreach( $headers as $key => $value ) {
             self::$headers[strtolower($key)] = $value;
         } // end foreach header

@@ -99,5 +99,57 @@ class Controller
             'Access-Control-Request-Method, Access-Control-Request-Headers'
         );
     } // end function setCORS
+
+    /**
+     * Loads a view with the default Header and Footer
+     *
+     * @param String $viewName The name of the view
+     * @param Array $data The data to pass to the view
+     *
+     * @return Null
+     */
+    function loadContent($viewName, $data = null)
+    {
+        View::load('Header', $data);
+        View::load($content, $data);
+        View::load('Header', $data);
+    } // end function loadContent
+
+    /**
+     * Return session "hasError"
+     *
+     * @return Boolean
+     */
+    function hasError()
+    {
+        return Session::get("hasError");
+    }
+
+    /**
+     * Returns the errorMessage
+     * Clears the message
+     *
+     * @return Null
+     */
+    function getError()
+    {
+        $errorMessage = Session::get("errorMessage");
+        Session::remove("hasError");
+        Session::remove("errorMessage");
+        return $errorMessage;
+    } // end function getError
+
+    /**
+     * Sets an error
+     *
+     * @param String $errorMessage
+     *
+     * @return Null
+     */
+    function setError($errorMessage)
+    {
+        Session::set("hasError", true);
+        Session::set("errorMessage", $errorMessage);
+    } // end function setError
 } // end class Controller
 

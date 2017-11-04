@@ -1,8 +1,10 @@
-[
-    {
-        "connection": "default",
-        "name": "testDataSource",
-        "type": "query",
-        "text": "SELECT * FROM customers"
-    }
-]
+{
+    "datasources": [
+        {
+            "connection": "default",
+            "name": "testDataSource",
+            "type": "query",
+            "text": "SELECT * FROM customers"
+        }
+    ]
+}

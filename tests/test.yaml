@@ -1,0 +1,17 @@
+rollup:
+  create users:
+    - user_id increment
+    - name string 50
+    - email string 50
+
+  create schools:
+    - school_id increment
+    - name string 60
+    - address_street string 50
+    - address_street_number string 10
+    - address_postal_code string 6
+    - date_stamp datetime null
+
+rolldown:
+  - drop schools
+  - drop users

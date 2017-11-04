@@ -104,7 +104,7 @@ class DataSource
      *
      * @return Assoc Array
      */
-    private function _getParameter( $param )
+    private function getParameter( $param )
     {
         switch ( $param->type ) {
         case 'session':
@@ -126,8 +126,24 @@ class DataSource
         if ($value) {
             return array( $param->name => $value );
         } // end if value
-    } // end function _getParameter
+    } // end function getParameter
 
+    /**
+     * Makes a web request and return the data
+     *
+     * @return Array
+     */
+    private function getHttp($params = null)
+    {
+        $conn = Web::getWebConnection($this->connection);
+        $url = $conn->endPoint . "/" . $this->text;
+        $response = Http::request($conn->method, $url, $conn->parameters, $conn->headers);
+        print_r([$conn, $this, $url, $response]);
+
+        if ($response->data) {
+            return json_decode($response->data, true);
+        } // end if response data
+    } // end function getHttp
 
     /**
      * Returns a result from a DataSource
@@ -143,6 +159,10 @@ class DataSource
         $pageItems = null,
         $currentPage = null
     ) {
+
+        if ($this->type == "HTTP") {
+            return $this->getHttp($params);
+        } // end if type is HTTP
 
         if ($this->type == 'JSON') {
             $fileName = Str::replace(':ROOT', ROOT, $this->file);
@@ -186,7 +206,7 @@ class DataSource
                         continue;
                     } // end if $paramName = $param->name
 
-                    $params[] = $this->_getParameter( $param );
+                    $params[] = $this->getParameter( $param );
 
                 } // end foreach param
             } // end foreach

@@ -34,8 +34,8 @@ use InvalidArgumentException;
  */
 class Db
 {
-    private static $_dbConnections = array();
-    private static $_dataSources = array();
+    private static $dbConnections = array();
+    private static $dataSources = array();
 
     /**
      * @var DbConnection The connection details to the database
@@ -123,7 +123,7 @@ class Db
      */
     public static function setDataSource( $dsName, $ds )
     {
-        self::$_dataSources[$dsName] = $ds;
+        self::$dataSources[$dsName] = $ds;
     } // end function setDataSource
 
     /**
@@ -135,8 +135,8 @@ class Db
      */
     public static function getDataSource( $dsName )
     {
-        if (isset(self::$_dataSources[$dsName]) ) {
-            return self::$_dataSources[$dsName];
+        if (isset(self::$dataSources[$dsName]) ) {
+            return self::$dataSources[$dsName];
         } else {
             $fileName = APPPATH.DS."datasources".DS."default".DS.$dsName.".sql";
             if ( File::exists( $fileName ) ) {
@@ -163,7 +163,7 @@ class Db
      */
     public static function setDbConnection( $connName, $conn )
     {
-        self::$_dbConnections[$connName] = $conn;
+        self::$dbConnections[$connName] = $conn;
     } // end function setDataSource
 
     /**
@@ -175,8 +175,8 @@ class Db
      */
     public static function getDbConnection( $connName )
     {
-        if ( isset( self::$_dbConnections[$connName] ) ) {
-            return self::$_dbConnections[$connName];
+        if ( isset( self::$dbConnections[$connName] ) ) {
+            return self::$dbConnections[$connName];
         } else {
             return null;
         } // end if then else
@@ -189,11 +189,11 @@ class Db
      */
     public static function hasDbConnections()
     {
-        if ( count( self::$_dbConnections ) ) {
+        if ( count( self::$dbConnections ) ) {
             return true;
         } else {
             return false;
-        } // end if count $_dbConnections
+        } // end if count $dbConnections
     } // end function hasDbConnections
 
     /**

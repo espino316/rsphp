@@ -4,371 +4,122 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1b10d83b995c3f9db9f478e1640c8b38",
-    "content-hash": "62efdc29aead77ea97d25e87aa49a380",
+    "content-hash": "43ba7f7c1895e1fb6869fd76347137dd",
     "packages": [
         {
-            "name": "pear/console_getopt",
-            "version": "v1.4.1",
+            "name": "mustangostang/spyc",
+            "version": "0.6.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/pear/Console_Getopt.git",
-                "reference": "82f05cd1aa3edf34e19aa7c8ca312ce13a6a577f"
+                "url": "https://github.com/mustangostang/spyc.git",
+                "reference": "23c35ae854d835f2d7bcc3e3ad743d7e57a8c14d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pear/Console_Getopt/zipball/82f05cd1aa3edf34e19aa7c8ca312ce13a6a577f",
-                "reference": "82f05cd1aa3edf34e19aa7c8ca312ce13a6a577f",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Console": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "BSD-2-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Greg Beaver",
-                    "email": "cellog@php.net",
-                    "role": "Helper"
-                },
-                {
-                    "name": "Andrei Zmievski",
-                    "email": "andrei@php.net",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Stig Bakken",
-                    "email": "stig@php.net",
-                    "role": "Developer"
-                }
-            ],
-            "description": "More info available on: http://pear.php.net/package/Console_Getopt",
-            "time": "2015-07-20 20:28:12"
-        },
-        {
-            "name": "pear/mail",
-            "version": "1.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/Mail.git",
-                "reference": "8a7305cb507b460e03e55e0ac84c67c8358c9b44"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/Mail/zipball/8a7305cb507b460e03e55e0ac84c67c8358c9b44",
-                "reference": "8a7305cb507b460e03e55e0ac84c67c8358c9b44",
+                "url": "https://api.github.com/repos/mustangostang/spyc/zipball/23c35ae854d835f2d7bcc3e3ad743d7e57a8c14d",
+                "reference": "23c35ae854d835f2d7bcc3e3ad743d7e57a8c14d",
                 "shasum": ""
             },
             "require": {
-                "pear/pear-core-minimal": "*",
-                "php": ">=5.2.1"
+                "php": ">=5.3.1"
             },
             "require-dev": {
-                "pear/pear": "*"
-            },
-            "suggest": {
-                "pear/net_smtp": "Install optionally via your project's composer.json"
+                "phpunit/phpunit": "4.3.*@dev"
             },
             "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Mail": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "BSD-2-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Chuck Hagenbuch",
-                    "email": "chuck@horde.org",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Richard Heyes",
-                    "email": "richard@phpguru.org",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Aleksander Machniak",
-                    "email": "alec@alec.pl",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Class that provides multiple interfaces for sending emails.",
-            "homepage": "http://pear.php.net/package/Mail",
-            "time": "2016-01-31 21:32:18"
-        },
-        {
-            "name": "pear/mail_mime",
-            "version": "1.10.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/Mail_Mime.git",
-                "reference": "e071727cf41a4b85ecc1de210ed4fd7f4f8d1ec4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/Mail_Mime/zipball/e071727cf41a4b85ecc1de210ed4fd7f4f8d1ec4",
-                "reference": "e071727cf41a4b85ecc1de210ed4fd7f4f8d1ec4",
-                "shasum": ""
-            },
-            "require": {
-                "pear/pear-core-minimal": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Mail": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "BSD Style"
-            ],
-            "authors": [
-                {
-                    "name": "Cipriano Groenendal",
-                    "email": "cipri@php.net",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Aleksander Machniak",
-                    "email": "alec@php.net",
-                    "role": "Lead"
-                }
-            ],
-            "description": "Mail_Mime provides classes to create MIME messages",
-            "homepage": "http://pear.php.net/package/Mail_Mime",
-            "time": "2015-09-13 12:42:41"
-        },
-        {
-            "name": "pear/net_smtp",
-            "version": "1.7.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/Net_SMTP.git",
-                "reference": "e066e5ee011ae056c03db1a95d210fc09649b477"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/Net_SMTP/zipball/e066e5ee011ae056c03db1a95d210fc09649b477",
-                "reference": "e066e5ee011ae056c03db1a95d210fc09649b477",
-                "shasum": ""
-            },
-            "require": {
-                "pear/net_socket": "*",
-                "pear/pear-core-minimal": "*",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "*"
-            },
-            "suggest": {
-                "pear/auth_sasl": "Install optionally via your project's composer.json"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Net": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "PHP-3.01"
-            ],
-            "authors": [
-                {
-                    "name": "Jon Parise",
-                    "email": "jon@php.net",
-                    "homepage": "http://www.indelible.org",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Chuck Hagenbuch",
-                    "email": "chuck@horde.org",
-                    "role": "Lead"
-                }
-            ],
-            "description": "An implementation of the SMTP protocol",
-            "homepage": "http://pear.github.io/Net_SMTP/",
-            "keywords": [
-                "email",
-                "mail",
-                "smtp"
-            ],
-            "time": "2017-01-14 18:19:55"
-        },
-        {
-            "name": "pear/net_socket",
-            "version": "1.0.14",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/Net_Socket.git",
-                "reference": "fcd33efd77e4b35ce85489141ab9145343579fe8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/Net_Socket/zipball/fcd33efd77e4b35ce85489141ab9145343579fe8",
-                "reference": "fcd33efd77e4b35ce85489141ab9145343579fe8",
-                "shasum": ""
-            },
-            "require": {
-                "pear/pear_exception": "*"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Net": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "PHP License"
-            ],
-            "authors": [
-                {
-                    "name": "Chuck Hagenbuch",
-                    "email": "chuck@horde.org",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Aleksander Machniak",
-                    "email": "alec@php.net",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Stig Bakken",
-                    "email": "stig@php.net",
-                    "role": "Lead"
-                }
-            ],
-            "description": "More info available on: http://pear.php.net/package/Net_Socket",
-            "time": "2014-02-20 19:27:06"
-        },
-        {
-            "name": "pear/pear-core-minimal",
-            "version": "v1.10.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/pear-core-minimal.git",
-                "reference": "cae0f1ce0cb5bddb611b0a652d322905a65a5896"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/pear-core-minimal/zipball/cae0f1ce0cb5bddb611b0a652d322905a65a5896",
-                "reference": "cae0f1ce0cb5bddb611b0a652d322905a65a5896",
-                "shasum": ""
-            },
-            "require": {
-                "pear/console_getopt": "~1.3",
-                "pear/pear_exception": "~1.0"
-            },
-            "replace": {
-                "rsky/pear-core-min": "self.version"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "src/"
-            ],
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Weiske",
-                    "email": "cweiske@php.net",
-                    "role": "Lead"
-                }
-            ],
-            "description": "Minimal set of PEAR core files to be used as composer dependency",
-            "time": "2015-10-17 11:41:19"
-        },
-        {
-            "name": "pear/pear_exception",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/PEAR_Exception.git",
-                "reference": "8c18719fdae000b690e3912be401c76e406dd13b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/8c18719fdae000b690e3912be401c76e406dd13b",
-                "reference": "8c18719fdae000b690e3912be401c76e406dd13b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=4.4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "*"
-            },
-            "type": "class",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "0.5.x-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "PEAR": ""
-                }
+                "files": [
+                    "Spyc.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "."
-            ],
             "license": [
-                "BSD-2-Clause"
+                "MIT"
             ],
             "authors": [
                 {
-                    "name": "Helgi Thormar",
-                    "email": "dufuz@php.net"
-                },
-                {
-                    "name": "Greg Beaver",
-                    "email": "cellog@php.net"
+                    "name": "mustangostang",
+                    "email": "vlad.andersen@gmail.com"
                 }
             ],
-            "description": "The PEAR Exception base class.",
-            "homepage": "https://github.com/pear/PEAR_Exception",
+            "description": "A simple YAML loader/dumper class for PHP",
+            "homepage": "https://github.com/mustangostang/spyc/",
             "keywords": [
-                "exception"
+                "spyc",
+                "yaml",
+                "yml"
             ],
-            "time": "2015-02-10 20:07:52"
+            "time": "2017-02-24T16:06:33+00:00"
+        },
+        {
+            "name": "phpmailer/phpmailer",
+            "version": "v6.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPMailer/PHPMailer.git",
+                "reference": "992392437c2e2784e0dc41446024fe411d293c96"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/992392437c2e2784e0dc41446024fe411d293c96",
+                "reference": "992392437c2e2784e0dc41446024fe411d293c96",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "doctrine/annotations": "1.2.*",
+                "friendsofphp/php-cs-fixer": "^2.2",
+                "phpdocumentor/phpdocumentor": "2.*",
+                "phpunit/phpunit": "^4.8 || ^5.7",
+                "zendframework/zend-eventmanager": "3.0.*",
+                "zendframework/zend-i18n": "2.7.3",
+                "zendframework/zend-serializer": "2.7.*"
+            },
+            "suggest": {
+                "ext-mbstring": "Needed to send email in multibyte encoding charset",
+                "hayageek/oauth2-yahoo": "Needed for Yahoo XOAUTH2 authentication",
+                "league/oauth2-google": "Needed for Google XOAUTH2 authentication",
+                "psr/log": "For optional PSR-3 debug logging",
+                "stevenmaguire/oauth2-microsoft": "Needed for Microsoft XOAUTH2 authentication",
+                "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PHPMailer\\PHPMailer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Jim Jagielski",
+                    "email": "jimjag@gmail.com"
+                },
+                {
+                    "name": "Marcus Bointon",
+                    "email": "phpmailer@synchromedia.co.uk"
+                },
+                {
+                    "name": "Andy Prevost",
+                    "email": "codeworxtech@users.sourceforge.net"
+                },
+                {
+                    "name": "Brent R. Matzelle"
+                }
+            ],
+            "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
+            "time": "2017-09-14T16:47:12+00:00"
         }
     ],
     "packages-dev": [],

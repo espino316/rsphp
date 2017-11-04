@@ -31,16 +31,16 @@ namespace RSPhp\Framework;
 class Session
 {
 
-    private static $_data;
+    private static $data;
 
     public static $cookieName = "sesdat";
 
     /**
-     * Load the cookie into $_data
+     * Load the cookie into $data
      *
      * @return void
      */
-    private static function _load()
+    private static function load()
     {
 
         if (session_status() == PHP_SESSION_NONE) {
@@ -56,7 +56,7 @@ class Session
                 //	Decrypt the cookie
                 //	and set the array
                 $crypt = new Crypt();
-                self::$_data
+                self::$data
                     = json_decode(
                         $crypt->tripleDesDecrypt(
                             $_COOKIE[self::$cookieName]
@@ -67,12 +67,12 @@ class Session
                 $_SESSION[self::$cookieName] = $_COOKIE[self::$cookieName];
             } else {
                 //	No session, no cookie, start session
-                self::$_data = array();
+                self::$data = array();
             } // end else
         } else {
             //	There is session, then decrypt session and pass to array
             $crypt = new Crypt();
-            self::$_data
+            self::$data
                 = json_decode(
                     $crypt->tripleDesDecrypt(
                         $_SESSION[self::$cookieName]
@@ -87,10 +87,10 @@ class Session
             );
         } // end else
 
-    } // end _load
+    } // end load
 
     /**
-     * Write a key value pair to $_data and set the cookie
+     * Write a key value pair to $data and set the cookie
      *
      * @param String $itemKey   The item's key
      * @param Object $itemValue The item's value
@@ -99,17 +99,16 @@ class Session
      */
     static function set($itemKey, $itemValue)
     {
-
         //	Load the array
-        self::_load();
+        self::load();
         //	Set the item
-        self::$_data[$itemKey] = $itemValue;
-        self::$_data['clear'] = false;
+        self::$data[$itemKey] = $itemValue;
+        self::$data['clear'] = false;
         //	Crypt
         $crypt = new Crypt();
-        $str = json_encode(self::$_data);
+        $str = json_encode(self::$data);
         $val = $crypt->tripleDesEncrypt(
-            json_encode(self::$_data)
+            json_encode(self::$data)
         );
         //	Set session
         $_SESSION[self::$cookieName] = $val;
@@ -119,11 +118,10 @@ class Session
             $_SESSION[self::$cookieName],
             time() + 3600
         );
-
     }
 
     /**
-     * Retrives a value from $_data
+     * Retrives a value from $data
      *
      * @param String $itemKey The item's key to return
      *
@@ -133,24 +131,58 @@ class Session
     {
 
         //	Load the array
-        self::_load();
+        self::load();
         //	If no request specific key
         if ($itemKey == null ) {
             //	Return the whole array
-            return self::$_data;
+            return self::$data;
         } else {
             //	Else, return value, if exists
-            if (empty(self::$_data) ) {
+            if (empty(self::$data) ) {
                 return null;
             } else {
-                if (array_key_exists($itemKey, self::$_data)) {
-                    return self::$_data[$itemKey];
+                if (array_key_exists($itemKey, self::$data)) {
+                    return self::$data[$itemKey];
                 } else {
                     return null;
                 }
             } // end if then else empty data
         } // end if then else itemkey null
     } // end function
+
+    /**
+     * Remove a cookie
+     *
+     * @param String $name
+     *
+     * @return Null
+     */
+    static function remove($name)
+    {
+        //	Load the array
+        self::load();
+
+        //	remove the item
+        unset(self::$data[$itemKey]);
+        self::$data['clear'] = false;
+
+        //	Crypt
+        $crypt = new Crypt();
+        $str = json_encode(self::$data);
+        $val = $crypt->tripleDesEncrypt(
+            json_encode(self::$data)
+        );
+
+        //	Set session
+        $_SESSION[self::$cookieName] = $val;
+
+        //	Set cookie
+        setcookie(
+            self::$cookieName,
+            $_SESSION[self::$cookieName],
+            time() + 3600
+        );
+    } // end function function remove
 
     /**
      * Remove the cookie data, destroy the session
@@ -161,15 +193,15 @@ class Session
     {
 
         //	Load the array
-        self::_load();
-        self::$_data = null;
+        self::load();
+        self::$data = null;
         //	Set the item
-        self::$_data['clear'] = true;
+        self::$data['clear'] = true;
         //	Crypt
         $crypt = new Crypt();
-        $str = json_encode(self::$_data);
+        $str = json_encode(self::$data);
         $val = $crypt->tripleDesEncrypt(
-            json_encode(self::$_data)
+            json_encode(self::$data)
         );
         //	Set session
         $_SESSION[self::$cookieName] = $val;
@@ -196,7 +228,7 @@ class Session
         $row = array();
         $row['name'] = self::$cookieName;
         $row['value'] = $crypt->tripleDesEncrypt(
-            json_encode(self::$_data)
+            json_encode(self::$data)
         );
         $result[] = $row;
         return $result;
@@ -213,7 +245,7 @@ class Session
     {
         $_SESSION[self::$cookieName] = $rawData;
         $crypt = new Crypt();
-        self::$_data
+        self::$data
             = json_decode(
                 $crypt->tripleDesDecrypt(
                     $_SESSION[self::$cookieName]

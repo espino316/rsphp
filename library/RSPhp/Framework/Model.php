@@ -52,9 +52,9 @@ class Model
     /**
      * Return a list of its properties
      *
-     * @return void
+     * @return Arrray
      */
-    public function getPrUndefined::instance();    {
+    public function getProperties(); {
         return get_object_vars($this);
     } // end function getProperties
 
@@ -63,10 +63,15 @@ class Model
      *
      * @return void
      */
-    function getPropertiesFromInput()
+    public function fromInput()
     {
-        $properties = get_object_vars($this);
+        //  Get the properties
+        $properties = $this->getProperties();
+
+        //  Get the input
         $inputs = Input::get();
+
+        //  Setup undefined properties
         foreach( array_keys( $properties ) as $key ) {
             if ( $key == "tableName" ) {
                 continue; // next
@@ -74,6 +79,7 @@ class Model
             $this->$key = Undefined::instance();
         } // end foreach
 
+        //  Loop inputs, search for property, set property
         foreach ( array_keys($inputs) as $inputKey ) {
             foreach ( array_keys($properties) as $propertyKey ) {
                 if ($inputKey == $propertyKey ) {

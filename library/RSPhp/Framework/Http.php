@@ -16,6 +16,8 @@
 
 namespace RSPhp\Framework;
 
+use Exception;
+
 /**
  * Helper to do Http requests
  *
@@ -59,7 +61,7 @@ class Http
      *
      * @return null
      */
-    private static function request(
+    public static function request(
         $method, $url, $data = null, $headers = null
     ) {
         //  Refresh headers
@@ -94,7 +96,7 @@ class Http
                 CURLOPT_HEADER => false,
                 CURLINFO_HEADER_OUT => true,
                 CURLOPT_HEADERFUNCTION => array(
-                    "Http",
+                    "RSPhp\Framework\Http",
                     "headersCallBack"
                 ) // end callback data
             ); // end options array
@@ -224,7 +226,7 @@ class Http
      *
      * @return null
      */
-    public static function delete( $url, $data = null, $headers = null )
+    public static function options( $url, $data = null, $headers = null )
     {
         return self::request( "OPTIONS", $url, $data, $headers );
     } // end function request

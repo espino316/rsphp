@@ -146,6 +146,7 @@ class View
         if ( $exists ) {
             $view = self::_requireToVar($filePath);
             $view = str_replace('$baseUrl', BASE_URL, $view);
+            $view = str_replace('$timestamp', time(), $view);
 
             if ($data != null ) {
                 foreach ( array_keys($data) as $itemKey ) {
@@ -295,7 +296,6 @@ class View
                 ) {
 
                     $viewName = $item->getAttribute('data-view');
-
                     if (Str::contains($viewName, '$') ) {
                         if (isset($data[$viewName]) ) {
                             $viewName = $data[$viewName];
@@ -303,7 +303,6 @@ class View
                     } // end if contains $
 
                     $view = View::loadToString($viewName, $data);
-
                     //	Replacement
                     $replacement = null;
                     $replacement['search'] = $item->ownerDocument->saveHTML($item);
