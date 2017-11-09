@@ -296,4 +296,24 @@ class Input
 
         return $fileNameDestination;
     } // end function saveFile
+
+    /**
+     * Validates the input values
+     *
+     * @return Boolean
+     */
+    public static function validate( $rules ) {
+        $val = new Validation();
+        foreach( $rules as $key => $value ) {
+            $val->addRule( $key, $value );
+        } // end foreach
+
+        if ( ! $val->validate( self::get() ) ) {
+            throw new Exception(
+                $val->getErrors()
+            );
+        } // end if validate
+
+        return true;
+    } // end function validates
 } // end class Input

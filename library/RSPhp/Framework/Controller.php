@@ -112,7 +112,7 @@ class Controller
     {
         View::load('Header', $data);
         View::load($content, $data);
-        View::load('Header', $data);
+        View::load('Footer', $data);
     } // end function loadContent
 
     /**
@@ -122,7 +122,7 @@ class Controller
      */
     function hasError()
     {
-        return Session::get("hasError");
+        return Session::get("__rs__hasError__");
     }
 
     /**
@@ -133,9 +133,9 @@ class Controller
      */
     function getError()
     {
-        $errorMessage = Session::get("errorMessage");
-        Session::remove("hasError");
-        Session::remove("errorMessage");
+        $errorMessage = Session::get("__rs__errorMessage__");
+        Session::remove("__rs__hasError__");
+        Session::remove("__rs__errorMessage__");
         return $errorMessage;
     } // end function getError
 
@@ -148,8 +148,8 @@ class Controller
      */
     function setError($errorMessage)
     {
-        Session::set("hasError", true);
-        Session::set("errorMessage", $errorMessage);
+        Session::set("__rs__hasError__", true);
+        Session::set("__rs__errorMessage__", $errorMessage);
     } // end function setError
 } // end class Controller
 

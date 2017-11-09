@@ -230,7 +230,7 @@ class Str
     static function toLower( $str )
     {
 
-        $str = strtoupper($str);
+        $str = strtolower($str);
 
         $search = array(
           'Á', 'É', 'Í', 'Ó', 'Ú', 'Ñ'

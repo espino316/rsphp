@@ -23,7 +23,7 @@ class DbColumn
         return $this;
     } // end function autoIncrement
 
-    public function string($length)
+    public function string($len = null)
     {
         $this->options->dataType = "string";
         return $this;
@@ -41,13 +41,13 @@ class DbColumn
         return $this;
     } // end function unique
 
-    public function integer()
+    public function int()
     {
         $this->options->dataType = "int";
         return $this;
     } // end function integer
 
-    public function boolean()
+    public function bool()
     {
         $this->options->boolean = "bool";
         return $this;

@@ -254,4 +254,36 @@ class Session
             );
     } // end function setRaw
 
+    public static function auth()
+    {
+        if (!self::get(self::get("__rs_keyAuth__"))) {
+            Uri::redirect(self::get("__rs_redirectAuthUrl__"));
+        } // end if not $key
+    } // end function validate session
+
+    public static function setAuth($key, $redirectUrl)
+    {
+        self::set("__rs_keyAuth", $key);
+        self::set("__rs_redirectAuthUrl__", $redirectUrl);
+    } // end function setValidation
+
+    /**
+     * Validates the input values
+     *
+     * @return Boolean
+     */
+    public static function validate( $rules ) {
+        $val = new Validation();
+        foreach( $rules as $key => $value ) {
+            $val->addRule( $key, $value );
+        } // end foreach
+
+        if ( ! $val->validate( self::get() ) ) {
+            throw new Exception(
+                $val->getErrors()
+            );
+        } // end if validate
+
+        return true;
+    } // end function validates
 } // end class
