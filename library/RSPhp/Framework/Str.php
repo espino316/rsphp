@@ -149,7 +149,7 @@ class Str
     static function replace( $search, $replace, $str = null )
     {
         if ( is_array( $search ) && ! $str ) {
-            return self::_dictReplace( $search, $replace );
+            return self::dictReplace( $search, $replace );
         } // end if is array and no str
         $str = str_replace($search, $replace, $str);
         return $str;
@@ -165,7 +165,7 @@ class Str
      *
      * @return Str
      */
-    private static function _dictReplace( $dictionary, $str )
+    private static function dictReplace( $dictionary, $str )
     {
         foreach ($dictionary as $key => $value) {
             $str = str_replace($key, $value, $str);
@@ -341,8 +341,21 @@ class Str
      *
      * @return Str
      */
-    public static function trim( $str, $charMask = " \t\n\r\0\x0B" )
+    public static function trim($str, $charMask = " \t\n\r\0\x0B")
     {
         return trim( $str, $charMask );
     } // end function trim
+
+    /**
+     * Return regex matches
+     *
+     * @param String $pattern The regex pattern
+     * @param String $str String The string to parse
+     *
+     * @return Array
+     */
+    public static function pregMatchAll($pattern, $str) {
+        preg_match_all($pattern, $str, $matches);
+        return $matches[0];
+    } // end function pregMatchAll
 } // end class

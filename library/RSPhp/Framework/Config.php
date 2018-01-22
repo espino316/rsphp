@@ -169,6 +169,11 @@ class Config
 
         //	Load dataSources
         self::loadDataSources();
+
+        //  Load languages
+        if (App::get("language")) {
+            Translation::load();
+        } // end if language
     } // end function processConfig
 
     /**
@@ -190,7 +195,8 @@ class Config
                 $ds['connection'],
                 $ds['name'],
                 $ds['type'],
-                $ds['text']
+                $ds['text'],
+                $ds['file']
             ); // end add dataSources
 
             if (isset($ds['parameters']) ) {

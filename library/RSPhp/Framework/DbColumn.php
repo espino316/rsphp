@@ -7,13 +7,14 @@ use stdClass;
 
 class DbColumn
 {
-    private $columnName;
-    private $options;
+    public $name;
+    public $options;
 
     public function __construct($columnName)
     {
-        $this->columnName = $columnName;
+        $this->name = $columnName;
         $this->options = new stdClass();
+        $this->options->autoIncrement = false;
         return $this;
     } // end function construct
 
@@ -26,6 +27,9 @@ class DbColumn
     public function string($len = null)
     {
         $this->options->dataType = "string";
+        if ($len) {
+            $this->options->lenght = $len;
+        } // end if len
         return $this;
     } // end function string
 

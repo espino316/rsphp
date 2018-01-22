@@ -16,6 +16,8 @@
 
 namespace RSPhp\Framework;
 
+use Exception;
+
 /**
  * Input Class Doc Comment
  *

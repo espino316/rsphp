@@ -138,7 +138,7 @@ class Db
         if (isset(self::$dataSources[$dsName]) ) {
             return self::$dataSources[$dsName];
         } else {
-            $fileName = APPPATH.DS."datasources".DS."default".DS.$dsName.".sql";
+            $fileName = APPPATH.DS."DataSources".DS."default".DS.$dsName.".sql";
             if ( File::exists( $fileName ) ) {
                 //  Create new datasource
                 $dataSource = new DataSource(
@@ -382,6 +382,7 @@ class Db
      */
     function insert( $tableName, $params )
     {
+
         //	Connect
         $this->connect();
 
@@ -803,7 +804,7 @@ class Db
             $statement->execute($queryParams);
         } else {
             $statement->execute();
-        }
+        } // end if queryParams
 
         if ($className !== null) {
             $resultset = $statement->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, $className);

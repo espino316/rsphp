@@ -530,44 +530,53 @@ class Html
      *
      * @param String $name           The control's name
      * @param String $data           The control's data
-     * @param String $value_field    The field that holds the value
-     * @param String $display_field  The field that holds the text
-     * @param String $selected_value The selected value
+     * @param String $valueField    The field that holds the value
+     * @param String $displayField  The field that holds the text
+     * @param String $selectedValue The selected value
      * @param Bool   $returnString   Indicates if the function return a string
-     * @param String $onChange       The name of the function to run on change
+     * @param Array  $attributes     The attributes of the select
+     * @param Bool $defaultBlank       Indicates if we must set "- SELECT -" at the beggining
      *
      * @return String
      */
     static function formSelect(
         $name,
         $data,
-        $value_field,
-        $display_field,
-        $selected_value = '',
+        $valueField,
+        $displayField,
+        $selectedValue = '',
         $returnString = false,
-        $onChange = ''
+        $attributes = null,
+        $defaultBlank = false
     ) {
-        if (!empty($onChange) ) {
-            $onChange = "onchange=\"$onChange\"";
-        } else {
-            $onChange = '';
-        }
+        $attrs = "";
+        if ($attributes) {
+            foreach ($attributes as $key => $value) {
+                $attrs .= $key . "=\"" . $value . "\"";
+            } // end foreach
+        } // end if attributes
 
         $select
             =   "<select id=\"$name\" name=\"$name\"" .
-                " class=\"form-control\" $onChange >";
+                " class=\"form-control\" $attrs >";
 
-        if ($data ) {
+        if ($defaultBlank) {
+            $select
+                .=  "<option value=\"\"".
+                    ">- SELECT -</option>";
+        }
+
+        if ($data) {
             foreach ( $data as $row ) {
                 $selected = "";
 
-                if ($selected_value == $row[$value_field] ) {
+                if ($selectedValue == $row[$valueField] ) {
                     $selected = "selected";
                 }
 
                 $select
-                    .=  "<option value=\"$row[$value_field]\"".
-                        " $selected >$row[$display_field]</option>";
+                    .=  "<option value=\"$row[$valueField]\"".
+                        " $selected >$row[$displayField]</option>";
             }
         } // end if $data
 

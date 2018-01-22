@@ -53,6 +53,14 @@ class RS
     } // end function __construct
 
     /**
+     * Helper function to print_r comma separated arguments
+     */
+    static function debug($args) {
+        $a = func_get_args();
+        print_r($a);
+    } // end function debug
+
+    /**
      * Prints a line to the output, either CLI or WEB
      *
      * @param String $text The text to print
@@ -1409,16 +1417,40 @@ class RS
      *
      * @return void
      */
-    static function handleExeption( $ex )
+    static function handleException( $ex )
     {
-        ob_end_clean();
+        //  Clean output
+        //ob_end_clean();
+
+        //  Get app name
         if (App::get('appName') ) {
             $data['$appName'] = 'RS Php';
         } else {
             $data['$appName'] = App::get('appName');
-        }
-        $data['$error'] = $ex->getMessage();
-        View::load('rs/error', $data);
+        } // end if then else appName
+
+        //  Get Error
+        $data['$errorMessage'] = $ex->getMessage();
+
+        //  Show Error
+        if (View::exists("ErrorPage")) {
+            View::load('ErrorPage', $data);
+        } else {
+            echo "No exist!"; return;
+            $template = '<html>
+                <head><title>Error Page</title>
+                <body><div style="border: 1px solid red; color: red;">@errorMessage</div>
+                <a href="@baseUrl">Home</a>
+                </body>
+            </html>';
+            echo Str::replace(
+                array(
+                    "@errorMessage" => $ex->getMessage(),
+                    "@baseUrl" => BASE_URL
+                ),
+                $template
+            ); // end template string replace
+        } // end if ErrorPage exists
     } // end function handleExeption
 
     /**
@@ -1466,4 +1498,73 @@ class RS
 
         self::printLine( "View $viewName created." );
     } // end function createView
+
+    public static function schemaUpdate()
+    {
+        if (!App::get("appName")) {
+            self::writeLine("Must specify and app name. Use ./rsphp app --name='appName'");
+        } // end if not appName
+        $schema = new DbSchema;
+        $schemaUpdatesHistory = array();
+        $schemaUpdates = array();
+        $timestamps = array();
+        $controlFilePath
+            = getenv("HOME").DS.
+            Str::replace(" ", "_", App::get("appName"));
+        $controlFile = $controlFilePath.DS."schema-update.json";
+
+        //  If exists the control file, load the history
+        if (File::exists($controlFile)) {
+            echo "file exits\n";
+            $schemaUpdatesHistory = json_decode(File::read($controlFile), true);
+            print_r($schemaUpdatesHistory);
+        } else {
+            if (!Directory::exists($controlFilePath)) {
+                Directory::create($controlFilePath);
+            } // end if not exists control file directory
+        } // end if file exists
+
+        //  Get the files in the schema update folder
+        $files = Directory::getFiles(ROOT.DS."application".DS."Data".DS."Schema");
+
+        //  Loop the files
+        foreach ($files as $file) {
+            //  Get the data from the file format
+            $data = explode("_", Str::replace(".schema", "", $file));
+
+            //  Add the timestamp to the array
+            $timestamps[] = $data[2];
+
+            //  Add the schema update to the array
+            $schemaUpdates[] = array(
+                "connectionName" => $data[0],
+                "name" => $data[1],
+                "timestamp" => $data[2],
+                "file" => $file
+            ); // end schemaUpdates
+        } // end foreach file
+
+        //  Sort the timestamps by date
+        sort($timestamps);
+
+        //  Loop the sorted tiemstamps.
+        //      If not in history, execute
+        foreach ($timestamps as $timestamp) {
+            $row = Db::resultSetFilter($schemaUpdatesHistory, "timestamp", $timestamp);
+            if (!$row) {
+                //  Not executed yet
+                //  Get the record
+                $schemaUpdate = Db::resultSetFilter($schemaUpdates, "timestamp", $timestamp)[0];
+
+                //  Execute it
+                $schema->update($schemaUpdate["file"]);
+
+                //  Add to history (already executed)
+                $schemaUpdatesHistory[] = $schemaUpdate;
+            } // end if not row
+        } // end for each schema update
+
+        //  Save the records
+        File::write($controlFile, json_encode($schemaUpdatesHistory));
+    } // end function schemaUpdate
 } // end function class RS

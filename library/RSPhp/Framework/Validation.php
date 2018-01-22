@@ -97,6 +97,7 @@ class Validation
         $this->errors = array();
 
         foreach ( $this->rules as $rule ) {
+            $key = $rule["key"];
 
             switch( $rule['type']) {
             case "required":

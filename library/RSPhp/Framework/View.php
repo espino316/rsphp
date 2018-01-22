@@ -19,6 +19,7 @@ namespace RSPhp\Framework;
 use DOMDocument;
 use DOMNode;
 use DOMElement;
+use DOMXPath;
 use stdClass;
 use Exception;
 
@@ -36,8 +37,12 @@ use Exception;
  */
 class View
 {
-
     protected static $vars;
+
+    /**
+     * @var The regex pattern to search fields
+     */
+    private static $fieldPattern = '/\$[a-zA-Z0-9]*/';
 
     /**
      * Set a variable value to the view
@@ -119,6 +124,20 @@ class View
     } // end function _convertToObjects
 
     /**
+     * Returns true if view exists
+     *
+     * @param String $viewName
+     *
+     * @return Boolean
+     */
+    static function exists($viewName)
+    {
+        $filePhp = ROOT.DS.'application'.DS.'Views'.DS.$viewName.'.php';
+        $fileHtml = ROOT.DS.'application'.DS.'Views'.DS.$viewName.'.html';
+        return (File::exists($filePhp) || File::exists($fileHtml));
+    } // end function exists
+
+    /**
      * This function returns the populated template as string
      *
      * @param String $viewName The name of the view. Must be the file name without
@@ -148,48 +167,72 @@ class View
             $view = str_replace('$baseUrl', BASE_URL, $view);
             $view = str_replace('$timestamp', time(), $view);
 
+            //  Get the translations
+            $translations = array(
+                '$translate' => Translation::get()
+            ); // end array translations
+
+            //  Get the actual data
+            $data = array_merge(
+                ($data ? $data : array()),
+                App::get(),
+                $translations
+            ); // end array_merge
+
             if ($data != null ) {
                 foreach ( array_keys($data) as $itemKey ) {
-                    if (Str::contains($itemKey, "$") ) {
-                        if (is_array($data[$itemKey]) ) {
-                            $data[$itemKey]
-                                = self::_convertToObjects(
-                                    $data[$itemKey]
+
+                    $searchKey = $itemKey;
+                    if (!Str::startsWith($itemKey, "$")) {
+                        $searchKey = "$$itemKey";
+                    } // end if not starts with $
+
+                    if (is_array($data[$itemKey]) ) {
+
+                        //  Get the array
+                        $dataItem = $data[$itemKey];
+
+                        //  Loop
+                        foreach ($dataItem as $key => $value) {
+                            $view
+                                = str_replace(
+                                    $itemKey."[\"".$key."\"]",
+                                    $value,
+                                    $view
                                 );
-                        }
-                        if (is_object($data[$itemKey]) ) {
-                            $properties = get_object_vars($data[$itemKey]);
+                        } // end foreach
+                    } else if (is_object($data[$itemKey]) ) {
+                        $properties = get_object_vars($data[$itemKey]);
 
-                            foreach ( array_keys($properties) as $key ) {
+                        foreach ( array_keys($properties) as $key ) {
 
-                                if (is_object($properties[$key]) ) {
-                                    $subProperties
-                                        = get_object_vars($properties[$key]);
+                            if (is_object($properties[$key]) ) {
+                                $subProperties
+                                    = get_object_vars($properties[$key]);
 
-                                    foreach (
-                                        array_keys($subProperties) as $subKey
-                                    ) {
-                                        $view
-                                            = stri_replace(
-                                                $itemKey."->".$key."->".$subKey,
-                                                $subProperties[$subKey],
-                                                $view
-                                            );
-                                    }
-
-                                } else {
+                                foreach (
+                                    array_keys($subProperties) as $subKey
+                                ) {
                                     $view
                                         = str_replace(
-                                            $itemKey."->".$key,
-                                            $properties[$key],
+                                            $itemKey."->".$key."->".$subKey,
+                                            $subProperties[$subKey],
                                             $view
                                         );
-                                } // end if is object else
-                            } // end foreach
-                        } else {
-                            $view = str_replace($itemKey, $data[$itemKey], $view);
-                        } // end if then else
-                    } // end if contains $
+                                }
+
+                            } else {
+                                $view
+                                    = str_replace(
+                                        $itemKey."->".$key,
+                                        $properties[$key],
+                                        $view
+                                    );
+                            } // end if is object else
+                        } // end foreach
+                    } else {
+                        $view = str_replace($searchKey, $data[$itemKey], $view);
+                    } // end if then else
                 } // end foreach
             } // end if data
             $view = self::dataBind($view, $data);
@@ -271,6 +314,105 @@ class View
     } // end static function populateTemplate
 
     /**
+     * Parse an attribute and copy to another element
+     *
+     * @param DOMElement $origin The origin element
+     * @param DOMElement $destination The destination element
+     * @param String $attributeName The attribute's name
+     * @param Array $row The datarow containing the variables name
+     */
+    private static function parseAttribute($origin, $destination, $attributeName, $row) {
+
+        //  Get value
+        $value = $origin->getAttribute($attributeName);
+
+        //  Parse fields
+        $fields = Str::pregMatchAll(self::$fieldPattern, $value);
+
+        //  Loop every field
+        foreach ($fields as $field) {
+
+            //  Get the column name
+            $colName = Str::replace('$', '', $field);
+
+            //  If is a row
+            if (isset($row[$colName])) {
+                $value = Str::replace($field, $row[$colName], $value);
+            } else {
+                $value = Str::replace($field, "", $value);
+            }   // end if row[field]
+        } // end foreach
+
+        //  Set the attribute
+        $destination->setAttribute($attributeName, $value);
+    } // end function parseAttribute
+
+    private static function getDataBindSelect($dataBindItem, $data = null)
+    {
+        if ($dataBindItem->hasAttribute('data-source')
+            && $dataBindItem->hasAttribute('data-display-field')
+            && $dataBindItem->hasAttribute('data-value-field')
+        ) {
+            if ($data) {
+                $dataBindItem->data = $data;
+            } // end if data
+
+            $dataSelect = self::getResultFromDataSourcedElement($dataBindItem);
+            $value = '';
+
+            if ($dataBindItem->hasAttribute('value') ) {
+                $value = $dataBindItem->getAttribute('value');
+            } // end if hasAttribute value
+
+            if ($dataBindItem->hasAttribute('data-bind') ) {
+                if ($dataSelect) {
+                    $valueField = $dataBindItem->getAttribute('data-bind');
+                    $value = $data[$valueField];
+                } // end if data
+
+                if (Input::get($valueField)) {
+                    $value = Input::get($valueField);
+                } // end if input
+            } // end if hasAttribute value
+
+            $attributes = null;
+            if ($dataBindItem->hasAttribute('onchange') ) {
+                $attributes["onchange"] = $dataBindItem->getAttribute('onchange');
+            } // end if hasAttribute value
+
+            if ($dataBindItem->hasAttribute('required') ) {
+                $attributes["required"] = $dataBindItem->getAttribute('required');
+            } // end if hasAttribute value
+
+            $defaultBlank = false;
+            if ($dataBindItem->hasAttribute('data-default-blank') ) {
+                $isBlank = $dataBindItem->getAttribute('data-default-blank');
+                if ($isBlank == "true") {
+                    $defaultBlank = true;
+                } // end if defaultBlank
+            } // end if hasAttribute value
+
+            //	Get the SELECT
+            $select
+                = Html::formSelect(
+                    $dataBindItem->getAttribute('id'),
+                    $dataSelect,
+                    $dataBindItem->getAttribute('data-value-field'),
+                    $dataBindItem->getAttribute('data-display-field'),
+                    $value,
+                    true,
+                    $attributes,
+                    $defaultBlank
+                );
+
+            $node = self::getDomNode($select);
+            return $node;
+        } // end if has attributes
+        //  Finish databind to select
+        return $dataBindItem;
+    } // end function getDataBindSelect
+
+    /**
      * Binds all selects in $html
      *
      * @param String     $html The HTML to parse
@@ -278,7 +420,7 @@ class View
      *
      * @return void
      */
-    private static function _viewsDataBind( $html, $data = null )
+    private static function viewsDataBind( $html, $data = null )
     {
 
         $dom = self::getDomFromHTML($html);
@@ -320,6 +462,169 @@ class View
                 } // end foreach $replacement
             } // end if $toReplace not empty
         } // end if count > -1
+
+        /* Here begins data-source attribute for divs */
+        $isFragment = true;
+        if (Str::contains($html, '<html') ) {
+            $isFragment = false;
+        } // end if contain html
+
+        //  Get the dom
+        $dom = self::getDomFromHTML($html);
+
+        //  Set the xpath object
+        $xPath = new DOMXPath($dom);
+
+        //  Get all divs with data source
+        $items = $xPath->query("//*[@data-source]");
+
+        //  Loop throug items
+        for ($i = 0; $i < $items->length; $i++) {
+
+            //  Get the first item
+            $item = $items->item($i);
+
+            if ($item->tagName == "table") {
+                continue;
+            } // end if table, leave it to _tableDataBind
+
+            $data = self::getResultFromDataSourcedElement($item);
+
+            for ($iattribute = 0; $iattribute < $item->attributes->length; $iattribute++) {
+                $aValue = $item->attributes[$iattribute]->value;
+                $aName = $item->attributes[$iattribute]->name;
+                if (Str::contains($aValue, "@")) {
+                    preg_match_all(
+                        "/\@.[^\/,-,+,\$,\%,!,#,&,(,),?,¿,¡,~]*/",
+                        $aValue,
+                        $matches
+                    ); // end preg_match_all
+
+                    if ($matches) {
+                        $matches = $matches[0];
+                        foreach($matches as $match) {
+                            $aKey = Str::replace("@", "", $match);
+                            $realValue = $data[0][$aKey];
+                            $aValue = Str::replace($match, $realValue, $aValue);
+                        } // end foreach matches
+                        $item->setAttribute($aName, $aValue);
+                    } // end if matches
+                } // end if @
+            } // end for i attribute
+            //  Get the template item
+            $templateItem = $xPath->query("*[@data-template='true']", $item);
+
+            //  Only if exists
+            if ($templateItem->length > 0) {
+
+                //  Get the first item only one template
+                $templateItem = $templateItem->item(0);
+
+                //  Get all controls data binded
+                $dataBinds = $xPath->query("*[@data-bind]", $templateItem);
+
+                //  Get the number or controls
+                $len = $dataBinds->length;
+
+                //  Loop the rows in the data source
+                foreach ($data as $row) {
+
+                    //  Create a div
+                    $div = $dom->createElement($templateItem->tagName);
+
+                    //  Set class, onclick y href
+                    if ($templateItem->hasAttribute("class")) {
+                        self::parseAttribute($templateItem, $div, "class", $row);
+                    } // end if has attribute class
+
+                    if ($templateItem->hasAttribute("onclick")) {
+                        self::parseAttribute($templateItem, $div, "onclick", $row);
+                    } // end if has attribute class
+
+                    if ($templateItem->hasAttribute("href")) {
+                        self::parseAttribute($templateItem, $div, "href", $row);
+                    } // end if has attribute class
+
+                    //  Loop the databinded controls
+                    for ($i = 0; $i < $len; $i++) {
+
+                        //  Get the data binded control
+                        $dataBindItem = $dataBinds->item($i);
+
+                        //  Get the filed is data binded
+                        $dataFieldName = $dataBindItem->getAttribute("data-bind");
+
+                        //  Create a text node
+                        $textNode = $dom->createTextnode($row[$dataFieldName]);
+
+                        //  Create a new element
+                        $element = $dom->createElement($dataBindItem->tagName);
+
+                        //  Updating it the text not
+                        $element->appendChild($textNode);
+                        $div->appendChild($element);
+                    } // end for
+
+                    //  Add the div to the original data-sourced item
+                    $item->appendChild($div);
+                } // end foreach
+
+                //  Remove the data-template
+                $item->removeChild($templateItem);
+            } else {
+
+                if ($item->tagName == "select") {
+                    $node = @$dom->importNode(self::getDataBindSelect($item), true);
+                    $item->parentNode->replaceChild($node, $item);
+                    continue;
+                } // end if
+
+                //  Get all controls data binded
+                $dataBinds = $xPath->query("*[@data-bind]", $item);
+
+                //  Get the number or controls
+                $len = $dataBinds->length;
+
+                //  Loop the rows in the data source
+                foreach ($data as $row) {
+
+                    //  Loop the databinded controls
+                    for ($i = 0; $i < $len; $i++) {
+
+                        //  Get the data binded control
+                        $dataBindItem = $dataBinds->item($i);
+
+                        if ($dataBindItem->tagName == "select") {
+                            //  Here we do databind to select
+                            $node = @$dom->importNode(self::getDataBindSelect($dataBindItem, $row), true);
+                            $dataBindItem->parentNode->replaceChild($node, $dataBindItem);
+                            continue;
+                        } // end if select
+
+                        //  Get the filed is data binded
+                        $dataFieldName = $dataBindItem->getAttribute("data-bind");
+
+                        //  Create a new element
+                        $element = $dom->createElement($dataBindItem->tagName);
+
+                        if ($dataBindItem->tagName == "input") {
+                            $dataBindItem->setAttribute("value", $row[$dataFieldName]);
+                        } else {
+                            $textNode = $dom->createTextnode($row[$dataFieldName]);
+                            $element->appendChild($textNode);
+                            $dataBindItem->appendChild($element);
+                        } // end if input
+                        //  Create a text node
+                    } // end for
+                } // end foreach
+            } // end if template item
+
+            $item->removeAttribute("data-source");
+            $item->removeAttribute("data-filter");
+        } // end for
+
+        //  Save the dom
+        $html = $dom->saveHTML();
 
         /*	Here begins data-bind attibute */
         $isFragment = true;
@@ -437,7 +742,7 @@ class View
         } // end if $count > -1
 
         return $html;
-    } // end function _selectsDataBind
+    } // end function selectsDataBind
 
 
     /**
@@ -448,9 +753,9 @@ class View
      *
      * @return void
      */
-    private static function _selectsDataBind( $html, $data = null )
+    private static function selectsDataBind( $html, $data = null )
     {
-
+        $sourceData = $data;
         $isFragment = true;
         if (Str::contains($html, '<html') ) {
             $isFragment = false;
@@ -469,25 +774,43 @@ class View
         $toReplace = array();
 
         while ( $count > -1 ) {
+
             $item = $items->item($count);
+
             if ($item->hasAttribute('data-source')
                 && $item->hasAttribute('data-display-field')
                 && $item->hasAttribute('data-value-field')
             ) {
-                $data
-                    = Db::getDataSource(
-                        $item->getAttribute( "data-source" )
-                    )->getResultSet();
+
+                $data = self::getResultFromDataSourcedElement($item);
 
                 $value = '';
+                if ($item->hasAttribute('value') ) {
+                    $value = $item->getAttribute('value');
+                } // end if hasAttribute value
+
                 if ($item->hasAttribute('data-bind') ) {
-                    if ($data ) {
+                    if ($data) {
                         $value = $item->getAttribute('data-bind');
                         $value = $data[$value];
-                    }
+                    } // end if data
                 } // end if hasAttribute value
-                if ($item->hasAttribute('value') ) {
-                         $value = $item->getAttribute('value');
+
+                $attributes = null;
+                if ($item->hasAttribute('onchange') ) {
+                    $attributes["onchange"] = $item->getAttribute('onchange');
+                } // end if hasAttribute value
+
+                if ($item->hasAttribute('required') ) {
+                    $attributes["required"] = $item->getAttribute('required');
+                } // end if hasAttribute value
+
+                $defaultBlank = false;
+                if ($item->hasAttribute('data-default-blank') ) {
+                    $isBlank = $item->getAttribute('data-default-blank');
+                    if ($isBlank == "true") {
+                        $defaultBlank = true;
+                    } // end if defaultBlank
                 } // end if hasAttribute value
 
                 //	Get the SELECT
@@ -498,7 +821,9 @@ class View
                         $item->getAttribute('data-value-field'),
                         $item->getAttribute('data-display-field'),
                         $value,
-                        true
+                        true,
+                        $attributes,
+                        $defaultBlank
                     );
 
                 //	Replacement
@@ -516,7 +841,7 @@ class View
                 $old = $replacement['search'];
                 $new = $replacement['replace'];
                 $parent = $replacement['parent'];
-                $new = $parent->ownerDocument->importNode( $new, true );
+                $new = @$parent->ownerDocument->importNode( $new, true );
                 $parent->replaceChild( $new, $old );
             } // end foreach $replacement
         } // end if $toReplace not empty
@@ -531,7 +856,7 @@ class View
         }
 
         return $html;
-    } // end function _selectsDataBind
+    } // end function selectsDataBind
 
     /**
      * Returns and attribute form a DOM Node
@@ -554,6 +879,152 @@ class View
         }
     } // end function domGetAttribute
 
+    private static function getResultFromDataSourcedElement($item, $pageItems = null, $currentPage = null)
+    {
+        //	Get the data
+        $dsName = $item->getAttribute('data-source');
+
+        //  Get the filters
+        $filters = $item->getAttribute("data-filters");
+
+        //   If it's a table
+        if ( Str::startsWith($dsName, "table:")) {
+
+            //  Instantiate Db default
+            $db = new Db();
+
+            //  Get the table name
+            $table = Str::replace("table:", "", $dsName);
+
+            //  If any filter
+            if ($filters) {
+
+                //  Get the filters
+                $filters = explode(",", $filters);
+
+                //  There always segment 3 at start controller/function/segment
+                $segment = 2;
+
+                //  For each filter
+                foreach ($filters as $filter) {
+
+                    //  Get the condition
+                    $condition = explode(":", $filter);
+
+                    //  TODO: Implement fallback, only if not get the first, do the next
+
+                    //  If more than one item
+                    if (count($condition) > 1) {
+                        //  Options
+                        switch ($condition[0]) {
+                            case "session":
+                                if (Session::get($condition[1])) {
+                                    $db->where($condition[1], Session::get($condition[1]));
+                                } // end if session
+                                break;
+                            case "input":
+                                RS::debug("hit input", $condition);
+                                if (Input::get($condition[1])) {
+                                    $db->where($condition[1], Input::get($condition[1]));
+                                } // end if session
+                                break;
+                            case "segment":
+                                if (Uri::getSegment($segment)) {
+                                    $db->where($condition[1], Uri::getSegment($segment));
+                                } // end if session
+                                $db->where($condition[1], Uri::getSegment($segment));
+                                $segment++;
+                                break;
+
+                            case "data":
+                                RS::debug("hit data", $condition);
+                                if ($item->data[$condition[1]]) {
+                                    $db->where($condition[1], $item->data[$condition[1]]);
+                                } // end if condition 1
+                                break;
+                        } // end switch
+                    } else {
+
+                        //  If in input
+                        if (Input::get($condition[0])) {
+
+                            //  Set where on input
+                            $db->where($condition[0], Input::get($condition[0]));
+
+                        //  Else id session
+                        } else if (Session::get($condition[0])) {
+
+                            //  Set where on session
+                            $db->where($condition[0], Input::get($condition[0]));
+                        } // end if then else input or session
+                        //  If in session
+                    } // end if count> 1
+                } // end foreach
+
+                $result = $db->get($table);
+            } else {
+                //  Get the result
+                $result = $db->get($table);
+            } // end if then else filters
+        } else {
+
+            //  Get the datasource
+            $ds = Db::getDataSource( $dsName );
+
+            //  If any filter
+            if ($filters) {
+
+                //  Get the filters
+                $filters = explode(",", $filters);
+
+                //  There always segment 3 at start controller/function/segment
+                $segment = 2;
+
+                //  For each filter
+                foreach ($filters as $filter) {
+                    //  Get the condition
+                    $condition = explode(":", $filter);
+                    //  If more than one item
+                    if (count($condition) > 1) {
+                        //  Options
+                        switch ($condition[0]) {
+                            case "session":
+                                $ds->addParam($condition[1], "session");
+                                break;
+                            case "input":
+                                $ds->addParam($condition[1], "input");
+                                break;
+                            case "segment":
+                                if (Uri::getSegment($segment)) {
+                                    $ds->addParam($condition[1], "segment", Uri::getSegment($segment));
+                                    $segment++;
+                                } // end if uri segment
+                                break;
+                        } // end switch
+                    } else {
+
+                        //  If in input
+                        if (Input::get($condition[0])) {
+
+                            //  Set where on input
+                            $ds->addParam($condition[0], "input");
+                        //  Else id session
+                        } else if (Session::get($condition[0])) {
+
+                            //  Set where on session
+                            $ds->addParam($condition[0], "session");
+                        } // end if then else input or session
+                        //  If in session
+                    } // end if count> 1
+                } // end foreach
+            } // end if then else filters
+
+            $result = $ds->getResultSet(null, $pageItems, $currentPage);
+        } // end if then else starts with table
+
+        return $result;
+    } // end function getResultFromDataBindedControl
+
     /**
      * Binds all selects in $html
      *
@@ -561,7 +1032,7 @@ class View
      *
      * @return void
      */
-    private static function _tablesDataBind( $html )
+    private static function tablesDataBind( $html )
     {
 
         $isFragment = true;
@@ -598,7 +1069,9 @@ class View
                         'data-current-page-segment',
                         null
                     );
+
                 $currentPage = Uri::getSegment($currentPageSegment);
+
                 $paginationUrl
                     = self::domGetAttribute($item, 'data-pagination-url', null);
 
@@ -609,12 +1082,7 @@ class View
                 $options['pagination_url'] = $paginationUrl;
                 array_filter($options);
 
-                //	Get the data
-                $dsName = $item->getAttribute('data-source');
-                $result
-                    = Db::getDataSource( $dsName )->getResultSet(
-                        null, $pageItems, $currentPage
-                    );
+                $result = self::getResultFromDataSourcedElement($item, $pageItems, $currentPage);
 
                 if ( $pagination ) {
                        $data = $result['results'];
@@ -1023,12 +1491,16 @@ class View
                         true
                     );
 
-                //	Replacement
-                $replacement = null;
-                $replacement['parent'] = $item->parentNode;
-                $replacement['search'] = $item;
-                $replacement['replace'] = self::getDomNode( $dataTable );
-                $toReplace[] = $replacement;
+                //  If there's data
+                if ($dataTable) {
+
+                    //	Replacement
+                    $replacement = null;
+                    $replacement['parent'] = $item->parentNode;
+                    $replacement['search'] = $item;
+                    $replacement['replace'] = self::getDomNode( $dataTable );
+                    $toReplace[] = $replacement;
+                } // end if $dataTable
             } // end if has attributes
             $count--;
         } // end while item data-source
@@ -1053,7 +1525,7 @@ class View
         }
 
         return $html;
-    } // end function _selectsDataBind
+    } // end function selectsDataBind
 
     /**
      * Performs data bind activities
@@ -1066,9 +1538,8 @@ class View
     public static function dataBind( $html, $data = null )
     {
         //	Remove strings, repopulate scripts at the end
-        $html = self::_viewsDataBind($html, $data);
-        $html = self::_selectsDataBind($html);
-        $html = self::_tablesDataBind($html);
+        $html = self::viewsDataBind($html, $data);
+        $html = self::tablesDataBind($html);
         return $html;
     } // end function dataBind
 

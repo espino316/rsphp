@@ -41,7 +41,7 @@ class DbSchema
         if (Str::startsWith($command, "create")) {
             $this->tableName = trim(Str::replace("create ", "", $command));
             $this->isCreate = true;
-            $this->table = new DbTable($this->tableName);
+            $this->table = new DbTable("default", $this->tableName);
         } // end if
 
         if (Str::startsWith($command, "insert")) {
@@ -80,7 +80,6 @@ class DbSchema
 
     private function parseColumn($args)
     {
-        //print_r(["parse column", $args]);
         $name = $args[0];
         $type = $args[1];
 
@@ -105,9 +104,6 @@ class DbSchema
 
     public function update($fileName)
     {
-        //  Set up the config, from the fileName
-        $this->parseConfig($fileName);
-
         //  Parse the file
         $schemaFile = new FileHandler($fileName);
         while (!$schemaFile->eof) {

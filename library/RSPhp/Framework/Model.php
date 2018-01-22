@@ -54,7 +54,7 @@ class Model
      *
      * @return Arrray
      */
-    public function getProperties(); {
+    public function getProperties() {
         return get_object_vars($this);
     } // end function getProperties
 
@@ -244,10 +244,9 @@ class Model
     protected static function removeUndefined( $queryParams )
     {
         foreach( $queryParams as $key => $value ) {
-            print_r( array( $key => $value ) );
             if (
                 gettype( $value ) == "object" &&
-                get_class( $value ) == "Undefined"
+                get_class( $value ) == "RSPhp\Framework\Undefined"
             ) {
                 unset( $queryParams[$key] );
             } // end if object

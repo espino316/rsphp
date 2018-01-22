@@ -62,16 +62,20 @@ class App
      *
      * @return mixed[]
      */
-    public static function get($name)
+    public static function get($name = null)
     {
-        if (self::$variables ) {
+        if (!$name) {
+            return self::$variables;
+        } // end if no name
+
+        if (self::$variables) {
             if (isset(self::$variables[$name]) ) {
                  return self::$variables[$name];
             } else {
                 return null;
             } // end if then else self::variables[name] is set
         } else {
-            return null;
+            return array();
         } // end if then else self::variables exists
     } // end function get
 

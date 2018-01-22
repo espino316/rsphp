@@ -80,7 +80,7 @@ class Controller
     function handleException( $ex )
     {
         //  Catch exceptions, show messages
-        RS::handleExeption($ex);
+        RS::handleException($ex);
     } // end function handleExeption
 
     /**
@@ -111,7 +111,7 @@ class Controller
     function loadContent($viewName, $data = null)
     {
         View::load('Header', $data);
-        View::load($content, $data);
+        View::load($viewName, $data);
         View::load('Footer', $data);
     } // end function loadContent
 

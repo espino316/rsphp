@@ -21,6 +21,7 @@
 
 namespace RSPhp\Framework;
 
+use Exception;
 /**
  * Represents a data source
  *
@@ -107,16 +108,19 @@ class DataSource
     private function getParameter( $param )
     {
         switch ( $param->type ) {
-        case 'session':
-            $value = Session::get( $param->name );
-            break;
-        case 'input':
-            $value = Input::get( $param->name );
-            break;
+            case 'session':
+                $value = Session::get( $param->name );
+                break;
+            case 'input':
+                $value = Input::get( $param->name );
+                break;
+            case "segment":
+                $value = null;
+                break;
         } // end switch
 
-        if (!$value && !$param->defaultValue ) {
-            throw new Exception("Param not exists " . $paramName, 1);
+        if (!$value && !$param->defaultValue) {
+            throw new Exception("Param not exists " . $param->name . " " . $param->type, 1);
         }  // end if not value
 
         if (!$value && $param->defaultValue ) {
@@ -196,19 +200,21 @@ class DataSource
             $pattern = '/(:[^=<>\s\',;]+)/';
             preg_match_all($pattern, $tmp, $matches);
             $matches = array_unique($matches[0]);
-
             foreach ($matches as $match) {
                 $paramName = str_replace(":", "", $match);
-                foreach ($ds->parameters as $param) {
-                    if ( $paramName != $param->name
-                        || ( $params && array_key_exists( $paramName, $params ) )
-                    ) {
-                        continue;
-                    } // end if $paramName = $param->name
+                if ($this->parameters) {
+                    foreach ($this->parameters as $param) {
+                        if ( $paramName != $param->name
+                            || ( $params && array_key_exists( $paramName, $params ) )
+                        ) {
+                            continue;
+                        } // end if $paramName = $param->name
 
-                    $params[] = $this->getParameter( $param );
+                        $params = array();
+                        $params = array_merge($params, $this->getParameter($param));
 
-                } // end foreach param
+                    } // end foreach param
+                } // end if then else parameters
             } // end foreach
 
             if ( $pageItems ) {
