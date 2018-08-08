@@ -34,6 +34,14 @@ class Uri
     protected static $segments;
 
     /**
+     * Returns the current url
+     */
+    static function currentUrl()
+    {
+        return (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    } // end function currentUrl
+
+    /**
      * Sets the segments
      *
      * @param Array $segments The array of segments

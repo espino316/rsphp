@@ -469,7 +469,11 @@ class Html
                     } // end if isset
                 } else {
                     foreach ( array_keys($head) as $key ) {
-                        $tbody .= '<td>' . $row[$key] . '</td>';
+                        if (is_array($row[$key]) && is_array($row[$key][0])) {
+                            $tbody .= '<td>' . self::dataTable($row[$key], null, true); '</td>';
+                        } else {
+                            $tbody .= '<td>' . $row[$key] . '</td>';
+                        } // end if then else row key is array
                     } // end foreach
                 } // end else
 

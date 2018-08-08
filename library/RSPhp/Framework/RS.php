@@ -978,8 +978,7 @@ class RS
         if ((int)method_exists(
             "\\Application\\Controllers\\".$controller,
             $action
-        )
-        ) {
+        )) {
             $dispatch = "Application\\Controllers\\$controller";
             $dispatch = new $dispatch();
             call_user_func_array(array($dispatch,$action), $queryString);
@@ -988,8 +987,7 @@ class RS
             if ((int)method_exists(
                 "\\Application\\Controllers\\".$defaultController,
                 $action
-            )
-            ) {
+            )) {
                 $dispatch = "Application\\Controllers\\$defaultController";
                 $dispatch = new $dispatch();
                 call_user_func_array(
@@ -1001,15 +999,22 @@ class RS
                 );
             } else if (file_exists(
                 ROOT.DS.$action
-            )
-            ) {
+            )) {
                 self::serveFile(ROOT.DS.$action);
             } else {
-                throw new Exception(
-                    'Controller or action do not exist: ' .
-                    $controller . ' / ' . $action . ' nor file ' .
-                    ROOT.DS.$action
-                );
+
+                try {
+                    $dispatch = "Application\\Controllers\\$controller";
+                    $dispatch = new $dispatch();
+                    call_user_func_array(array($dispatch,'index'), $queryString);
+                } catch (Exception $ex) {
+                    throw new Exception(
+                        $ex->getMessage() ."\n".
+                        'Controller or action do not exist: ' .
+                        $controller . ' / ' . $action . ' nor file ' .
+                        ROOT.DS.$action
+                    );
+                } // end try catch
             } // end if then else file method or file exists
         } // end if then else method exists
     } // end callHook
@@ -1273,6 +1278,78 @@ class RS
         } // end if file exists
         file_put_contents($file, $html);
     } // end function createViewNewRecord
+
+    /**
+     * This function will create all controllers for all tables
+     * in the connection
+     *
+     * @param string $dbConn Is the name of the connection to use, default "default"
+     *
+     * @return null
+     */
+    static function generateRestApiModelControllers($dbConn = "default")
+    {
+        //  Set the connection
+        $db = new Db($dbConn);
+
+        //  Get the tables
+        //      For each table
+        //          Create the controller
+        //          Create the model
+        //          Generate the methods
+        //              Get
+        //              Post
+        //              Put
+        //              Delete
+    } // end function generateRestApiModelControllers
+
+    /**
+     * Generates the controllers for a rest api
+     *
+     * @param string $endPoint The endpoint to use in the api e.g. api/v1
+     * @param string $dbConnName The name of the database connection
+     *
+     * @return null
+     */
+    static function generateRestApi(
+        $endPoint,
+        $dbConnName = 'default'
+    ) {
+        //  Get template
+        //  Get tables
+        //      Loop tables
+        //      Each table generate controller
+        //      Add route
+        try {
+            if ( ! Db::hasDbConnections() ) {
+                throw new Exception( "No connections are set. Try adding a connection first." );
+            } // end if no connections
+
+            $path = dirname( __FILE__ );
+            $path = dirname( $path );
+            $path = dirname( $path );
+            $path = dirname( $path );
+            $classDefinition = File::read( $path.DS."templates".DS."RestApiModelController_template" );
+
+            $db = new Db($connName);
+            $tables = $db->getTables();
+
+            foreach ($tables as $table) {
+                //  Generate methods:
+                //      Get
+                //      Post
+                //      Delete
+                //      Put
+                //  Replace @placeholders
+                //  Make the route
+                //  Write the file
+
+                //  For the get method:
+                //      {{table_name}}/{{pk_colum_name}}/{{pk_column_name}}
+            } // end for each table
+        } catch (Exception $ex) {
+        } // end try catch
+    } // end static function generateRestApi
 
     /**
      * Creates a model in the application

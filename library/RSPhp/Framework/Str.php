@@ -358,4 +358,29 @@ class Str
         preg_match_all($pattern, $str, $matches);
         return $matches[0];
     } // end function pregMatchAll
+
+    /**
+     * Converts a string in camelCase
+     * @param string $delimiter The delimiter to use, "-", "_", " ", etc
+     * @param string $str The string to convert, e.g. "camel_case"
+     *
+     * @return string
+     */
+    public static function toCamelCase($delimiter, $str)
+    {
+        $str = str_replace($delimiter, '', ucwords($str, $delimiter));
+        return lcfirst($str);
+    } // end function toCamel
+
+    /**
+     * Converts a string in PascalCase
+     * @param string $delimiter The delimiter to use, "-", "_", " ", etc
+     * @param string $str The string to convert, e.g. "pascal_case"
+     *
+     * @return string
+     */
+    public static function toPascalCase($delimiter, $str)
+    {
+        $str = str_replace($delimiter, '', ucwords($string, $delimiter));
+    } // end function toPascalCase
 } // end class

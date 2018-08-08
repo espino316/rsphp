@@ -85,8 +85,12 @@ class Input
      */
     static function getHeader( $headerKey = null )
     {
-        if ( $headerKey ) {
+        if ( $headerKey && array_key_exists($headerKey, self::$headers) ) {
             return self::$headers[strtolower($headerKey)];
+        } // end if headerKey
+
+        if ($headerKey) {
+            return null;
         } // end if headerKey
 
         return self::$headers;
@@ -123,6 +127,13 @@ class Input
         } // end foreach header
 
         $str = file_get_contents("php://input");
+
+        //  If the input is json
+        if (self::getHeader('content-type') == "application/json") {
+            self::$data = json_decode($str, true);
+            return;
+        } // end if send json
+
         parse_str($str, self::$data);
         if (count(self::$data) === 0 ) {
 

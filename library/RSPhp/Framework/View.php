@@ -194,12 +194,14 @@ class View
 
                         //  Loop
                         foreach ($dataItem as $key => $value) {
-                            $view
-                                = str_replace(
-                                    $itemKey."[\"".$key."\"]",
-                                    $value,
-                                    $view
-                                );
+                            if (!is_array($value)) {
+                                $view
+                                    = str_replace(
+                                        $itemKey."[\"".$key."\"]",
+                                        $value,
+                                        $view
+                                    );
+                            } // end if not is array value
                         } // end foreach
                     } else if (is_object($data[$itemKey]) ) {
                         $properties = get_object_vars($data[$itemKey]);
@@ -411,6 +413,27 @@ class View
         //  Finish databind to select
         return $dataBindItem;
     } // end function getDataBindSelect
+
+    /**
+     * Returns a populated node
+     *
+     * @param DOMNode $element The element to repeat
+     * @param array The data to use for the repeater
+     *
+     * @return string
+     */
+    private static function getRepeater($element, $data) {
+        $html = self::domHtml($element);
+        $newHtml = "";
+        $dataSource = $element->getAttribute('data-repeater');
+        $data = ($data[$dataSource]) ? $data[$dataSource] : $data;
+
+        foreach ($data as $item) {
+            $newHtml .= self::populateTemplate($innerHTML, $data);
+        } // end function
+
+        return $newHtml;
+    } // end function
 
     /**
      * Binds all selects in $html
@@ -674,6 +697,17 @@ class View
                 } // end if has attributes
                 $count--;
             } // end while item data-source
+
+            //  Data repeaters
+            $items = $xPath->query("//*[@data-repeater]");
+            for ($i = 0; $i < $items->length; $i++) {
+                //  Get the first item
+                $item = $items->item($i);
+                $replacement = null;
+                $replacement['search'] = $item->ownerDocument->saveHTML($item);
+                $replacement['replace'] = self::getReapeater($item, $data);
+                $toReplace[] = $replacement;
+            } // end for each item
 
             if (!empty($toReplace) ) {
                 foreach ( $toReplace as $replacement ) {
@@ -1543,6 +1577,18 @@ class View
         return $html;
     } // end function dataBind
 
+
+    /**
+     * Returns the html from a DOM element
+     *
+     * @param DOMNode $element The DOM element for return its HTML
+     *
+     * @return String
+     */
+    public static function domHTML(DOMNode $element) {
+        $element->ownerDocument->formatOutput = true;
+        return $element->ownerDocument->saveHTML($child);
+    } // end function dom html
 
     /**
      * Returns the inner html from a DOM element

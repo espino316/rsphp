@@ -17,9 +17,8 @@
 namespace RSPhp\Framework;
 
 use Exception;
-use PEAR;
-use Mail_mime;
-use Mail;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\PHPException;
 
 /**
  * Send emails
@@ -40,8 +39,11 @@ class Mailer
     static $from;
     static $subject;
     static $message;
+    static $cc;
+    static $bcc;
     static $html = false;
     static $attachments = array();
+    static $authType = 'PLAIN';
 
     private static $_emailToVerify;
     private static $_smtpConn;
@@ -110,74 +112,52 @@ class Mailer
         }// end if then else is array
     } // end function addAttachment
 
-    /**
-     * Send the  email
-     *
-     * @return void
-     */
-    static function send()
-    {
+    static function send() {
+
         $host = App::get('MAIL_SERVER');
         $username = App::get('MAIL_USER');
         $password = App::get('MAIL_PWD');
         $port = App::get('MAIL_PORT');
 
-        if ( ! $port ) {
-            $port = 25;
-        } // end if not port
+        $mail = new PHPMailer;
+        $mail->isSMTP();
+        $mail->SMTPDebug = 4;
+        $mail->Host = $host;
+        $mail->Port = $port;
+        $mail->SMTPAuth = true;
+        $mail->AuthType = self::$authType;
+        $mail->Username = $username;
+        $mail->Password = $password;
+        $mail->setFrom( self::$from );
+        $mail->addAddress( self::$to );
+        $mail->Subject = self::$subject;
+        if ( self::$html ) {
+            $mail->msgHTML( self::$message );
+        } else {
+            $mail->Body = self::$message;
+        } // end if html
 
-        $headers['From'] = self::$from;
-        $headers['To'] = self::$to;
-        $headers['Subject'] = self::$subject;
-        if (self::$html ) {
-            $headers['Content-Type'] = 'text/html; charset=ISO-8859-1';
+        foreach( self::$attachments as $attachment ) {
+            $mail->addAttachment( $attachment );
+        } // foreach
+
+        if (self::$bcc) {
+            $mail->addBCC(self::$bcc);
+        } // end if self bcc
+
+        if (self::$cc) {
+            $mail->addCC(self::$cc);
+        } // end if self bcc
+
+        //send the message, check for errors
+        if (!$mail->send()) {
+            self::$bcc = null;
+            self::$cc = null;
+            throw new Exception( "Mailer Error: " . print_r(array($username, $password, $port, $host), true) . " " . $mail->ErrorInfo );
         }
 
-        $config['host'] = $host;
-        $config['auth'] = true;
-        $config['username'] = $username;
-        $config['password'] = $password;
-        $config['port'] = $port;
-
-        if (count(self::$attachments) ) {
-            $mime = new Mail_mime("\r\n");
-            if (self::$html ) {
-                $mime->setHTMLBody(self::$message);
-            } else {
-                $mime->setTXTBody(self::$message);
-            } // end if html
-
-            foreach ( self::$attachments as $attachment ) {
-                $mime->addAttachment($attachment, 'application/octet-stream');
-            } // foreach
-
-            self::$message = $mime->get();
-            $headers = $mime->headers($headers);
-        } // end if $attachments
-
-        $smtp
-            = Mail::factory(
-                'smtp',
-                $config
-            );
-
-        $mail
-            = $smtp->send(
-                self::$to,
-                $headers,
-                self::$message
-            );
-
-        //	Clear the attachments
-        self::$attachments = array();
-
-        if (PEAR::isError($mail) ) {
-            throw new Exception($mail->getMessage());
-        } else {
-            return $mail;
-        } // end if PEAR error
-
-    } // end function send
+        return true;
+    } // end static function send
 
     /**
      * Send the mail using mail()

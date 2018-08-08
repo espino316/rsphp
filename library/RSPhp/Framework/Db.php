@@ -19,7 +19,7 @@ namespace RSPhp\Framework;
 use PDO;
 use Exception;
 use InvalidArgumentException;
-
+use stdClass;
 /**
  * Helper for database manipulation
  *
@@ -36,6 +36,8 @@ class Db
 {
     private static $dbConnections = array();
     private static $dataSources = array();
+
+    public $utf8 = false;
 
     /**
      * @var DbConnection The connection details to the database
@@ -70,7 +72,7 @@ class Db
      *
      * @var array The params for the array
      */
-    protected $whereParams;
+    protected $whereParams = array();
 
     /**
      *
@@ -453,7 +455,6 @@ class Db
      */
     function update( $tableName, $params, $where)
     {
-
         //	remove the wheres from params
         foreach ( array_keys($where) as $whereKey ) {
             if (array_key_exists($whereKey, $params) ) {
@@ -822,7 +823,11 @@ class Db
                 foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $v) {
                     $result = array();
                     foreach ( array_keys($v) as $colName ) {
-                        $result[$colName] = $v[$colName];
+                        if ($this->utf8) {
+                            $result[$colName] = utf8_encode($v[$colName]);
+                        } else {
+                            $result[$colName] = $v[$colName];
+                        } // end if utf8
                     }
                     $resultset[] = $result;
                 }
@@ -958,7 +963,7 @@ class Db
                 ) {
                     unset($columnName[$colName]);
                 } else {
-                    $cont = count($this->whereParams) + 1;
+                    $cont = ($this->whereParams) ? count($this->whereParams) + 1 : 1;
                     $paramName = str_replace(".", "_", $colName) . $cont;
                     $this->whereParams[$paramName] = $columnName[$colName];
 
@@ -980,7 +985,11 @@ class Db
                 $this->whereStatement .= " AND $columnName ";
             }
         } else {
-            $cont = count($this->whereParams) + 1;
+            if ($this->whereParams) {
+                $cont = count($this->whereParams) + 1;
+            } else {
+                $cont = 1;
+            }
             $paramName = str_replace(".", "_", $columnName) . $cont;
             $this->whereParams[$paramName] = $value;
 
@@ -1027,6 +1036,49 @@ class Db
         //	Returns this same instance
         return $this;
     } // end function orWhere
+
+    /**
+     * Sets an WHERE BETWEEN statement
+     *
+     * @param String    $columnName The column name, alternatively, an assoc array
+     * @param Mixed     $value1 The first value in the between clause
+     * @param Mixed     $value2 The second value in the between clause
+     *
+     * @return Db
+     */
+    function whereBetween($columnName, $value1, $value2, $isOr = false)
+    {
+        $cont = count($this->whereParams) + 1;
+        $paramName1 = str_replace(".", "_", $colName) . $cont;
+        $paramName2 = str_replace(".", "_", $colName) . $cont + 1;
+        $this->whereParams[$paramName1] = $value1;
+        $this->whereParams[$paramName2] = $value2;
+
+        $whereType = ($isOr) ? "OR" : "AND";
+
+        if (empty($this->whereStatement) ) {
+            $this->whereStatement = "$colName BETWEEN :$paramName1 AND :$paramName2";
+        } else {
+            $this->whereStatement .= " $whereType $colName BETWEEN :$paramName1 AND :$paramName2";
+        }
+
+        //	Returns this same instance
+        return $this;
+    } // end whereBetween
+
+    /**
+     * Sets an OR WHERE BETWEEN statement
+     *
+     * @param String    $columnName The column name, alternatively, an assoc array
+     * @param Mixed     $value1 The first value in the between clause
+     * @param Mixed     $value2 The second value in the between clause
+     *
+     * @return Db
+     */
+    function orWhereBetween($columnName, $value1, $value2)
+    {
+        return $this->whereBetween($columnName, $value1, $value2, true);
+    } // end whereBetween
 
     /**
      * Sets an LIKE statement on an AND clause
@@ -1667,6 +1719,26 @@ class Db
     } // en function paginate
 
     /**
+     * Get the tables in the database
+     */
+    function getTables()
+    {
+        $sql = "
+            SELECT
+                table_catalog,
+                table_name,
+                table_type
+            FROM information_schema.tables
+            WHERE table_catalog = :databaseName
+            AND table_schema = 'public'
+            AND table_type = 'BASE TABLE'
+";
+        $queryParams['databaseName'] = $this->dbConn->databaseName;
+        $result = $this->query($sql, $queryParams, 'stdClass');
+        return $result;
+    } // end function getTables
+
+    /**
      * Returns an array with the columns information schema
      *
      * @param String $tableName The name of the table to query the schema
@@ -1892,6 +1964,130 @@ class Db
     } // end function getIdentityColumn
 
     /**
+     * Retrives the foreign keys from the database
+     *
+     * @param string $tableName The table name
+     *
+     * @return array
+     */
+    function getForeignKeys($tableName)
+    {
+        $sql = "
+SELECT
+   tc.constraint_name,
+   tc.table_name,
+   kcu.column_name,
+   ccu.table_name AS foreign_table_name,
+   ccu.column_name AS foreign_column_name
+FROM
+   information_schema.table_constraints AS tc
+   JOIN
+      information_schema.key_column_usage AS kcu
+      ON tc.constraint_name = kcu.constraint_name
+   JOIN
+      information_schema.constraint_column_usage AS ccu
+      ON ccu.constraint_name = tc.constraint_name
+WHERE
+   constraint_type = 'FOREIGN KEY'
+   AND tc.table_name = :tableName
+   AND tc.constraint_catalog = :databaseName
+ORDER BY
+   constraint_name ASC
+";
+
+        $queryParams['tableName'] = $tableName;
+        $queryParams['databaseName'] = $this->dbConn->databaseName;
+        $result = $this->query($sql, $queryParams, 'stdClass');
+        return $result;
+    } // end function getForeignKeys
+
+    /**
+     * Returns the columns for a table constraint, or all if $constraintName not present
+     *
+     * @param string $tableName The table name
+     * @param string $constraintName The constraint name
+     *
+     * @return array
+     */
+    function getTableConstraintsColumns($tableName, $constraintName = '')
+    {
+        $sql = "
+SELECT
+   t.table_name,
+   tc.constraint_name,
+   tc.constraint_type,
+   kcu.column_name,
+   ccu.table_name AS foreign_table_name,
+   ccu.column_name AS foreign_column_name
+FROM
+   INFORMATION_SCHEMA.TABLES t
+   LEFT JOIN
+      INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+      ON tc.table_catalog = t.table_catalog
+      AND tc.table_schema = t.table_schema
+      AND tc.table_name = t.table_name
+   LEFT JOIN
+      INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
+      ON kcu.table_catalog = tc.table_catalog
+      AND kcu.table_schema = tc.table_schema
+      AND kcu.table_name = tc.table_name
+      AND kcu.constraint_name = tc.constraint_name
+   LEFT JOIN
+      information_schema.constraint_column_usage AS ccu
+      ON ccu.constraint_name = tc.constraint_name
+      AND tc.constraint_type = 'FOREIGN KEY'
+WHERE
+   t.table_catalog = :databaseName
+   AND t.table_name = :tableName
+   AND (:getAll = 1 OR tc.constraint_name = :constraintName)
+   AND kcu.column_name IS NOT NULL
+ORDER BY
+   t.table_catalog,
+   t.table_schema,
+   t.table_name,
+   kcu.constraint_name,
+   kcu.ordinal_position
+";
+
+        $getAll = ($constraintName) ? 0 : 1;
+        $constraintName = $getAll ? "" : $constraintName;
+        $queryParams['tableName'] = $tableName;
+        $queryParams['databaseName'] = $this->dbConn->databaseName;
+        $queryParams['getAll'] = $getAll;
+        $queryParams['constraintName'] = $constraintName;
+        $result = $this->query($sql, $queryParams, 'stdClass');
+        return $result;
+
+    } // end function getTableConstraintColumns
+
+    /**
+     * Gets the table constraints
+     *
+     * @param string $tableName The table name
+     *
+     * @return array
+     */
+    function getTableConstraints($tableName)
+    {
+        $sql = "
+SELECT
+    table_name,
+    constraint_name,
+    constraint_type
+FROM
+    information_schema.table_constraints
+WHERE
+    constraint_catalog = :databaseName
+    AND table_name = :tableName
+";
+
+        $queryParams['tableName'] = $tableName;
+        $queryParams['databaseName'] = $this->dbConn->databaseName;
+        $result = $this->query($sql, $queryParams, 'stdClass');
+        return $result;
+    } // end function getTableConstraints
+
+    /**
      * Returns a resultset with the primary keys
      *
      * @param String $tableName The name of the table to query the schema
@@ -2012,6 +2208,33 @@ class Db
 
         return $result;
     } // end function getPrimaryKeys
+
+    /**
+     * Returns only some columns from a resultset
+     *
+     * @param assoc_array $resultSet An array of assoc_arrays with the original info
+     * @param array $itemKeys An array of string, containing the columns name to select
+     *
+     * @return Array
+     */
+    static function resultSetSelect($resultSet, $itemKeys) {
+        if (!is_array($itemKeys)) {
+            throw new Exception("Item keys must be an array of string");
+        } // end if not is array itemm keys
+
+        $result = array();
+        if ($resultSet) {
+            foreach ($resultSet as $row) {
+                $rw = array();
+                foreach ($itemKeys as $key) {
+                    $rw[$key] = $row[$key];
+                } // end foreach key
+                $result[] = $rw;
+            } // end foreach
+        } // end if resultSet
+
+        return $result;
+    } // end function resultSetSelect
 
     /**
      * Returns an filtered array

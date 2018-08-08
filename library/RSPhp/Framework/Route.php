@@ -57,6 +57,48 @@ class Route
     } // end construct
 
     /**
+     * Return true is $uri matchs $uriPattern
+     *
+     * @param string $uri
+     * @param string $uriPattern
+     *
+     * @return bool
+     */
+    function matchUri($uri, $uriPattern)
+    {
+        if ($uri == $uriPattern) {
+            return true;
+        } // end if same string
+
+        //  The pattern to :param
+        $pattern = "#(:[^\\\/=<>\s\',;]+)#";
+        //  The pattern to replace for :param
+        $toReplace = "([^\/=<>\s\',;]+)";
+        //  Modify the $uriPattern escaping the "/" char
+        $uriPattern = str_replace("/", "\/", $uriPattern);
+        //  Get the new pattern performing the replaces
+        $pattern = preg_replace($pattern, $toReplace, $uriPattern);
+        //  Complement the pattern
+        $pattern = "#".$pattern."#";
+        //  Do the match
+        preg_match($pattern, $uri, $matches);
+        //  If no matches, return false
+        if (!$matches) {
+            return false;
+        } // end if no matches
+
+        //  Check the first match be the whole $uri
+        if ($matches[0] == $uri) {
+            unset($matches[0]);
+            $matches = array_values($matches);
+            return $matches;
+        }
+
+        // If no match, return null
+        return null;
+    } // end function matchUri
+
+    /**
      * Construct the Route from a url
      *
      * @param String $url The url to compare
