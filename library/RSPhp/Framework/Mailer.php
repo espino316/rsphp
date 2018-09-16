@@ -121,7 +121,7 @@ class Mailer
 
         $mail = new PHPMailer;
         $mail->isSMTP();
-        $mail->SMTPDebug = 4;
+        $mail->SMTPDebug = 0;
         $mail->Host = $host;
         $mail->Port = $port;
         $mail->SMTPAuth = true;

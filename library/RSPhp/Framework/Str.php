@@ -161,7 +161,6 @@ class Str
      * @param Array  $dictionary Dictionary with key and value
      * @param Str $str     The string in which the replacements
      * are gonna be made
-     *                  are gonna be made
      *
      * @return Str
      */

@@ -1,0 +1,37 @@
+<?php
+
+namespace Application\Controllers;
+
+use RSPhp\Framework\Input;
+use RSPhp\Framework\Uri;
+use RSPhp\Framework\RestApiModelController;
+use Exception;
+
+/**
+ * @description
+ */
+class @controllerName extends RestApiModelController
+{
+    /**
+     * Creates a new instance of @controllerName
+     */
+    function __construct()
+    {
+        //  Set up the endpoint
+        $this->initialize("@endPoint");
+
+        //  Setup the methods for every table
+        @methods
+
+    } // end function constructs
+
+    /**
+     * The home %baseUrl/Testing/
+     */
+    function index()
+    {
+        //  Run the api
+        $this->run();
+    } // end function index
+
+} // end class TestingController;

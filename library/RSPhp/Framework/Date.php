@@ -19,6 +19,8 @@ namespace RSPhp\Framework;
 use DateTime;
 use DateInterval;
 
+//  Set the default time zone to Mexico City
+date_default_timezone_set('America/Mexico_City');
 /**
  * Helper for date operations
  *

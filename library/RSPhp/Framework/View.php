@@ -913,7 +913,7 @@ class View
         }
     } // end function domGetAttribute
 
-    private static function getResultFromDataSourcedElement($item, $pageItems = null, $currentPage = null)
+    private static function getResultFromDataSourcedElement($item, $pageItems = null, $currentPage = null, $data = null)
     {
         //	Get the data
         $dsName = $item->getAttribute('data-source');
@@ -1000,8 +1000,28 @@ class View
                 //  Get the result
                 $result = $db->get($table);
             } // end if then else filters
-        } else {
+        } else if ( Str::startsWith($dsName, "$")) {
 
+            $dsName = Str::replace('$','', $dsName);
+
+            if (!$data) {
+                throw new Exception("No data specified for variable data source");
+            } // end if not data
+
+            if (!array_key_exists($dsName, $data)) {
+                throw new Exception("No variable in proposed data");
+            } // end if not data[dsName]
+
+            if (!is_array($data[$dsName])) {
+                throw new Exception("Variable is not array");
+            } // end if not data is array
+
+            if (!is_array($data[$dsName][0])) {
+                throw new Exception("Variable is not resultset");
+            } // end if not assoc array
+
+            return $data[$dsName];
+        } else {
             //  Get the datasource
             $ds = Db::getDataSource( $dsName );
 
@@ -1066,7 +1086,7 @@ class View
      *
      * @return void
      */
-    private static function tablesDataBind( $html )
+    private static function tablesDataBind( $html, $data = null )
     {
 
         $isFragment = true;
@@ -1116,7 +1136,7 @@ class View
                 $options['pagination_url'] = $paginationUrl;
                 array_filter($options);
 
-                $result = self::getResultFromDataSourcedElement($item, $pageItems, $currentPage);
+                $result = self::getResultFromDataSourcedElement($item, $pageItems, $currentPage, $data);
 
                 if ( $pagination ) {
                        $data = $result['results'];
@@ -1573,7 +1593,7 @@ class View
     {
         //	Remove strings, repopulate scripts at the end
         $html = self::viewsDataBind($html, $data);
-        $html = self::tablesDataBind($html);
+        $html = self::tablesDataBind($html, $data);
         return $html;
     } // end function dataBind
 

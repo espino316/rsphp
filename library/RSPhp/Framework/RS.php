@@ -1280,51 +1280,22 @@ class RS
     } // end function createViewNewRecord
 
     /**
-     * This function will create all controllers for all tables
-     * in the connection
+     * Generates a controller with the restful api for each table in each method
+     *  Command: ./rsphp restapi create --controller="controllerName" --conn="connName" --tables-exception="tables,exception"
      *
-     * @param string $dbConn Is the name of the connection to use, default "default"
-     *
-     * @return null
-     */
-    static function generateRestApiModelControllers($dbConn = "default")
-    {
-        //  Set the connection
-        $db = new Db($dbConn);
-
-        //  Get the tables
-        //      For each table
-        //          Create the controller
-        //          Create the model
-        //          Generate the methods
-        //              Get
-        //              Post
-        //              Put
-        //              Delete
-    } // end function generateRestApiModelControllers
-
-    /**
-     * Generates the controllers for a rest api
-     *
-     * @param string $endPoint The endpoint to use in the api e.g. api/v1
-     * @param string $dbConnName The name of the database connection
+     * @param $controllerName The controller name
+     * @param $connName The connection name
+     * @param $tablesException The tables exceptions
      *
      * @return null
      */
-    static function generateRestApi(
-        $endPoint,
-        $dbConnName = 'default'
-    ) {
-        //  Get template
-        //  Get tables
-        //      Loop tables
-        //      Each table generate controller
-        //      Add route
+    public static function generateRestfulApi($controllerName, $connName = null, $tablesExceptions = null) {
         try {
             if ( ! Db::hasDbConnections() ) {
                 throw new Exception( "No connections are set. Try adding a connection first." );
             } // end if no connections
 
+            //  Get the class definition
             $path = dirname( __FILE__ );
             $path = dirname( $path );
             $path = dirname( $path );
@@ -1332,24 +1303,346 @@ class RS
             $classDefinition = File::read( $path.DS."templates".DS."RestApiModelController_template" );
 
             $db = new Db($connName);
-            $tables = $db->getTables();
+            $tablesResultSet = $db->getTables();
+
+            $tables = [];
+            $tablesExceptions = explode(",", $tablesExceptions);
+            foreach ($tablesResultSet as $table) {
+                if ($tablesExceptions) {
+                    //  Formamos el array
+
+                    //  End foreach table exception
+                    foreach ($tablesExceptions as $tableEx) {
+                        if ($table->table_name != $tableEx) {
+                            $tables[] = $table;
+                        } // end if table name is not the same
+                    } // end foreach table exception
+                } else {
+                    $tables[] = $table;
+                } // end if tables exceptions
+            } // end foreach table
+
+            //  Then we perform the methods for: POST, PUT, DELETE, GET
+            //  The we look for relationships and add the methods to get the related tables
+
+            $methods = '';
 
             foreach ($tables as $table) {
-                //  Generate methods:
-                //      Get
-                //      Post
-                //      Delete
-                //      Put
-                //  Replace @placeholders
-                //  Make the route
-                //  Write the file
 
-                //  For the get method:
-                //      {{table_name}}/{{pk_colum_name}}/{{pk_column_name}}
+                //  Generate methods
+                //  Replace @placeholders
+                $tableMethods = "\n       /**** Here begins $table->table_name Rest API ****/\n";
+
+                //      Get
+                $tableMethods .= self::generateRestfulApiGetMethods($db, $table->table_name);
+
+                //      Post
+                $tableMethods .= self::generateRestfulApiPostMethods($db, $table->table_name);
+
+                //      Put
+                $tableMethods .= self::generateRestfulApiPutMethods($db, $table->table_name);
+
+                //      Delete
+                $tableMethods .= self::generateRestfulApiDeleteMethods($db, $table->table_name);
+
+                //      End
+                $tableMethods .= "\n       /**** Here ends $table->table_name Rest API ****/\n";
+
+                $methods .= $tableMethods;
             } // end for each table
+
+
+            $classDefinition = Str::replace('@methods', $methods, $classDefinition);
+
+            $classDefinition = Str::replace("\r\n", "\n", $classDefinition);
+            $filename = ROOT.DS.'application'.DS.'controllers'.DS.$controllerName. "Controller.php";
+
+            if (File::exists($filename)) {
+                File::delete($filename);
+            } // end if file exists
+
+            File::write($filename, $classDefinition);
+
         } catch (Exception $ex) {
+            self::printLine($ex->getMessage());
         } // end try catch
-    } // end static function generateRestApi
+    } // end function generateRestfulApi
+
+    /**
+     * Generates the code for get method for each table
+     *
+     * @param $db The db connection to perform
+     * @param $tableName The table name for wich we must generate the method
+     */
+    private static function generateRestfulApiGetMethods($db, $tableName) {
+
+        //  This is where we're gonna stored the results
+        $result = "";
+
+        //  This is the options template
+        $options = '
+        //  Options to enable previous check from JS clients
+        $this->options(
+            "@tableName",
+            function(@params) {
+                Output::setStatusCode(200);
+                $this->setCORSHeaders();
+            } // end anonymous function
+        );
+';
+        //  This is the get template
+        $get = '
+        //  GET all records
+        $this->get(
+            "@tableName",
+            function (@params) {
+                $this->jsonResponse(
+                    $this->db->get("@tableName")
+                ); // end jsonResponse
+            } // end anonoymous get
+        ); // end get
+';
+        //  Here we replace the table name and set them to options and get
+        $result .= Str::replace(array('@tableName' => $tableName, '@params' => ''), $options);
+        $result .= Str::replace(array('@tableName' => $tableName, '@params' => ''), $get);
+
+        //  Here we're gonna get the primary key
+        $pks = $db->getPrimaryKeys($tableName);
+        $paramsUrl = '';
+        $paramsFunction = '';
+        $paramsWhere = array();
+
+        foreach ($pks as $pk) {
+            $paramsUrl .= '/:' . $pk;
+            $paramsFunction = ($paramsFunction) ? ', $'.$pk : '$'.$pk;
+            $paramsWhere[] = "('$pk', $$pk)";
+        } // end for each $pks
+
+        $paramsWhere = implode('->andWhere', $paramsWhere);
+
+        $options = '
+        //  OPTIONS by keys
+        $this->options(
+            "@tableName@paramsUrl",
+            function(@paramsFunction) {
+                Output::setStatusCode(200);
+                $this->setCORSHeaders();
+            } // end anonymous function
+        );
+';
+        //  This is the get template
+        $get = '
+        //  GET by keys
+        $this->get(
+            "@tableName@paramsUrl",
+            function (@paramsFunction) {
+                $this->jsonResponse(
+                    $this->db->
+                        get("@tableName")->
+                            where@paramsWhere
+                ); // end jsonResponse
+            } // end anonoymous get
+        ); // end get
+';
+
+        //  Here we replace the table name and set them to options and get
+        $result .= Str::replace(
+            array(
+                '@tableName' => $tableName,
+                '@paramsUrl' => $paramsUrl,
+                '@paramsFunction' => $paramsFunction,
+                '@paramsWhere' => $paramsWhere
+            ),
+            $options
+        );
+
+        $result .= Str::replace(
+            array(
+                '@tableName' => $tableName,
+                '@paramsUrl' => $paramsUrl,
+                '@paramsFunction' => $paramsFunction,
+                '@paramsWhere' => $paramsWhere
+            ),
+            $get
+        );
+
+        return $result;
+    } // end function generateRestulApiGetMethod
+
+    /**
+     * Generates the code for post method for each table
+     *
+     * @param $db The db connection to perform
+     * @param $tableName The table name for wich we must generate the method
+     */
+    private static function generateRestfulApiPostMethods($db, $tableName) {
+
+        //  This is where we're gonna stored the results
+        $result = '';
+
+        //  This is the post template
+        $post = '
+        //  POST
+        $this->post(
+            "@url",
+            function () {
+                $this->db->insert(
+                    "url",
+                    Input::get()
+                );
+
+                $@urlId =
+                    $this->db->
+                        select("@paramsSelect")->
+                        from("@url")->
+                        where(Input::get())->
+                        getScalar();
+
+                //  Created and location:
+                Output::setStatusCode(201);
+                Output::setHeader("Location", BASE_URL."/".$this->endPoint."@url@paramsUrl");
+                $this->setCORSHeaders();
+            } // end anonymous post
+        ); // end get verb route
+';
+
+        //  Here we're gonna get the primary key
+        $pks = $db->getPrimaryKeys($tableName);
+        $paramsUrl = '';
+        $paramsSelect = '';
+
+        foreach ($pks as $pk) {
+            $paramsUrl .= '/$' . $pk;
+            $paramsSelect = ($paramsSelect) ? ','.$pk : $pk;
+        } // end for each $pks
+
+        //  Here we replace the table name and set them to the post
+        $result .=
+            Str::replace(
+                array(
+                    '@url' => $tableName,
+                    '@paramsUrl' => $paramsUrl,
+                    '@paramsSelect' => $paramsSelect
+                ),
+                $post
+            ); // end replace
+
+        return $result;
+    } // end function generateRestulApiGetMethod
+
+    /**
+     * Generates the code for post method for each table
+     *
+     * @param $db The db connection to perform
+     * @param $tableName The table name for wich we must generate the method
+     */
+    private static function generateRestfulApiPutMethods($db, $tableName) {
+
+        //  This is where we're gonna stored the results
+        $result = '';
+
+        //  This is the post template
+        $put = '
+        // PUT
+        $this->put(
+            "@tableName@paramsUrl",
+            function (@paramsFunction) {
+                $this->db->update("@tableName", Input::get(), array(@paramsArray));
+
+                //  Created and location:
+                Output::setStatusCode(201);
+                Output::setHeader("Location", BASE_URL."/".$this->endPoint."@tableName@paramsVars");
+                $this->setCORSHeaders();
+            } // end anonymous function
+        ); // end put
+';
+
+        //  Here we're gonna get the primary key
+        $pks = $db->getPrimaryKeys($tableName);
+        $paramsUrl = '';
+        $paramsFunction = '';
+        $paramsArray = '';
+        $paramsVars = '';
+
+        foreach ($pks as $pk) {
+            $paramsUrl .= '/:' . $pk;
+            $paramsVars .= '/' . $pk;
+            $paramsFunction = ($paramsFunction) ? ', $'.$pk : '$'.$pk;
+            $colName = $pk;
+            $arrayItem = "'$colName' => $$colName";
+            $paramsArray = ($paramsArray) ? ",\n". $arrayItem : $arrayItem;
+        } // end for each $pks
+
+        //  Here we replace the table name and set them to the put
+        $result .=
+            Str::replace(
+                array(
+                    '@tableName' => $tableName,
+                    '@paramsUrl' => $paramsUrl,
+                    '@paramsVars' => $paramsVars,
+                    '@paramsFunction' => $paramsFunction,
+                    '@paramsArray' => $paramsArray
+                ),
+                $put
+            ); // end replace
+
+        return $result;
+    } // end function generateRestulApiGetMethod
+
+    /**
+     * Generates the code for get method for each table
+     *
+     * @param $db The db connection to perform
+     * @param $tableName The table name for wich we must generate the method
+     */
+    private static function generateRestfulApiDeleteMethods($db, $tableName) {
+
+        //  This is where we're gonna stored the results
+        $result = '';
+
+        //  This is the get template
+        $delete = '
+        //  DELETE
+        $this->delete(
+            "@tableName@paramsUrl",
+            function (@paramsFunction) {
+                $this->db->
+                    delete("@tableName")->
+                        where@paramsWhere;
+                //  No Content
+                Output::setStatusCode(204);
+                $this->setCORSHeaders();
+            } // end anonoymous get
+        ); // end get
+';
+
+        //  Here we're gonna get the primary key
+        $pks = $db->getPrimaryKeys($tableName);
+        $paramsUrl = '';
+        $paramsFunction = '';
+        $paramsWhere = array();
+
+        foreach ($pks as $pk) {
+            $paramsUrl .= '/:' . $pk;
+            $paramsFunction = ($paramsFunction) ? ', $'.$pk : '$'.$pk;
+            $paramsWhere[] = "('$pk', $$pk)";
+        } // end for each $pks
+
+        $paramsWhere = implode('->andWhere', $paramsWhere);
+
+        //  Here we replace the table name and set them to options and get
+        $result .= Str::replace(
+            array(
+                '@tableName' => $tableName,
+                '@paramsUrl' => $paramsUrl,
+                '@paramsFunction' => $paramsFunction,
+                '@paramsWhere' => $paramsWhere
+            ),
+            $delete
+        );
+
+        return $result;
+    } // end function generateRestulApiGetMethod
 
     /**
      * Creates a model in the application
@@ -1447,7 +1740,7 @@ class RS
             $text = str_replace("@undefinedProperties", $undefinedProperties, $text);
             $text = str_replace("@saveProperties", $saveProperties, $text);
 
-            $filename = "application/models/" . ucfirst($tableName) . "Model.php";
+            $filename = ROOT.DS.'application'.DS.'models'.DS.ucfirst($tableName) . "Model.php";
 
             if ( file_exists( $filename ) ) {
                 unlink($filename);

@@ -3,6 +3,7 @@
 namespace Application\Models;
 
 use RSPhp\Framework\Model;
+use RSPhp\Framework\Undefined;
 
 /**
  * Entity model for @tableNameModel
@@ -74,4 +75,22 @@ class @tableNameModel extends Model {
                 max("@id");
         }
     } // end function save
+
+    /**
+     * Deletes the record
+     */
+    function delete()
+    {
+        $where = array(
+            "@id" => $this->@id
+        );
+
+        $where = parent::removeUndefined($where);
+
+        return parent::$db->delete(
+            $this->getTableName(),
+            $where
+        ); // end delete
+
+    } // end function delete
 } // end class @tableNameModel

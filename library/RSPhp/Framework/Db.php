@@ -1733,6 +1733,17 @@ class Db
             AND table_schema = 'public'
             AND table_type = 'BASE TABLE'
 ";
+
+        if ($this->dbConn->driver == 'mysql') {
+            $sql = "SELECT
+                table_schema as table_catalog,
+                table_name,
+                table_type
+            FROM information_schema.tables
+            WHERE table_schema = :databaseName
+            AND table_type = 'BASE TABLE'";
+        } // end if mysql
+
         $queryParams['databaseName'] = $this->dbConn->databaseName;
         $result = $this->query($sql, $queryParams, 'stdClass');
         return $result;

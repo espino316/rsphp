@@ -1,0 +1,88 @@
+<?php
+
+namespace Application\Controllers;
+
+use RSPhp\Framework\Controller;
+use RSPhp\Framework\View;
+use RSPhp\Framework\Input;
+use RSPhp\Framework\Uri;
+use RSPhp\Framework\Session;
+use Exception;
+use Application\Models\@tableNameModel;
+
+/**
+ * Grades for level controller
+ */
+class @tableNameController extends Controller
+{
+    /**
+     * Creates a new instance of CatalogsController
+     */
+    function __construct()
+    {
+    } // end function constructs
+
+    /**
+     * The home %baseUrl/@tableName/
+     */
+    function index()
+    {
+        $this->read();
+    } // end function index
+
+    function create()
+    {
+        // if save is present
+        if (Input::get("saveButton")) {
+
+            //  Instantiate LevelsModel
+            $@tableNameCamelModel = new @tableNameModel();
+
+            //  Gets attributes from input
+            $@tableNameCamelModel->load();
+
+            //  Insert
+            $@tableNameCamelModel->save(true);
+
+            Uri::redirect(BASE_URL."/@tableName");
+        } // end if input get save button
+
+        //  If no save button present, show view
+        $this->loadContent("@tableName/Create");
+    } // end function createLevel
+
+    function read()
+    {
+        $this->loadContent("@tableName/List");
+    } // end function read
+
+    function update($leveGradelId = null)
+    {
+        // if save is present
+        if (Input::get("saveButton")) {
+
+            //  Instantiate LevelsModel
+            $@tableNameCamelModel = new @tableNameModel();
+
+            //  Gets attributes from input
+            $@tableNameCamelModel->fromInput();
+
+            //  Insert
+            $@tableNameCamelModel->save();
+
+            Uri::redirect(BASE_URL."/@tableName");
+        } // end if input get save button
+
+        //  If no save button present, show view
+        $this->loadContent("@tableName/Update");
+    } // end function update
+
+    function delete($levelGradeId)
+    {
+        $tableName = new @tableNameModel();
+        $tableName->load($@tableNameCamelId);
+        $tableName->delete();
+        Uri::redirect(BASE_URL."/@tableName");
+    } // end function detele
+
+} // end class @tableNameController;

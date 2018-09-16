@@ -184,7 +184,6 @@ class Config
     private static function loadDataSources()
     {
         if ( !array_key_exists( "datasources", self::$data ) ) {
-            Logger::debug( "datasources not exists in config" );
             return;
         } // end if not exist datasources
 
