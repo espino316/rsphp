@@ -15,13 +15,7 @@
 //  if the file is not existing only
 
 $cwd = getcwd();
-$rsPhpPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
-
-if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
-    chdir( $rsPhpPath );
-    shell_exec( "composer dump-autoload" );
-    chdir( $cwd );
-} // end if not exists
+$rsPhpPath = dirname( __FILE__ );
 
 require_once "$rsPhpPath/vendor/autoload.php";
 
@@ -148,27 +142,25 @@ if ( $command == "connection add" ) {
         } // end while not drive
 
         RS::printLine("What's the db user's password?:");
-        $pwd = RS::readLineSecret();
-        while (!$pwd) {
-            RS::printLine("You must provide an user's password");
-            RS::printLine("What's the db user's password?:");
-            $pwd = RS::readLineSecret();
+        $pwd = RS::readLine();
+        if (!$pwd) {
+            RS::printLine("Empty passwords is a very insecure configuration");
         } // end while not drive
 
         RS::printLine("Any specific port?:");
         $port = RS::readLine();
 
-        print_r(
-            array(
-                $name,
-                $driver,
-                $hostName,
-                $databaseName,
-                $userName,
-                $pwd,
-                $port
-            )
+        RS::addConnection(
+            $name,
+            $driver,
+            $hostName,
+            $databaseName,
+            $userName,
+            $pwd,
+            $port
         );
+
+        return;
     } // end if
 
     $port = null;

@@ -69,7 +69,7 @@ class RS
      */
     static function printLine($text)
     {
-        if (IS_CLI ) {
+        if (php_sapi_name() === 'cli') {
             print_r($text);
             echo "\n";
         } else {
@@ -1937,4 +1937,30 @@ class RS
         //  Save the records
         File::write($controlFile, json_encode($schemaUpdatesHistory));
     } // end function schemaUpdate
+
+    /**
+     * Read a line from command line
+     *
+     * @return String
+     */
+    public static function readLine()
+    {
+        if (PHP_OS == 'WINNT') {
+            echo "\n$ ";
+            $stdIn = stream_get_line(STDIN, 1024, "\n");
+        } else {
+          $stdIn = readline('$ ');
+        } // end if then else os is windows
+
+        return $stdIn;
+    } // end function readLine
+
+    public static function readLineSecret($promptMessage = 'Password:')
+    {
+        $promptMessage = addslashes($promptMessage);
+        $command = "/usr/bin/env bash -c 'read -s -p \"$promptMessage\" mypassword && echo \$mypassword'";
+        $password = rtrim(shell_exec($command));
+        echo "\n";
+        return $password;
+    } // end function readSecret
 } // end function class RS

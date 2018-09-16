@@ -51,4 +51,58 @@ class RSTest extends TestCase
             );
         } // end if then else file exists
     } // end function testAddDataSource
+
+    public function testReadLine()
+    {
+        RS::printLine("What's your connection name?: (default)");
+        $name = RS::readLine();
+        $name = ($name) ? $name : 'default';
+
+        RS::printLine("What's your db engine?: (mysql | pgsql | sqlsrv | dblib)");
+        $driver = RS::readLine();
+        while (!$driver) {
+            RS::printLine("You must provide a db driver");
+            RS::printLine("What's your db engine?: (mysql | pgsql | sqlsrv | dblib)");
+            $driver = RS::readLine();
+        } // end while not drive
+
+        RS::printLine("What's your database name?:");
+        $databaseName = RS::readLine();
+        while (!$databaseName) {
+            RS::printLine("You must provide a database name");
+            RS::printLine("What's your database name?:");
+            $databaseName = RS::readLine();
+        } // end while not drive
+
+        RS::printLine("What's the db user's name?:");
+        $userName = RS::readLine();
+        while (!$userName) {
+            RS::printLine("You must provide an user name");
+            RS::printLine("What's the db user's name?:");
+            $userName = RS::readLine();
+        } // end while not drive
+
+        RS::printLine("What's the db user's password?:");
+        $pwd = RS::readLineSecret();
+        while (!$pwd) {
+            RS::printLine("You must provide an user's password");
+            RS::printLine("What's the db user's password?:");
+            $pwd = RS::readLineSecret();
+        } // end while not drive
+
+        RS::printLine("Any specific port?:");
+        $port = RS::readLine();
+
+        print_r(
+            array(
+                $name,
+                $driver,
+                $hostName,
+                $databaseName,
+                $userName,
+                $pwd,
+                $port
+            )
+        );
+    } // end function testReadLine
 } // end class DbHelperTest
