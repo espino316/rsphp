@@ -129,7 +129,7 @@ class DbSchema
             if ($constraint->constraint_type == DbConstraintTypes::Unique) {
                 $dbTable->unique($constraint->columns);
             } // end if constraint is primary key
-            
+
             //  If is foreign key
             if ($constraint->constraint_type == DbConstraintTypes::ForeignKey) {
                 foreach ($constraint->columns as $column) {
@@ -215,7 +215,7 @@ class DbSchema
         $tables = array_filter(
             $this->tables,
             function ($t) use ($refTableName) {
-                return $t->tableName == $refTableName; 
+                return $t->tableName == $refTableName;
             } // end anonymous array filter
         ); // end array_filter
 
@@ -269,7 +269,7 @@ class DbSchema
             $this->parseTableConstraint($table, $line);
             return;
         } // end if no string
-        
+
         $tokens = explode(" ", $line);
         $count = count($tokens);
 
@@ -284,7 +284,6 @@ class DbSchema
         unset($tokens[0]);
 
         foreach($tokens as $token) {
-
             if ($token == "unique") {
                 $column->unique();
                 continue;
@@ -304,7 +303,7 @@ class DbSchema
                 $column->primaryKey();
                 continue;
             } // end if is primary key
-            
+
             if ($token == "fk") {
                 //  TODO: Search through the current array ot tables
                 //  find the one with only one column by the column name
@@ -393,8 +392,12 @@ class DbSchema
 
             if (!$isDataType) {
                 throw new Exception ("$token data type not found");
-            } // end if no data type   
+            } // end if no data type
         } // end foreach token
+
+        if (!$column->dataType) {
+            throw new Exception ("$column->name data type not found");
+        } // end if not data type
     } // end function parseTableColumn
 
     /**
@@ -455,11 +458,12 @@ class DbSchema
         } // end foreach
 
         $content = "";
+        $db = new Db($this->dbConn);
         foreach($this->tables as $table) {
-            
+
             $content.= "CREATE TABLE $table->tableName (";
             $isDirty = false;
-            
+
             foreach($table->columns as $column) {
                 $comma = $isDirty ? "," : "";
                 $content.="$comma\n\t" . $this->getColumnSql($column);
@@ -475,13 +479,14 @@ class DbSchema
             foreach($table->indexes as $index) {
                 $content.="\n\n" . $this->getIndexSql($index);
             } // end for each index
+
+            $db->nonQuery($content);
         } // end foreach table
 
         if (File::exists("tables.sql")) {
             File::delete("tables.sql");
         } // end if file exists
-        File::write("tables.sql", $content);
-        //echo $content;
+        File::write("$fileName.sql", $content);
     } // end function parseYaml
 
     /**

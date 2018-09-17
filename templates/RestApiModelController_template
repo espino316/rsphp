@@ -18,12 +18,22 @@ class @controllerName extends RestApiModelController
     function __construct()
     {
         //  Set up the endpoint
-        $this->initialize("@endPoint");
+        $this->initialize("@endPoint", function() { $this->authenticate(); });
+        $this->db->utf8 = true;
 
         //  Setup the methods for every table
         @methods
 
     } // end function constructs
+
+
+    /**
+     * This function must be implemented
+     */
+    private function authenticate()
+    {
+        throw new Exception('Not implemented');
+    } // end function authenticate
 
     /**
      * The home %baseUrl/Testing/

@@ -21,6 +21,7 @@ use DateInterval;
 
 //  Set the default time zone to Mexico City
 date_default_timezone_set('America/Mexico_City');
+
 /**
  * Helper for date operations
  *
@@ -43,7 +44,15 @@ class Date
     static function now()
     {
         return date('Y-m-d H:i:s');
-    }
+    } // end function now
+
+    /**
+     * Returns a timestamp in the ymdHis format
+     */
+    static function timestamp()
+    {
+        return date('YmdHis');
+    } // end function timestamp
 
     /**
      * Adds $increment number of seconds to $date and returns a String

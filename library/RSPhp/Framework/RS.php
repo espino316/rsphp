@@ -1352,9 +1352,17 @@ class RS
             } // end for each table
 
 
-            $classDefinition = Str::replace('@methods', $methods, $classDefinition);
+            $classDefinition = Str::replace(
+                array(
+                    '@methods' => $methods,
+                    "\r\n" => "\n",
+                    '@endPoint' => Str::toLower($controllerName),
+                    '@controllerName' => "$controllerName"."Controller",
+                    '@description' => "$controllerName Rest Api"
+                ),
+                $classDefinition
+            ); // end string replace
 
-            $classDefinition = Str::replace("\r\n", "\n", $classDefinition);
             $filename = ROOT.DS.'application'.DS.'controllers'.DS.$controllerName. "Controller.php";
 
             if (File::exists($filename)) {
@@ -1869,6 +1877,9 @@ class RS
         self::printLine( "View $viewName created." );
     } // end function createView
 
+    /**
+     * Updates the application schema
+     */
     public static function schemaUpdate()
     {
         if (!App::get("appName")) {
@@ -1885,9 +1896,7 @@ class RS
 
         //  If exists the control file, load the history
         if (File::exists($controlFile)) {
-            echo "file exits\n";
             $schemaUpdatesHistory = json_decode(File::read($controlFile), true);
-            print_r($schemaUpdatesHistory);
         } else {
             if (!Directory::exists($controlFilePath)) {
                 Directory::create($controlFilePath);
@@ -1899,19 +1908,23 @@ class RS
 
         //  Loop the files
         foreach ($files as $file) {
-            //  Get the data from the file format
-            $data = explode("_", Str::replace(".schema", "", $file));
 
-            //  Add the timestamp to the array
-            $timestamps[] = $data[2];
+            if (Str::endsWith($file, ".yaml")) {
+                //  Get the data from the file format
+                $tmp = Str::replace(ROOT.DS."application".DS."Data".DS."Schema".DS, "", $file);
+                $data = explode("_", Str::replace(".yaml", "", $tmp));
 
-            //  Add the schema update to the array
-            $schemaUpdates[] = array(
-                "connectionName" => $data[0],
-                "name" => $data[1],
-                "timestamp" => $data[2],
-                "file" => $file
-            ); // end schemaUpdates
+                //  Add the timestamp to the array
+                $timestamps[] = $data[2];
+
+                //  Add the schema update to the array
+                $schemaUpdates[] = array(
+                    "connectionName" => $data[0],
+                    "name" => $data[1],
+                    "timestamp" => $data[2],
+                    "file" => $file
+                ); // end schemaUpdates
+            } // end if ends with
         } // end foreach file
 
         //  Sort the timestamps by date
@@ -1920,14 +1933,17 @@ class RS
         //  Loop the sorted tiemstamps.
         //      If not in history, execute
         foreach ($timestamps as $timestamp) {
+            //  Look for the file, if alreay parsed
             $row = Db::resultSetFilter($schemaUpdatesHistory, "timestamp", $timestamp);
+
+            //  If no row, not parsed, then parse and control
             if (!$row) {
                 //  Not executed yet
                 //  Get the record
                 $schemaUpdate = Db::resultSetFilter($schemaUpdates, "timestamp", $timestamp)[0];
 
                 //  Execute it
-                $schema->update($schemaUpdate["file"]);
+                $schema->parseYaml($schemaUpdate["file"]);
 
                 //  Add to history (already executed)
                 $schemaUpdatesHistory[] = $schemaUpdate;
@@ -1937,6 +1953,25 @@ class RS
         //  Save the records
         File::write($controlFile, json_encode($schemaUpdatesHistory));
     } // end function schemaUpdate
+
+    /**
+     * Creates a new empty schema file
+     *
+     * @param $shortDescription Short description for the task
+     *
+     * @return null
+     */
+    public static function createEmptySchemaFile($shortDescription)
+    {
+        $timestamp = Date::timestamp();
+        $filePath =
+            ROOT.DS."application".DS."Data".DS."Schema".DS.
+            "default_".$shortDescription."_"."$timestamp.yaml";
+
+        File::write($filePath, "");
+
+        return $filePath;
+    } // end function createEmptySchemaFile
 
     /**
      * Read a line from command line
@@ -1963,4 +1998,52 @@ class RS
         echo "\n";
         return $password;
     } // end function readSecret
+
+    /**
+     * Returns from the command line input, possible null
+     *
+     * @param $message The message to show
+     * @param $defaultValue The default value to assign
+     */
+    public static function defaultReadLine($message, $defaultValue)
+    {
+        self::printLine($message);
+        $result = self::readLine();
+        return ifNull($result, $defaultValue);
+    } // end function optionalReadLine
+
+    /**
+     * Return $evaluated if exists, else return $value
+     *
+     * @param $evaluated The expression to evaluate
+     * @param $value The value to return is not $evaluated
+     *
+     * @return Object
+     */
+    public static function ifNull($evaluated, $value)
+    {
+        $result = ($evaluated) ? $evaluated : $value;
+        return $result;
+    } // end if null function
+
+    /**
+     * Request input from the user and then keeps asking until typed or cancelled
+     *
+     * @param $message The input message
+     * @param $forceMessage The message to show to the user about required input
+     *
+     * @return string
+     */
+    public static function forceReadLine($message, $forceMessage)
+    {
+        self::printLine($message);
+        $result = RS::readLine();
+        while (!$result) {
+            self::printLine($forceMessage);
+            self::printLine($message);
+            $result = RS::readLine();
+        } // end while not drive
+
+        return $result;
+    } // end function forceReadLine
 } // end function class RS

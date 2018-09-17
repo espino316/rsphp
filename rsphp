@@ -148,27 +148,25 @@ if ( $command == "connection add" ) {
         } // end while not drive
 
         RS::printLine("What's the db user's password?:");
-        $pwd = RS::readLineSecret();
-        while (!$pwd) {
-            RS::printLine("You must provide an user's password");
-            RS::printLine("What's the db user's password?:");
-            $pwd = RS::readLineSecret();
+        $pwd = RS::readLine();
+        if (!$pwd) {
+            RS::printLine("Empty passwords is a very insecure configuration");
         } // end while not drive
 
         RS::printLine("Any specific port?:");
         $port = RS::readLine();
 
-        print_r(
-            array(
-                $name,
-                $driver,
-                $hostName,
-                $databaseName,
-                $userName,
-                $pwd,
-                $port
-            )
+        RS::addConnection(
+            $name,
+            $driver,
+            $hostName,
+            $databaseName,
+            $userName,
+            $pwd,
+            $port
         );
+
+        return;
     } // end if
 
     $port = null;
@@ -253,5 +251,68 @@ if ( $command == "init" ) {
 
     RS::init( $dir );
 } // end if create app
+
+if ($command == "restapi create") {
+    if (count($params) == 0) {
+
+        $conn = RS::defaultReadLine("What's the connection? (default)?:", 'default');
+        echo "conn $conn\n";
+        $controllerName =
+            RS::forceReadLine(
+                "Type the controller name for the restapi:",
+                "You must provide a controller name"
+            );
+
+        RS::printLine("Any table to avoid? (comma sepparated, please):");
+        $except = RS::readLine();
+
+        RS::generateRestfulApi(
+            $controllerName,
+            $conn,
+            $except
+        );
+
+        return;
+    } // end if no params
+
+    RS::generateRestfulApi($params["controller"], $params["conn"], $params["except"]);
+} // end if restapi create
+
+if ($command == 'schema update') {
+    //  Review current schema and apply changes
+    if (count($params) > 0) {
+        RS::printLine('This command doesn\'t require parameters');
+        return;
+    } // end if params
+
+    RS::schemaUpdate();
+} // end if schema update
+
+if ($command == 'schema add') {
+    //  Creates a new schema file && prints it's location
+    $count = count($params);
+    if ($count > 1) {
+
+        RS::printLine('This command require just 1 parameter');
+        return;
+
+    } else if ($count == 1) {
+
+        $fileName = RS::createEmptySchemaFile($params["description"]);
+        RS::printLine("The file $fileName has been generated");
+
+    } else if ($count == 0) {
+
+        $description =
+            RS::forceReadLine(
+                "Type the schema migration short description:",
+                "You must provide a proper migration short description"
+            );
+
+        $fileName = RS::createEmptySchemaFile($description);
+        RS::printLine("The file $fileName has been generated");
+
+    }// end if params
+} // end if schema add
 
 RS::printLine("");

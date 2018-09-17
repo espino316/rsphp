@@ -43,15 +43,3 @@ Cuenta con las siguentes características:
 
 La documentación completa la puedes encontrar en: http://rsphp.espino.info/
 
-## Getting started
-
-./rsphp app --name="My app's name"
-./rsphp connection add
-  --name=[connection name, if not specified the name is 'default']
-  --driver=[mysql|pgsql|dblib|sqlsrv]
-  --hostName=[hostname|ipaddress]
-  --databaseName=[databaseName]
-  --userName="[user name]"
-  --password=[password]
-./rsphp model create all-tables
-./rsphp login create --users-table=[my user's table] --users-key-field=[by default is 'email'] --users-pwd-field=[by default is ¿pwd']

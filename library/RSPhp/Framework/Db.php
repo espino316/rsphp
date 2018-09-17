@@ -887,7 +887,7 @@ class Db
      *
      * @return Assoc Array
      */
-    function nonQuery($sql, $queryParams)
+    function nonQuery($sql, $queryParams = null)
     {
         //	Connect
         $this->connect();
