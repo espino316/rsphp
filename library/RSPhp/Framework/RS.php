@@ -85,7 +85,7 @@ class RS
      *
      * @return void
      */
-    static function setEncryptionKeys( $filePath )
+    static function setEncryptionKeys($filePath )
     {
         $tripleDesKey = Crypt::generateKey(24);
         $tripleDesVector = Crypt::generateKey(8);
@@ -105,8 +105,11 @@ class RS
      *
      * @return Bool
      */
-    static function init( $dir )
+    static function init($dir )
     {
+        $appName = self::forceReadLine("What's your app's name?:", "Must provide an app name");
+        $email = self::defaultReadLine("What's your email?:", "admin@localhost.com");
+
         //  Get the current working directory
         //  this script must be in vendor/espino316/rsphp/library/RSPhp/Framework
         $cwd = dirname(dirname(dirname(dirname(__FILE__))));
@@ -126,12 +129,7 @@ class RS
             return;
         } // end if not is dir
 
-        // print_r(array( "cwd"=>$cwd, "home"=>$home ));
-        // return;
-
         //  Create the directory structure:
-        //
-        //  Create the application directory
         $appPath = "$home/application";
         if (Directory::exists($appPath) ) {
             self::printLine("Directory 'application' already exists");
@@ -175,7 +173,7 @@ class RS
         self::printLine("Help file created");
 
         //  Create the rsphp file
-        File::write( "$home/rsphp", "( vendor/espino316/rsphp/rsphp $* )" );
+        File::write("$home/rsphp", "(vendor/espino316/rsphp/rsphp $* )" );
         File::write(
             "$home/rsphp.bat",
             "@echo off\nphp vendor/espino316/rsphp/rsphp %*"
@@ -320,11 +318,23 @@ class RS
         File::write($composerJson, $json);
         self::printLine("Composer file updated.");
 
-        self::printLine( "Creating default controller" );
-        require_once( "$home/public/index.php" );
-        self::createController( "Default", "Default controller" );
+        self::printLine("Creating default controller" );
+        require_once("$home/public/index.php" );
+        self::createController("Default", "Default controller" );
+
+        self::printLine("Updating configuration");
+        $appJson = json_decode(file_get_contents("$configPath/app.json"));
+        $appJson->appName = $appName;
+        $appJson->globals->EMAIL_ADMIN = $email;
+        file_put_contents(
+            "$configPath/app.json",
+            json_encode($appJson, JSON_PRETTY_PRINT)
+        );
+
         self::printLine("");
         self::printLine("Success!!  All done :)");
+        self::printLine("");
+        self::printLine("Yo can use ./rsphp cli from this folder now");
 
     } // end function createAppSite
 
@@ -347,7 +357,7 @@ class RS
 
             $connections = $app["dbConnections"];
 
-            foreach ( $connections as $conn ) {
+            foreach ($connections as $conn ) {
                 self::printLine("    - " . $conn["name"]);
                 self::printLine(
                     "        - driver: " . $conn["driver"]
@@ -383,7 +393,7 @@ class RS
 
             $routes = $app["routes"];
 
-            foreach ( $routes as $route ) {
+            foreach ($routes as $route ) {
                 $toPrint = "    ";
                 $toPrint.= $route["method"];
                 $toPrint.= ": ";
@@ -408,7 +418,7 @@ class RS
 
         if (file_exists($fileDataSources) ) {
             $dataSources = json_decode(file_get_contents($fileDataSources), true);
-            if ( !array_key_exists( "datasources", $dataSources ) ) {
+            if (!array_key_exists("datasources", $dataSources ) ) {
                 throw new \Exception(
                     "datasources key do not exists in datasources.json"
                 );
@@ -416,7 +426,7 @@ class RS
 
             $dataSources = $dataSources["datasources"];
 
-            foreach ( $dataSources as $index => $ds ) {
+            foreach ($dataSources as $index => $ds ) {
                 self::printLine("    - " . $ds["name"]);
                 self::printLine(
                     "        - connection: " . $ds["connection"]
@@ -443,7 +453,7 @@ class RS
     static function listControllers()
     {
         $files = Directory::getFiles(APPPATH . DS . "Controllers");
-        foreach ( $files as $file ) {
+        foreach ($files as $file ) {
             $theController = basename($file);
             $theController = Str::replace(".php", "", $theController);
             $theController = "    - " . $theController;
@@ -459,7 +469,7 @@ class RS
     static function listModels()
     {
         $files = Directory::getFiles(APPPATH . DS . "Models");
-        foreach ( $files as $file ) {
+        foreach ($files as $file ) {
             $theModel = basename($file);
             $theModel = Str::replace(".php", "", $theModel);
             $theModel = "    - " . $theModel;
@@ -523,7 +533,7 @@ class RS
             $connections = $appConfig["dbConnections"];
         } // end if dbConnection exists
 
-        foreach ( $connections as $index => $conn ) {
+        foreach ($connections as $index => $conn ) {
             if ($conn["name"] == $name ) {
                 self::printLine("Data connection " . $name . " already exists");
                 self::printLine("Overriding...");
@@ -581,12 +591,12 @@ class RS
 
         if (file_exists($fileDataSources) ) {
             $dataSources = json_decode(file_get_contents($fileDataSources), true);
-            if ( !array_key_exists( "datasources", $dataSources ) ) {
+            if (!array_key_exists("datasources", $dataSources ) ) {
                 // remove the datasources, must contain "datasources" key
                 $dataSources = null;
             } else {
                 $dataSources = $dataSources["datasources"];
-                foreach ( $dataSources as $index => $ds ) {
+                foreach ($dataSources as $index => $ds ) {
                     if ($ds['name'] == $name ) {
                         self::printLine('Data source ' . $name . ' already exists');
                         self::printLine('Overriding...');
@@ -656,7 +666,7 @@ class RS
             $routes = $appConfig["routes"];
         } // end if dbConnection exists
 
-        foreach ( $routes as $index => $route ) {
+        foreach ($routes as $index => $route ) {
             if ($route["url"] == $url
                 && $route["method"] == $method
             ) {
@@ -693,7 +703,7 @@ class RS
      *
      * @return array
      */
-    static function processStdIn( $args )
+    static function processStdIn($args )
     {
         $command = array();
         $commandParams = array();
@@ -702,12 +712,12 @@ class RS
         //  Loop the args, form the parameters and the command
         $cont = 0;
         $isParam = false;
-        foreach ( $args as $arg ) {
+        foreach ($args as $arg ) {
             if (Str::startsWith($arg, "--") ) {
                 $isParam = true;
                 $commandParams[] = $arg;
             } elseif ($cont > 0 ) {
-                if ( $isParam ) {
+                if ($isParam ) {
                     $tmp = $commandParams[count($commandParams)-1];
                     $tmp .= " $arg";
                     $commandParams[count($commandParams)-1] = $tmp;
@@ -724,7 +734,7 @@ class RS
         $command = implode(" ", $command);
 
         //  Loop the command parameters
-        foreach ( $commandParams as $commandParam ) {
+        foreach ($commandParams as $commandParam ) {
             $paramLine = Str::replace("--", "", $commandParam);
             $parts = explode("=", $paramLine, 2);
             $value = "";
@@ -1026,7 +1036,7 @@ class RS
      *
      * @return void
      */
-    static function serveFile( $file )
+    static function serveFile($file )
     {
         ob_end_clean();
 
@@ -1050,7 +1060,7 @@ class RS
      *
      * @return void
      */
-    static function createController( $name, $description )
+    static function createController($name, $description )
     {
 
         $ucName = ucwords($name);
@@ -1058,11 +1068,11 @@ class RS
         $filename = $controllerName.".php";
         $filename = ROOT.DS.'application'.DS.'controllers'.DS.$filename;
 
-        $path = dirname( __FILE__ );
-        $path = dirname( $path );
-        $path = dirname( $path );
-        $path = dirname( $path );
-        $template = File::read( $path.DS."templates".DS."Controller_template" );
+        $path = dirname(__FILE__ );
+        $path = dirname($path );
+        $path = dirname($path );
+        $path = dirname($path );
+        $template = File::read($path.DS."templates".DS."Controller_template" );
         $template  = Str::replace(
             array(
                 "@controllerName" => $controllerName,
@@ -1113,13 +1123,13 @@ class RS
         $dirs[] = ROOT.DS.'rsphp.bat';
         $dirs[] = ROOT.DS.'rsphp_help';
 
-        foreach ( $dirs as $dir ) {
+        foreach ($dirs as $dir ) {
              RS::printLine($dir);
 
             if (Directory::exists($dir) ) {
                 RS::printLine("Directory exists");
                 $files = scandir($dir);
-                foreach ( $files as $file ) {
+                foreach ($files as $file ) {
                     if ($file == '.' || $file == '..' ) {
                         continue;
                     }
@@ -1133,10 +1143,10 @@ class RS
                         File::delete($file);
                     } // end if is dir
                 } // end foreach $file
-                Directory::delete( $dir, true );
+                Directory::delete($dir, true );
             } else {
-                if ( File::exists ( $dir ) ) {
-                    File::delete( $dir );
+                if (File::exists ($dir ) ) {
+                    File::delete($dir );
                 } // end if file exists
             } // end if dir exists
         } // end foreach dir
@@ -1149,7 +1159,7 @@ class RS
      *
      * @return void
      */
-    static function createViewNewRecord( $tableName )
+    static function createViewNewRecord($tableName )
     {
 
         self::printLine('Creating view for new record, table ' . $tableName);
@@ -1238,7 +1248,7 @@ class RS
         } // end foreach
 
         $html = '<table>'.CRLF;
-        foreach ( $result2 as $row ) {
+        foreach ($result2 as $row ) {
             if ($row['related_to'] ) {
                 self::printLine('related_to');
                 $select = '<select id="@name" data-source="@dataSource"' .
@@ -1291,16 +1301,16 @@ class RS
      */
     public static function generateRestfulApi($controllerName, $connName = null, $tablesExceptions = null) {
         try {
-            if ( ! Db::hasDbConnections() ) {
-                throw new Exception( "No connections are set. Try adding a connection first." );
+            if (! Db::hasDbConnections() ) {
+                throw new Exception("No connections are set. Try adding a connection first." );
             } // end if no connections
 
             //  Get the class definition
-            $path = dirname( __FILE__ );
-            $path = dirname( $path );
-            $path = dirname( $path );
-            $path = dirname( $path );
-            $classDefinition = File::read( $path.DS."templates".DS."RestApiModelController_template" );
+            $path = dirname(__FILE__ );
+            $path = dirname($path );
+            $path = dirname($path );
+            $path = dirname($path );
+            $classDefinition = File::read($path.DS."templates".DS."RestApiModelController_template" );
 
             $db = new Db($connName);
             $tablesResultSet = $db->getTables();
@@ -1653,113 +1663,166 @@ class RS
     } // end function generateRestulApiGetMethod
 
     /**
+     * Create model
+     *
+     * @param $tableName The table name
+     * @param $db The db object
+     *
+     * @return null
+     */
+    private static function createModelClass($tableName, $db)
+    {
+        $path = dirname(__FILE__ );
+        $path = dirname($path );
+        $path = dirname($path );
+        $path = dirname($path );
+        $classDefinition = File::read($path.DS."templates".DS."Model_template" );
+
+        //	Get the id:
+        $id = $db->getIdentityColumn($tableName);
+
+        //  Here we're gonna get the primary key
+        $pks = $db->getPrimaryKeys($tableName);
+
+        $paramsWhere = array();
+        $arrayWhere = '';
+        $arrayItem = '';
+        $constructParams = '';
+
+        foreach ($pks as $pk) {
+            $arrayItem = "'$colName' => $$colName";
+            $paramsWhere[] = "('$pk', $$pk)";
+            $arrayWhere .= ($arrayWhere) ? ",\n". $arrayItem : $arrayItem;
+            $constructParams = ($constructParams) ? ", $pk" : $pk;
+        } // end for each $pks
+
+        $arrayWhere = "array($arrayWhere)";
+        $paramsWhere = implode('->andWhere', $paramsWhere);
+
+        //	Public properties
+        $publicProperties = $db->getPublicProperties($tableName);
+
+        //  Columns
+        $columns = $db->getColumns($tableName);
+
+        //	Load properties
+        $loadProperties = "";
+        $colNameStr = 'COLUMN_NAME';
+        if (!isset($columns[0][$colNameStr]) ) {
+            $colNameStr = 'column_name';
+        }
+
+        foreach ($columns as $row ) {
+             $columnName = $row[$colNameStr];
+             $loadProperties .=
+                 ($loadProperties) ?
+                    "\t\t$"."this->$columnName = $".
+                    "result['$columnName'];\n" :
+                    "$this->$columnName = $"."result['$columnName'];\n";
+        }
+
+        //	Undefined properties
+        $undefinedProperties = "";
+        $colNameStr = 'COLUMN_NAME';
+        if (!isset($columns[0][$colNameStr])) {
+            $colNameStr = 'column_name';
+        }
+
+        foreach ($columns as $row) {
+            $columnName = $row[$colNameStr];
+            $undefinedProperties .=
+                ($undefinedProperties) ?
+                    "\t\t$"."this->$columnName = Undefined::instance();\n" :
+                    "$"."this->$columnName = Undefined::instance();\n";
+        }
+
+        //	Save properties
+        $saveProperties = "";
+        foreach ($columns as $row ) {
+             $columnName = $row[$colNameStr];
+             $saveProperties .=
+                 ($saveProperties) ?
+                     "\t\t\t'$columnName' => $"."this->$columnName,\n" :
+                     "'$columnName' => $"."this->$columnName,\n";
+        }
+
+        $setSerialFieldTemplate = '
+        if ( $this->@id === Undefined::instance() ) {
+            $this->@id =
+                parent::$db->from($this->getTableName())->
+                @paramsWhere->
+                max("@id");
+        }';
+
+        $setSerialField = $setSerialFieldTemplate;
+        if ($id) {
+            $setSerialField = Str::replace(
+                array(
+                    '@id' => $id,
+                    '@paramsWhere' => $paramsWhere
+                ),
+                $setSerialFieldTemplate
+            );
+        } else {
+            $setSerialField = '';
+        } // end if id
+
+        $text = $classDefinition;
+        $text = str_replace("@tableName", ucfirst($tableName), $text);
+        $text = str_replace("@publicProperties", $publicProperties, $text);
+        $text = str_replace("@loadProperties", $loadProperties, $text);
+        $text = str_replace("@undefinedProperties", $undefinedProperties, $text);
+        $text = str_replace("@saveProperties", $saveProperties, $text);
+        $text = str_replace("@constructParams", $constructParams, $text);
+        $text = str_replace("@arrayWhere", $arrayWhere, $text);
+        $text = str_replace("@paramsWhere", $paramsWhere, $text);
+        $text = str_replace("@setSerialField", $setSerialField, $text);
+        $text = str_replace("\r", "", $text);
+
+        $filename = ROOT.DS.'application'.DS.'models'.DS.ucfirst($tableName) . "Model.php";
+
+        if (file_exists($filename ) ) {
+            unlink($filename);
+        } // end if file exists
+
+        file_put_contents($filename, $text);
+        self::_dumpAutoload();
+        self::printLine("Model for table $tableName created in $filename.");
+        self::printLine("");
+    } // end function crete model class
+
+    /**
      * Creates a model in the application
      *
      * @param String $tableName The table that the model will, well, model.
      *
      * @return void
      */
-    static function createModel( $tableName )
+    static function createModel($tableName = null)
     {
         try {
-            if ( ! Db::hasDbConnections() ) {
-                throw new Exception( "No connections are set. Try adding a connection first." );
-            } // end if no connections
-
-            $path = dirname( __FILE__ );
-            $path = dirname( $path );
-            $path = dirname( $path );
-            $path = dirname( $path );
-            $classDefinition = File::read( $path.DS."templates".DS."Model_template" );
 
             if (! Db::hasDbConnections() ) {
-                 throw new Exception("No connections are set up", 1);
-            } // end if isset DBConn
+                throw new Exception("No connections are set. Try adding a connection first." );
+            } // end if no connections
+
             $db = new Db();
+            if (!$tableName) {
+                $tables = $db->getTables();
+                foreach ($tables as $table) {
+                    self::createModel($table->table_name, $db);
+                } // end for each table
 
-            //	Get the id:
-            $id = $db->getIdentityColumn($tableName);
+                //  Inform
+                self::printLine("Done creating models.");
+                //  Exit
+                return;
+            } // end if not table name
 
-            if (!$id ) {
-                //	Look for primary key
-                $result = $db->getPrimaryKeys($tableName);
-                //	if multiple then
-                if (count($result) > 1 ) {
-                    print_r(
-                        'Error: Table does not have id identity / ' .
-                        'sequence or you do not have granted permissions ' .
-                        'to read the table.'
-                    );
-                    exit;
-                } // end if multipleresult
+            //  Create the model class
+            self::createModelClass($tableName, $db);
 
-                if (isset($result[0]['column_name']) ) {
-                    $id = $result[0]['column_name'];
-                } else if (isset($result[0]['COLUMN_NAME'])) {
-                    $id = $result[0]['COLUMN_NAME'];
-                }
-            } // end if not id
-
-            //	Public properties
-            $publicProperties = $db->getPublicProperties($tableName);
-
-            //  Columns
-            $columns = $db->getColumns($tableName);
-
-            //	Load properties
-            $loadProperties = "";
-            $colNameStr = 'COLUMN_NAME';
-            if (!isset($columns[0][$colNameStr]) ) {
-                $colNameStr = 'column_name';
-            }
-
-            foreach ( $columns as $row ) {
-                 $columnName = $row[$colNameStr];
-                 $loadProperties .=
-                     "\t\t$"."this->$columnName = $".
-                     "result['$columnName'];\n";
-            }
-
-            //	Undefined properties
-            $undefinedProperties = "";
-            $colNameStr = 'COLUMN_NAME';
-            if (!isset($columns[0][$colNameStr])) {
-                $colNameStr = 'column_name';
-            }
-
-            foreach ($columns as $row) {
-                $columnName = $row[$colNameStr];
-                $undefinedProperties .= "\t\t$"."this->$columnName = Undefined::instance();\n";
-            }
-
-            //	Save properties
-            $saveProperties = "";
-            foreach ( $columns as $row ) {
-                 $columnName = $row[$colNameStr];
-                 $saveProperties .=
-                     "\t\t\t'$columnName' => $"."this->$columnName,\n";
-            }
-
-            $text = $classDefinition;
-            $text = str_replace("@tableName", ucfirst($tableName), $text);
-            $text = str_replace("@id", strtolower($id), $text);
-            $text = str_replace("@publicProperties", $publicProperties, $text);
-            $text = str_replace("@loadProperties", $loadProperties, $text);
-            $text = str_replace("@undefinedProperties", $undefinedProperties, $text);
-            $text = str_replace("@saveProperties", $saveProperties, $text);
-
-            $filename = ROOT.DS.'application'.DS.'models'.DS.ucfirst($tableName) . "Model.php";
-
-            if ( file_exists( $filename ) ) {
-                unlink($filename);
-            } // end if file exists
-
-            file_put_contents($filename, $text);
-            self::_dumpAutoload();
-            self::printLine("Model for table $tableName created in $filename.");
-            self::printLine("");
-
-        } catch( Exception $ex ) {
+        } catch(Exception $ex ) {
             self::printLine($ex->getMessage());
         } // end try catch
     } // end function createModel
@@ -1781,7 +1844,7 @@ class RS
 
         $result = $db->query($sql, $queryParams);
 
-        foreach ( $result as $row ) {
+        foreach ($result as $row ) {
             $loadProperties .= "\t\t" . $row['property'] . "\n";
         }
 
@@ -1795,13 +1858,13 @@ class RS
      *
      * @return void
      */
-    static function handleException( $ex )
+    static function handleException($ex )
     {
         //  Clean output
         //ob_end_clean();
 
         //  Get app name
-        if (App::get('appName') ) {
+        if (!App::get('appName')) {
             $data['$appName'] = 'RS Php';
         } else {
             $data['$appName'] = App::get('appName');
@@ -1834,47 +1897,47 @@ class RS
     /**
      * Creates a view
      */
-    static function createView( $viewName, $viewType ) {
+    static function createView($viewName, $viewType ) {
         $viewsFolder = ROOT.DS."application".DS."Views";
 
-        if ( Str::contains( $viewName, "/" ) ) {
-            $values = explode( "/", $viewName );
-            $max = count( $values ) - 2;
+        if (Str::contains($viewName, "/" ) ) {
+            $values = explode("/", $viewName );
+            $max = count($values ) - 2;
             $cont = 0;
-            while ( $cont <= $max ) {
+            while ($cont <= $max ) {
                 $dir = $viewsFolder.DS.$values[$cont];
-                if ( ! Directory::exists( $dir ) ) {
-                    Directory::create( $dir );
+                if (! Directory::exists($dir ) ) {
+                    Directory::create($dir );
                 } // end if Directory not exists
                 $cont++;
             } // end while cont
 
-            $viewName = Str::replace( "/", DS, $viewName );
+            $viewName = Str::replace("/", DS, $viewName );
 
         } // end if contains "/"
 
         $viewName = $viewsFolder.DS.$viewName;
-        if ( ! Str::endsWith( $viewName, ".html" ) ) {
+        if (! Str::endsWith($viewName, ".html" ) ) {
             $viewName .= ".html";
         } // end if contains ".html"
 
-        if ( $viewType == "content" ) {
+        if ($viewType == "content" ) {
             File::write(
                 $viewName,
                 ""
             ); // end File::write
         } // end if content
 
-        if ( $viewType == "page" ) {
-            $templatesPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
+        if ($viewType == "page" ) {
+            $templatesPath = dirname(dirname(dirname(dirname(__FILE__ ) ) ) );
             $templatesPath .= DS."templates";
             File::write(
                 $viewName,
-                File::read( $templatesPath . "/page.html" )
+                File::read($templatesPath . "/page.html" )
             ); // end File::write
         } // end if page
 
-        self::printLine( "View $viewName created." );
+        self::printLine("View $viewName created." );
     } // end function createView
 
     /**
@@ -1882,16 +1945,13 @@ class RS
      */
     public static function schemaUpdate()
     {
-        if (!App::get("appName")) {
-            self::writeLine("Must specify and app name. Use ./rsphp app --name='appName'");
-        } // end if not appName
         $schema = new DbSchema;
         $schemaUpdatesHistory = array();
         $schemaUpdates = array();
         $timestamps = array();
         $controlFilePath
             = getenv("HOME").DS.
-            Str::replace(" ", "_", App::get("appName"));
+            Str::replace(" ", "_", Config::get("appName"));
         $controlFile = $controlFilePath.DS."schema-update.json";
 
         //  If exists the control file, load the history
@@ -1952,6 +2012,8 @@ class RS
 
         //  Save the records
         File::write($controlFile, json_encode($schemaUpdatesHistory));
+
+        RS::printLine("Schema updated successfully.");
     } // end function schemaUpdate
 
     /**
@@ -1963,10 +2025,20 @@ class RS
      */
     public static function createEmptySchemaFile($shortDescription)
     {
+        $filePath = ROOT.DS."application";
+        $filePath .= DS."Data";
+
+        if (!Directory::exists($filePath)) {
+            Directory::create($filePath);
+        } // end if not exists directory Data
+
+        $filePath .= DS."Schema";
+        if (!Directory::exists($filePath)) {
+            Directory::create($filePath);
+        } // end if not exists directory Data
+
         $timestamp = Date::timestamp();
-        $filePath =
-            ROOT.DS."application".DS."Data".DS."Schema".DS.
-            "default_".$shortDescription."_"."$timestamp.yaml";
+        $filePath .= DS."default_".$shortDescription."_"."$timestamp.yaml";
 
         File::write($filePath, "");
 
@@ -2009,7 +2081,7 @@ class RS
     {
         self::printLine($message);
         $result = self::readLine();
-        return ifNull($result, $defaultValue);
+        return self::ifNull($result, $defaultValue);
     } // end function optionalReadLine
 
     /**

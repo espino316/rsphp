@@ -93,11 +93,6 @@ if ( $command == "controller create" ) {
 //	php rs.php model create attachments
 if ( $command == "model create" ) {
 
-    if ( !isset( $params["table"] ) ) {
-        RS::printLine( "Table name must be specified." );
-    } // end if isset param
-
-	RS::printLine("Model create");
 	//	The table name
 	$tableName = strtolower( $params["table"] );
 
@@ -243,7 +238,7 @@ if ( $command == "view create new" ) {
 
 //  If create app, make directories structure
 if ( $command == "init" ) {
-    if ( isset( $params["default"] ) ) {
+    if ( !isset( $params["default"] ) ) {
         $dir = "default";
     } else {
         $dir = $params["default"];

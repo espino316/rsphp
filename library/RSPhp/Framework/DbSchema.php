@@ -461,6 +461,14 @@ class DbSchema
         $db = new Db($this->dbConn);
         foreach($this->tables as $table) {
 
+            //  TODO Validate if table exists, if not exists then create, else
+            //  must validate any columns and add only the new ones
+
+            if ($db->tableExists($table->tableName)) {
+                RS::printLine("Table $table->tableName already exists");
+                continue;
+            } // end exists exists
+
             $content.= "CREATE TABLE $table->tableName (";
             $isDirty = false;
 

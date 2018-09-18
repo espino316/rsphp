@@ -1897,7 +1897,7 @@ class Db
 
         $publicProperties = '';
         foreach ( $result as $row ) {
-            $publicProperties .= "\t" . $row['property'] . "\n";
+            $publicProperties .= ($publicProperties) ? "\t".$row['property']."\n" : $row["property"]."\n";
         } // end foreach
 
         return $publicProperties;
@@ -2363,4 +2363,24 @@ WHERE
 
         return $resultSet;
     } // deleteFromResultSet
+
+    /**
+     * Returns true if $tableName exists in the database
+     *
+     * @param $tableName The table name
+     *
+     * @return Boolean
+     */
+    public function tableExists($tableName)
+    {
+        $sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = :tableName";
+        $count = $this->scalar(
+            $sql,
+            array(
+                "tableName" => $tableName
+            )
+        );
+
+        return ($count);
+    } // end function table exists
 } // end class Db

@@ -220,7 +220,7 @@ class DbTable
 
         //      If there is a series of columns
         if ($pk && count($args) > 1) {
-            
+
             foreach($args as $arg) {
                 $pk->column($arg);
                 $this->getColumn($arg)->isPrimaryKey = true;
@@ -250,7 +250,7 @@ class DbTable
                 } // end function
             ); // end array_walk
         } // end if is array
- 
+
         //      If there is a series of columns
         if (count($args) > 1) {
             $pkName = "pk_$this->tableName";
@@ -288,7 +288,7 @@ class DbTable
     {
         $fk = new DbForeignKey($this, $tableReference);
         $fk->columnReference($columnName, $columnReferenceName);
-        
+
         $fkName = $fk->name;
         $fks = array_filter(
             $this->constraints,
@@ -318,7 +318,7 @@ class DbTable
         $this->constraints[] = $fk;
         return $this->constraints[count($this->constraints)-1];
     } // end function foreignKey
-    
+
     public function go()
     {
         $db = new Db($this->connName);
@@ -369,7 +369,6 @@ class DbTable
         $columns = implode(",\n\t", $columns);
 
         $template = Str::replace("@columns", $columns, $template);
-        print_r($template);
         return $template;
     } // end function
 

@@ -25,13 +25,12 @@ class @tableNameModel extends Model {
 
     /**
      * Returns an instance of ActorModel
-     * @param long $@id
      */
-    public function load($@id) {
+    public function load(@constructorParams) {
 
         $result =
             parent::$db->from($this->getTableName())->
-            where("@id", $@id)->
+            where@paramsWhere->
             first();
 
         @loadProperties
@@ -42,15 +41,13 @@ class @tableNameModel extends Model {
      * Save the model to the database table
      * @param string $forceInsert
      */
-    function save($forceInsert = FALSE) {
+    function save($forceInsert = false) {
 
         $params = array(
             @saveProperties
         );
 
-        $where = array(
-            "@id" => $this->@id
-        );
+        $where = @arrayWhere;
 
         $params = parent::removeUndefined($params);
         $where = parent::removeUndefined($where);
@@ -68,12 +65,8 @@ class @tableNameModel extends Model {
             );
         } // end if then else
 
-        if ( $this->@id === Undefined::instance() ) {
-            $this->@id =
-                parent::$db->from($this->getTableName())->
-                where($params)->
-                max("@id");
-        }
+        @setSerialField
+
     } // end function save
 
     /**
@@ -81,15 +74,11 @@ class @tableNameModel extends Model {
      */
     function delete()
     {
-        $where = array(
-            "@id" => $this->@id
-        );
-
-        $where = parent::removeUndefined($where);
+        $where = @arrayWhere;
 
         return parent::$db->delete(
             $this->getTableName(),
-            $where
+            @arrayWhere
         ); // end delete
 
     } // end function delete
