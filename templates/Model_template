@@ -29,9 +29,7 @@ class @tableNameModel extends Model {
     public function load(@constructorParams) {
 
         $result =
-            parent::$db->from($this->getTableName())->
-            where@paramsWhere->
-            first();
+            parent::$db->from($this->getTableName())->@paramsWherefirst();
 
         @loadProperties
 
@@ -47,17 +45,18 @@ class @tableNameModel extends Model {
             @saveProperties
         );
 
-        $where = @arrayWhere;
-
-        $params = parent::removeUndefined($params);
-        $where = parent::removeUndefined($where);
-
         if ($forceInsert) {
             parent::$db->insert(
                 $this->getTableName(),
                 $params
             );
         } else {
+
+            $where = @arrayWhere;
+            $params = parent::removeUndefined($params);
+            $where = parent::removeUndefined($where);
+            $params = array_diff_assoc($params, $where);
+
             parent::$db->upsert(
                 $this->getTableName(),
                 $params,
@@ -66,7 +65,6 @@ class @tableNameModel extends Model {
         } // end if then else
 
         @setSerialField
-
     } // end function save
 
     /**
@@ -78,7 +76,7 @@ class @tableNameModel extends Model {
 
         return parent::$db->delete(
             $this->getTableName(),
-            @arrayWhere
+            $where
         ); // end delete
 
     } // end function delete

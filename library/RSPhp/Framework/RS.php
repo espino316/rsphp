@@ -1083,7 +1083,7 @@ class RS
         ); // end View::
 
         file_put_contents($filename, $template);
-        self::_dumpAutoload();
+        self::dumpAutoload();
         return $filename;
     } // end function createController
 
@@ -1092,11 +1092,11 @@ class RS
      *
      * @return void
      */
-    private static function _dumpAutoload()
+    static function dumpAutoload()
     {
         $output = shell_exec("composer dump-autoload");
         self::printLine($output);
-    } // end private function _dumpAutoload
+    } // end private function dumpAutoload
 
     /**
      * Remove all files and directories in /application
@@ -1687,17 +1687,22 @@ class RS
         $paramsWhere = array();
         $arrayWhere = '';
         $arrayItem = '';
-        $constructParams = '';
+        $constructorParams = '';
 
         foreach ($pks as $pk) {
-            $arrayItem = "'$colName' => $$colName";
+            $arrayItem = "'$pk' => "."$"."this->$pk";
             $paramsWhere[] = "('$pk', $$pk)";
             $arrayWhere .= ($arrayWhere) ? ",\n". $arrayItem : $arrayItem;
-            $constructParams = ($constructParams) ? ", $pk" : $pk;
+            $constructorParams = ($constructorParams) ? ", $$pk" : "$$pk";
         } // end for each $pks
 
         $arrayWhere = "array($arrayWhere)";
-        $paramsWhere = implode('->andWhere', $paramsWhere);
+
+        if (count($paramsWhere)) {
+            $paramsWhere = "\n\t\t\twhere".implode('->andWhere', $paramsWhere)."->\n\t\t\t";
+        } else {
+            $paramsWhere = '';
+        } // end if then else are paramsWhere
 
         //	Public properties
         $publicProperties = $db->getPublicProperties($tableName);
@@ -1718,7 +1723,7 @@ class RS
                  ($loadProperties) ?
                     "\t\t$"."this->$columnName = $".
                     "result['$columnName'];\n" :
-                    "$this->$columnName = $"."result['$columnName'];\n";
+                    "$"."this->$columnName = $"."result['$columnName'];\n";
         }
 
         //	Undefined properties
@@ -1773,7 +1778,7 @@ class RS
         $text = str_replace("@loadProperties", $loadProperties, $text);
         $text = str_replace("@undefinedProperties", $undefinedProperties, $text);
         $text = str_replace("@saveProperties", $saveProperties, $text);
-        $text = str_replace("@constructParams", $constructParams, $text);
+        $text = str_replace("@constructorParams", $constructorParams, $text);
         $text = str_replace("@arrayWhere", $arrayWhere, $text);
         $text = str_replace("@paramsWhere", $paramsWhere, $text);
         $text = str_replace("@setSerialField", $setSerialField, $text);
@@ -1786,7 +1791,6 @@ class RS
         } // end if file exists
 
         file_put_contents($filename, $text);
-        self::_dumpAutoload();
         self::printLine("Model for table $tableName created in $filename.");
         self::printLine("");
     } // end function crete model class
