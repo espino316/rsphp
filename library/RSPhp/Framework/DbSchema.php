@@ -415,6 +415,22 @@ class DbSchema
             $result .= " $column->dataType"."($column->characterLength) ";
         } else {
             $result .= " $column->dataType ";
+
+            if ($column->isAutoIncrement) {
+                if ($dbConn = Db::getDbConnection($column->table->connName)) {
+                    switch ($dbConn->driver) {
+                        case 'mysql':
+                            $result.= " NOT NULL AUTO_INCREMENT";
+                        break;
+                        case 'sqlsrv':
+                            $result.= " IDENTITY NOT NULL";
+                        break;
+                        case 'dblib':
+                            $result.= " IDENTITY NOT NULL";
+                        break;
+                    } // end switch
+                } // end if db conn
+            } // end if is auto increment
         } // end if data type is string
 
         if ($column->isNullable) {
@@ -438,6 +454,7 @@ class DbSchema
     {
         $yaml  = new Yaml;
         $array = $yaml->load($fileName);
+        $dataTables = [];
 
         //  Loopt throught items
         foreach ($array as $tableName => $columns) {
@@ -455,12 +472,19 @@ class DbSchema
                 //  Add the table
                 $this->tables[] = $table;
             } // end if just table definition
+
+            //  Here begins the data insertion
+            if ($tableName == '~data') {
+                $dataTables = $columns;
+            } // end if data
         } // end foreach
 
         $content = "";
         $db = new Db($this->dbConn);
         foreach($this->tables as $table) {
 
+            //  Clear content
+            $content = "";
             //  TODO Validate if table exists, if not exists then create, else
             //  must validate any columns and add only the new ones
 
@@ -489,6 +513,20 @@ class DbSchema
             } // end for each index
 
             $db->nonQuery($content);
+
+            foreach ($dataTables as $tableName => $lines) {
+
+                if ($table->tableName == $tableName) {
+
+                    //  Split the lines
+                    $lines = explode("\n", $lines);
+
+                    foreach ($lines as $line) {
+                        $data = explode(",", $line);
+                        $this->insertTableData($table, $data);
+                    } // end for each line
+                } // end if name
+            } // end foreach
         } // end foreach table
 
         if (File::exists("tables.sql")) {
@@ -547,10 +585,45 @@ class DbSchema
 
     } // end function parseCommand
 
+    /**
+     * Inserts the data into a table
+     *
+     * @param $table The table to insert data in
+     * @param $data The data to be inserted in
+     *
+     * @return null
+     */
+    private function insertTableData($table, $data) {
+        $db = new Db($this->dbConn);
+        $i = 0;
+        $result = [];
+        foreach ($table->columns as $column) {
+            if (!$column->isAutoIncrement) {
+
+                //  Here we clean the input strip quotes
+                $text = $data[$i];
+                $text = str_replace("\'","~", $text);
+                $text = str_replace("'","", $text);
+                $text = str_replace("~","'", $text);
+                $text = htmlspecialchars($text);
+
+                //  Here we assign result to the array
+                $result[$column->name] = $text;
+                //  Increment counter
+                $i++;
+            } // end if not auto increment
+        } // end foreach
+
+        $db->insert(
+            $table->tableName,
+            $result
+        );
+    } // end function
+
     private function parseInsertData($data)
     {
         $db = new Db($this->dbConn);
-        $db->insert(
+        $db->insertTableData(
             $this->tableName,
             $data
         );

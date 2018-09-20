@@ -18,7 +18,7 @@ class DbColumn
     public $isUnique;
     public $isCheck;
     public $isIndexed;
-    private $table;
+    public $table;
 
     public function __construct($table, $columnName)
     {
@@ -38,7 +38,7 @@ class DbColumn
      *
      * @param mixed $columnDefinition   Is either an array or an object with properties
      *                                  that define the column
-     * 
+     *
      * @return DbColumn
      */
     public function init ($columnDefinition)
@@ -86,7 +86,7 @@ class DbColumn
         ); // end table constraint
         return $this;
     } // end function index
-    
+
     public function null()
     {
         $this->isNullable = true;
@@ -182,6 +182,13 @@ class DbColumn
     {
         $this->dataType = "bigserial";
         $this->isAutoIncrement = true;
+
+        if ($dbConn = Db::getDbConnection($this->table->dbConn)) {
+            if ($dbConn->driver != 'pgsql') {
+                $this->dataType = 'bigint';
+            } // end if driver not pgsql
+        } // end if connection exists
+
         return $this;
     } // end function
 
@@ -189,6 +196,11 @@ class DbColumn
     {
         $this->dataType = "serial";
         $this->isAutoIncrement = true;
+        if ($dbConn = Db::getDbConnection($this->table->connName)) {
+            if ($dbConn->driver != 'pgsql') {
+                $this->dataType = 'int';
+            } // end if driver not pgsql
+        } // end if connection exists
         return $this;
     } // end function
 
@@ -236,14 +248,14 @@ class DbColumn
         if ($this->dataType == "bigserial") {
             return "bigint";
         } // end if data type is bigserial
-        
+
         if ($this->dataType == "serial") {
             return "int";
         } // end if data type is bigserial
 
         return $this->dataType;
     } // end function getFkDataType
-    
+
     public function bit()
     {
         $this->dataType = "boolean";

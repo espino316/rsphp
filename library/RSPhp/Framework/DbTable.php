@@ -9,7 +9,7 @@ class DbTable
 {
     public $tableName;
     public $columns = [];
-    private $connName;
+    public $connName;
     public $constraints = [];
     public $indexes = [];
 
