@@ -219,6 +219,22 @@ class RS
             Directory::create("$appPath/Views");
             self::printLine("Directory 'application/Views' created");
         } // end if exists $appPath/Views
+        
+        //  Create the Data directory
+        if (Directory::exists("$appPath/Data") ) {
+            self::printLine("Directory 'application/Data' already exists");
+        } else {
+            Directory::create("$appPath/Data");
+            self::printLine("Directory 'application/Data' created");
+        } // end if exists $appPath/Data
+
+        //  Create the Data/Schema directory
+        if (Directory::exists("$appPath/Datai/Schema") ) {
+            self::printLine("Directory 'application/Data/Schema' already exists");
+        } else {
+            Directory::create("$appPath/Data/Schema");
+            self::printLine("Directory 'application/Data/Schema' created");
+        } // end if exists $appPath/Data
 
         //  Copy the app.json file
         File::copy(
@@ -1505,7 +1521,7 @@ class RS
             "@url",
             function () {
                 $this->db->insert(
-                    "url",
+                    "@url",
                     Input::get()
                 );
 
