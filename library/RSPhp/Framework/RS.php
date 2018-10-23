@@ -1448,7 +1448,7 @@ class RS
 
         foreach ($pks as $pk) {
             $paramsUrl .= '/:' . $pk;
-            $paramsFunction = ($paramsFunction) ? ', $'.$pk : '$'.$pk;
+            $paramsFunction = ($paramsFunction) ? $paramsFunction.', $'.$pk : '$'.$pk;
             $paramsWhere[] = "('$pk', $$pk)";
         } // end for each $pks
 
@@ -1547,7 +1547,7 @@ class RS
 
         foreach ($pks as $pk) {
             $paramsUrl .= '/$' . $pk;
-            $paramsSelect = ($paramsSelect) ? ','.$pk : $pk;
+            $paramsSelect = ($paramsSelect) ? $paramsSelect.','.$pk : $pk;
         } // end for each $pks
 
         //  Here we replace the table name and set them to the post
@@ -1562,7 +1562,7 @@ class RS
             ); // end replace
 
         return $result;
-    } // end function generateRestulApiGetMethod
+    } // end function generateRestulApiPostMethod
 
     /**
      * Generates the code for post method for each table
@@ -1601,10 +1601,10 @@ class RS
         foreach ($pks as $pk) {
             $paramsUrl .= '/:' . $pk;
             $paramsVars .= '/' . $pk;
-            $paramsFunction = ($paramsFunction) ? ', $'.$pk : '$'.$pk;
+            $paramsFunction = ($paramsFunction) ? $paramsFunction.', $'.$pk : '$'.$pk;
             $colName = $pk;
             $arrayItem = "'$colName' => $$colName";
-            $paramsArray = ($paramsArray) ? ",\n". $arrayItem : $arrayItem;
+            $paramsArray = ($paramsArray) ? $paramsArray.",\n". $arrayItem : $arrayItem;
         } // end for each $pks
 
         //  Here we replace the table name and set them to the put
@@ -1658,7 +1658,7 @@ class RS
 
         foreach ($pks as $pk) {
             $paramsUrl .= '/:' . $pk;
-            $paramsFunction = ($paramsFunction) ? ', $'.$pk : '$'.$pk;
+            $paramsFunction = ($paramsFunction) ? $paramsFunction.', $'.$pk : '$'.$pk;
             $paramsWhere[] = "('$pk', $$pk)";
         } // end for each $pks
 
