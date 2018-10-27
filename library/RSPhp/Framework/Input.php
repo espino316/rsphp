@@ -129,7 +129,7 @@ class Input
         $str = file_get_contents("php://input");
 
         //  If the input is json
-        if (self::getHeader('content-type') == "application/json") {
+        if (Str::contains(self::getHeader('content-type'), "application/json")) {
             self::$data = json_decode($str, true);
             return;
         } // end if send json
