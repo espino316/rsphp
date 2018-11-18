@@ -36,6 +36,8 @@ class Db
 {
     private static $dbConnections = array();
     private static $dataSources = array();
+    private $isOpen = false;
+    private $inTransaction = false;
 
     public $utf8 = false;
 
@@ -269,55 +271,119 @@ class Db
     } // end function clear
 
     /**
+     * Returns the connection status
+     */
+    public function getConnStatus()
+    {
+        if ($this->conn) {
+            return $this->conn->getAttribute(PDO::ATTR_CONNECTION_STATUS);
+        } // end if $this conn
+
+        return false;
+    } // end function get conn status
+
+    /**
      * Connect to the database
      *
      * @return void
      */
-    public function connect()
+    private function connect()
     {
-        try {
+        if ($this->isOpen) {
+            return;
+        } // end if already open
 
-            $driver = $this->dbConn->driver;
-            $hostName = $this->dbConn->hostName;
-            $databaseName = $this->dbConn->databaseName;
-            $userName = $this->dbConn->userName;
-            $password = $this->dbConn->password;
+        $driver = $this->dbConn->driver;
+        $hostName = $this->dbConn->hostName;
+        $databaseName = $this->dbConn->databaseName;
+        $userName = $this->dbConn->userName;
+        $password = $this->dbConn->password;
 
-            if ($this->dbConn->port !== null ) {
-                if (is_numeric($this->dbConn->port) ) {
-                    if ($driver == 'sqlsrv' ) {
-                        $hostName = $hostName . ',' . $this->dbConn->port;
-                    } else {
-                        $hostName = $hostName . ':' . $this->dbConn->port;
-                    } // end is sqlserv
-                } // end if numeric port
-            } // end if port
+        if ($this->dbConn->port !== null ) {
+            if (is_numeric($this->dbConn->port) ) {
+                if ($driver == 'sqlsrv' ) {
+                    $hostName = $hostName . ',' . $this->dbConn->port;
+                } else {
+                    $hostName = $hostName . ':' . $this->dbConn->port;
+                } // end is sqlserv
+            } // end if numeric port
+        } // end if port
 
-            $host = 'host';
-            $dbname = 'dbname';
+        $host = 'host';
+        $dbname = 'dbname';
 
-            if ($driver == 'sqlsrv' ) {
-                $host = 'Server';
-                $dbname = 'Database';
-            }
-
-            $this->conn = new PDO(
-                "$driver:$host=$hostName;$dbname=$databaseName",
-                $userName,
-                $password
-            );
-
-            if (!$this->conn ) {
-                   throw new Exception("Connection error");
-            } // if not conn
-
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        if ($driver == 'sqlsrv' ) {
+            $host = 'Server';
+            $dbname = 'Database';
         }
-        catch(PDOException $e)
-        {
-            echo "Connection failed: " . $e->getMessage();
-        }
+
+        $this->conn = new PDO(
+            "$driver:$host=$hostName;$dbname=$databaseName",
+            $userName,
+            $password
+        );
+
+        if (!$this->conn ) {
+               throw new Exception("Connection error");
+        } // if not conn
+
+        $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->isOpen = true;
     } // end function connect
+
+    /**
+     * Disconnects
+     */
+    private function disconnect()
+    {
+        if ($this->inTransaction) {
+            return;
+        } // end if in transaction
+
+        $this->conn = null;
+        $this->clear();
+        $this->isOpen = false;
+    } // end function disconnect
+
+    /**
+     * Begin a new transaction
+     */
+    public function beginTransaction()
+    {
+        //  If not open, connect
+        if (!$this->isOpen) {
+            $this->connect();
+        } // end if not is open
+
+        if (!$this->inTransaction) {
+            $this->inTransaction = true;
+            $this->conn->beginTransaction();
+        } // end if in transaction
+    } // end function beginTransaction
+
+    /**
+     * Rollbacks current transaction
+     */
+    public function rollback()
+    {
+        if ($this->inTransaction) {
+            $this->conn->rollback();
+            $this->inTransaction = false;
+            $this->disconnect();
+        } // end if in transaction
+    } // end function rollback
+
+    /**
+     * Commits current transaction
+     */
+    public function commit()
+    {
+        if ($this->inTransaction) {
+            $this->conn->commit();
+            $this->inTransaction = false;
+            $this->disconnect();
+        } // end if in transaction
+    } // end function commit
 
     /**
      * Returns the insert statement
@@ -329,10 +395,6 @@ class Db
      */
     function getInsertStatement( $tableName, $params )
     {
-
-        //	Connect
-        $this->connect();
-
         //	The sql instruction
         $sql = "INSERT INTO $tableName (";
 
@@ -441,7 +503,7 @@ class Db
         $statement->execute($queryParams);
 
         //	Disconnect
-        $this->conn = null;
+        $this->disconnect();
     } // end insert
 
     /**
@@ -523,7 +585,7 @@ class Db
         $statement->execute($queryParams);
 
         //	Disconnect
-        $this->conn = null;
+        $this->disconnect();
     } // end update
 
     /**
@@ -660,7 +722,7 @@ class Db
         $statement->execute($queryParams);
 
         //	Disconnect
-        $this->conn = null;
+        $this->disconnect();
     } // end delete
 
     /**
@@ -687,7 +749,7 @@ class Db
         $statement->execute($queryParams);
 
         //	Disconnect
-        $this->conn = null;
+        $this->disconnect();
     } // end truncate
 
     /**
@@ -759,8 +821,7 @@ class Db
         }
 
         //	Disconnect
-        $this->conn = null;
-        $this->clear();
+        $this->disconnect();
 
         //	Return the resultset
         return $resultset;
@@ -835,8 +896,7 @@ class Db
         }
 
         //	Disconnect
-        $this->conn = null;
-        $this->clear();
+        $this->disconnect();
 
         //	Return the resultset
         return $resultset;
@@ -873,8 +933,9 @@ class Db
         }
 
         $result = $statement->fetchColumn();
-        $this->conn = null;
-        $this->clear();
+
+        //	Disconnect
+        $this->disconnect();
 
         return $result;
     } // end query
@@ -909,9 +970,7 @@ class Db
             $statement->execute();
         }
 
-        $this->conn = null;
-        $this->clear();
-
+        $this->disconnect();
         return true;
     } // end query
 
@@ -2383,4 +2442,5 @@ WHERE
 
         return ($count);
     } // end function table exists
+
 } // end class Db
