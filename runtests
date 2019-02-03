@@ -1,1 +1,1 @@
-phpunit --bootstrap vendor/autoload.php tests
+phpunit --bootstrap $PWD/vendor/autoload.php tests

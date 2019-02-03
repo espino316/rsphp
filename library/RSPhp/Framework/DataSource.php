@@ -142,7 +142,6 @@ class DataSource
         $conn = Web::getWebConnection($this->connection);
         $url = $conn->endPoint . "/" . $this->text;
         $response = Http::request($conn->method, $url, $conn->parameters, $conn->headers);
-        print_r([$conn, $this, $url, $response]);
 
         if ($response->data) {
             return json_decode($response->data, true);

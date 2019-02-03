@@ -16,6 +16,8 @@
 
 namespace RSPhp\Framework;
 
+use \Exception;
+
 /**
  * Helper for encryption
  *
@@ -33,6 +35,7 @@ class Crypt
 
     protected $tripleDesKey;
     protected $tripleDesVector;
+    private $tag;
 
     /**
      * Creates an instance of a Crypt class
@@ -74,25 +77,7 @@ class Crypt
      */
     function tripleDesEncrypt($buffer)
     {
-
-        $cipher = mcrypt_module_open(MCRYPT_3DES, '', 'cbc', '');
-
-        // get the amount of bytes to pad
-        $extra = 8 - (strlen($buffer) % 8);
-        //printvar($extra, 'Padding with n zeros');
-
-        // add the zero padding
-        if ($extra > 0) {
-            for ($i = 0; $i < $extra; $i++) {
-                $buffer .= "\0";
-            } // end for
-        } // end if extra
-
-        mcrypt_generic_init($cipher, $this->tripleDesKey, $this->tripleDesVector);
-
-        $result = bin2hex(mcrypt_generic($cipher, $buffer));
-        mcrypt_generic_deinit($cipher);
-        return $result;
+        return openssl_encrypt($buffer, 'aes-128-cbc', $this->tripleDesKey, 0, $this->tripleDesVector);
     } // end function tripleDesEncrypt
 
     /**
@@ -104,12 +89,6 @@ class Crypt
      */
     function tripleDesDecrypt( $buffer )
     {
-
-        $cipher = mcrypt_module_open(MCRYPT_3DES, '', 'cbc', '');
-
-        mcrypt_generic_init($cipher, $this->tripleDesKey, $this->tripleDesVector);
-        $result = rtrim(mdecrypt_generic($cipher, hex2bin($buffer)), "\0");
-        mcrypt_generic_deinit($cipher);
-        return $result;
+        return openssl_decrypt($buffer, 'aes-128-cbc', $this->tripleDesKey, 0, $this->tripleDesVector);
     } // end function tripleDesDecrypt
 } // end class Crypt

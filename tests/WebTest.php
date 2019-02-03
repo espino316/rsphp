@@ -5,7 +5,7 @@ use RSPhp\Framework\Web;
 use RSPhp\Framework\HttpContentTypes;
 use RSPhp\Framework\DataSource;
 
-class WebTest extends TestCase
+class WebConnTest extends TestCase
 {
     public function testSetWebConnection()
     {
@@ -44,9 +44,8 @@ class WebTest extends TestCase
         $ds = new DataSource("WebTestConnection", "dsJsonPlaceHolderPosts", "HTTP", "posts");
         $resultSet = $ds->getResultSet();
 
-        print_r($resultSet);
         $this->assertTrue(
-            count($resultSet)
+            count($resultSet) > 0
         );
 
     } // end function testConnectionArgumentsNowhere
