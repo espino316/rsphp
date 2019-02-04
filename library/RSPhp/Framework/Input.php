@@ -50,9 +50,44 @@ class Input
     protected static $headers = array();
 
     /**
-     * @vat Holds the queryString, if any
+     * @var Holds the queryString, if any
      */
     protected static $queryString;
+
+    /**
+     * @var Hold the query string key value pair, if any
+     */
+    private static $queryStringData = array();
+
+    /**
+     * Setup the query string data from its keyvalue pairs
+     */
+    private static function setQueryStringData() {
+
+        //  Clear
+        self::$queryStringData = array();
+
+        //  Get the KeyValuePairs
+        $kvps = explode('&', self::$queryString);
+
+        //  Loop through
+        foreach ($kvps as $kvp) {
+
+            //  Get the key and value
+            $kv = explode('=', $kvp);
+
+            //  If there is a key and a value
+            if (count($kv) == 2) {
+
+                //  Add to the data array
+                self::$queryStringData[$kv[0]] = $kv[1];
+            } else if (count($kv) == 1) {
+
+                //  If there's only a key, add it to true
+                self::$queryStringData[$kv[0]] = true;
+            } // end if 2
+        } // end for each key value pair
+    } // end function setQuerystringData
 
     /**
      * Setup the query string
@@ -64,6 +99,7 @@ class Input
     public static function setQueryString($queryString)
     {
         self::$queryString = $queryString;
+        self::setQueryStringData();
     } // end function setQueryString
 
     /**
@@ -71,8 +107,12 @@ class Input
      *
      * @return String
      */
-    public static function getQueryString($queryString)
+    public static function getQueryString($field = null)
     {
+        if ($field) {
+            return self::$queryStringData[$field];
+        } // end if field
+
         return self::$queryString;
     } // end function getQueryString
 
