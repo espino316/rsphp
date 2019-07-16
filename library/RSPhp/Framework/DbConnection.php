@@ -62,6 +62,22 @@ class DbConnection
             $this->port = $options['port'];
         }
 
+        if (Str::startsWith($this->hostName, "ENV::")) {
+            $this->hostName = Env::get(Str::replace('ENV::', '', $this->hostName));
+        } // end if startsWith 'ENV::'
+
+        if (Str::startsWith($this->databaseName, "ENV::")) {
+            $this->databaseName = Env::get(Str::replace('ENV::', '', $this->databaseName));
+        } // end if startsWith 'ENV::'
+
+        if (Str::startsWith($this->userName, "ENV::")) {
+            $this->userName = Env::get(Str::replace('ENV::', '', $this->userName));
+        } // end if startsWith 'ENV::'
+
+        if (Str::startsWith($this->password, "ENV::")) {
+            $this->password = Env::get(Str::replace('ENV::', '', $this->password));
+        } // end if startsWith 'ENV::'
+
     } // end __construct
 
 } // end class

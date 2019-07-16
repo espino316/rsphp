@@ -71,11 +71,14 @@ class Route
         } // end if same string
 
         //  The pattern to :param
-        $pattern = "#(:[^\\\/=<>\s\',;]+)#";
+        $pattern = "#(:[^&\\\/=<>\s\',;]+)#";
         //  The pattern to replace for :param
         $toReplace = "([^\/=<>\s\',;]+)";
         //  Modify the $uriPattern escaping the "/" char
         $uriPattern = str_replace("/", "\/", $uriPattern);
+        $uriPattern = str_replace("?", "\?", $uriPattern);
+        $uriPattern = str_replace("&", "\&", $uriPattern);
+        $uriPattern = str_replace("=", "\=", $uriPattern);
         //  Get the new pattern performing the replaces
         $pattern = preg_replace($pattern, $toReplace, $uriPattern);
         //  Complement the pattern

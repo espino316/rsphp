@@ -37,7 +37,9 @@ class Output
      */
     public static function clean()
     {
-        ob_clean();
+        if (ob_get_contents()) {
+            ob_clean();
+        } // end if contents
     } // end function clean
 
     /**
@@ -47,7 +49,9 @@ class Output
      */
     public static function endClean()
     {
-        return ob_end_clean();
+        if (ob_get_contents()) {
+            return ob_end_clean();
+        } // end if contents
     } // end function endClean
 
     /**

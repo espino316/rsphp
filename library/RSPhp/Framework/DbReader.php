@@ -15,6 +15,8 @@ class DbReader
     //  The db conn
     private $_db;
 
+    //  Indicates is db is utf8
+    public $utf8 = false;
     /**
      * Reads one record
      *

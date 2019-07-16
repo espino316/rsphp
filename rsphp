@@ -313,4 +313,16 @@ if ($command == 'schema add') {
     }// end if params
 } // end if schema add
 
+if ($command == 'generate procedures') {
+    if (count($params) == 0) {
+        $conn = 'default';
+    } else if (!$params["conn"]) {
+        RS::priintLine("Must specify --conn parameter");
+        return;
+    } else {
+        $conn = $params["conn"];
+    } // end if then else count params
+
+    RS::generateProcedures($conn);
+} // end if generte procedures
 RS::printLine("");

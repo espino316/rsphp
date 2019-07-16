@@ -105,7 +105,7 @@ class Config
         if (file_exists($file) ) {
             $config = file_get_contents($file);
             $config = json_decode($config, true);
-             self::$data = array_merge(self::$data, $config);
+            self::$data = array_merge(self::$data, $config);
         } else {
             throw new \Exception("$file do not exists");
         } // end if file exists

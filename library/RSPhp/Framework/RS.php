@@ -988,19 +988,30 @@ class RS
             }
             break;
         default:
-            $controller = $urlArray[0];
-            array_shift($urlArray);
-            $action = $urlArray[0];
-            array_shift($urlArray);
-            $queryString = $urlArray;
+            $arr = $urlArray;
+            $arr[count($urlArray) - 1] = ucwords($arr[count($urlArray) - 1]);
+            $controllerPath = APPPATH.DS.'controllers'.DS.implode(DS,$arr).'Controller.php';
+            if (file_exists($controllerPath)) {
+                $controller = implode("\\", $arr);
+                $action = 'index';
+                $queryString = array();
+            } else {
+                $controller = $urlArray[0];
+                array_shift($urlArray);
+                $action = $urlArray[0];
+                array_shift($urlArray);
+                $queryString = $urlArray;
+            }
             break;
         }
 
         $controllerName = $controller;
-        $controller = ucwords($controllerName);
+        if (strpos($controllerName, '\\') === false) {
+            $controller = ucwords($controllerName);
+        } // end if is compound controller
+
         $controller .= 'Controller';
         $defaultController .= 'Controller';
-
         if ((int)method_exists(
             "\\Application\\Controllers\\".$controller,
             $action
@@ -2138,4 +2149,19 @@ class RS
 
         return $result;
     } // end function forceReadLine
+
+    /**
+     * Generates stored procedures
+     *
+     * @param $connName Database connection name
+     *
+     * @return void
+     */
+    public static function generateProcedures($connName)
+    {
+        $dbGen = new DbGen($connName);
+        $procedures = $dbGen->generateProcedures();
+        File::write(APPPATH.DS.'procedures.sql', $procedures);
+        RS::printLine('Procedures created at application/procedures.sql');
+    } // end function generateProcedures
 } // end function class RS

@@ -14,7 +14,7 @@
  * @link      https://rsphp.espino.info/
  */
 
-namespace Espino\RRSPhp;
+namespace RSPhp\Framework;
 
 /**
  * ApnsPusher Class Doc Comment

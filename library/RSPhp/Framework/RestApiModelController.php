@@ -77,6 +77,31 @@ class RestApiModelController extends Controller
     } // end function constructs
 
     /**
+     * Ends response with an error
+     */
+    function error($errorMessage)
+    {
+        Output::clean();
+        Output::setStatusCode(500);
+        //  MySql on error for rsMySql procedures
+        $errorMessage = Str::replace('SQLSTATE[45000]: <<Unknown error>>: 55001', '', $errorMessage);
+        $this->jsonResponse(array("error" => trim($errorMessage)));
+    } // end function error
+
+    /**
+     * Clean the buffer,
+     * Set the status code for unauthorized
+     *
+     * @return null
+     */
+    function notFound($url)
+    {
+        Output::clean();
+        Output::setStatusCode(404);
+        $this->jsonResponse(array("Not found url " => $url));
+    } // end function unauthorized
+
+    /**
      * Clean the buffer,
      * Set the status code for unauthorized
      *
@@ -86,6 +111,19 @@ class RestApiModelController extends Controller
     {
         Output::clean();
         Output::setStatusCode(401);
+        $this->jsonResponse(array("authorized" => false));
+    } // end function unauthorized
+
+    /**
+     * Clean the buffer,
+     * Set the status code for no content
+     *
+     * @return null
+     */
+    function noContent()
+    {
+        Output::clean();
+        Output::setStatusCode(204);
     } // end function unauthorized
 
     /**
@@ -213,7 +251,7 @@ class RestApiModelController extends Controller
 
         //  If no routes: unauthorized
         if (!count($routes)) {
-            return $this->unauthorized();
+            return $this->notFound($uri);
         } // end if no routes
 
         //  Take the first one
@@ -223,15 +261,27 @@ class RestApiModelController extends Controller
         $matches = $route[1];
         $route = $route[0];
 
-        if ($route->method != 'options' && $this->auth) {
-            call_user_func($this->auth);
-        } // end if this auth
+        try {
+            if ($route->method != 'options' && $this->auth) {
+                call_user_func($this->auth);
+            } // end if this auth
 
-        if (is_array($matches)) {
-            call_user_func_array($route->newUri, $matches);
-        } else {
-            call_user_func($route->newUri);
-        } // end if array
+            if (is_array($matches)) {
+                call_user_func_array($route->newUri, $matches);
+            } else {
+                call_user_func($route->newUri);
+            } // end if array
+        } catch (UnauthorizedException $ex) {
+            $this->unauthorized();
+            return;
+        } catch (NoContentException $ex) {
+            $this->noContent();
+            return;
+        } catch (Exception $ex) {
+            Logger::error($ex->getMessage());
+            $this->error($ex->getMessage());
+            return;
+        } // end try catch
     } // end function run
 
     /**

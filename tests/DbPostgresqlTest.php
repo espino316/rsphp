@@ -3,7 +3,7 @@ use PHPUnit\Framework\TestCase;
 use RSPhp\Framework\DbConnection;
 use RSPhp\Framework\Db;
 
-class DbTest extends TestCase
+class DbPostgreSqlTest extends TestCase
 {
     /**
      * @expectedException invalidArgumentException

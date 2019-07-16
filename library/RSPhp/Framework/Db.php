@@ -287,7 +287,7 @@ class Db
      *
      * @return void
      */
-    private function connect()
+    public function connect()
     {
         if ($this->isOpen) {
             return;
@@ -317,11 +317,20 @@ class Db
             $dbname = 'Database';
         }
 
-        $this->conn = new PDO(
-            "$driver:$host=$hostName;$dbname=$databaseName",
-            $userName,
-            $password
-        );
+        if ($driver == 'mysql' && $this->utf8) {
+            $this->conn = new PDO(
+                "$driver:$host=$hostName;$dbname=$databaseName",
+                $userName,
+                $password,
+                array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'")
+            );
+        } else {
+            $this->conn = new PDO(
+                "$driver:$host=$hostName;$dbname=$databaseName",
+                $userName,
+                $password
+            );
+        } // end if mysql and utf8
 
         if (!$this->conn ) {
                throw new Exception("Connection error");
@@ -1832,7 +1841,9 @@ class Db
 								WHERE
 									TABLE_CATALOG = :databaseName
 									AND
-										TABLE_NAME = :tableName";
+                                        TABLE_NAME = :tableName
+                                ORDER BY
+                                    ORDINAL_POSITION";
             break;
 
         case 'mysql':
@@ -1847,7 +1858,9 @@ class Db
 								WHERE
 									TABLE_SCHEMA = :databaseName
 									AND
-										TABLE_NAME = :tableName";
+										TABLE_NAME = :tableName
+                                ORDER BY
+                                    ORDINAL_POSITION";
             break;
 
         case 'sqlsrv':
@@ -1862,7 +1875,9 @@ class Db
 								WHERE
 									TABLE_CATALOG = :databaseName
 									AND
-										TABLE_NAME = :tableName";
+										TABLE_NAME = :tableName
+                                ORDER BY
+                                    ORDINAL_POSITION";
             break;
 
         case 'dblib':
@@ -1877,7 +1892,9 @@ class Db
 								WHERE
 									TABLE_CATALOG = :databaseName
 									AND
-										TABLE_NAME = :tableName";
+										TABLE_NAME = :tableName
+                                ORDER BY
+                                    ORDINAL_POSITION";
             break;
 
         default:
@@ -2170,25 +2187,33 @@ WHERE
         $sql = "";
         switch ($this->dbConn->driver) {
         case 'pgsql':
-            $sql = "SELECT  kcu.column_name
-		FROM    INFORMATION_SCHEMA.TABLES t
-		         LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-		                 ON tc.table_catalog = t.table_catalog
-		                 AND tc.table_schema = t.table_schema
-		                 AND tc.table_name = t.table_name
-		                 AND tc.constraint_type = 'PRIMARY KEY'
-		         LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
-		                 ON kcu.table_catalog = tc.table_catalog
-		                 AND kcu.table_schema = tc.table_schema
-		                 AND kcu.table_name = tc.table_name
-		                 AND kcu.constraint_name = tc.constraint_name
-		WHERE   t.table_catalog = :databaseName
-		AND t.table_name = :tableName
-		ORDER BY t.table_catalog,
-		         t.table_schema,
-		         t.table_name,
-		         kcu.constraint_name,
-		         kcu.ordinal_position";
+            $sql = "
+SELECT
+  kcu.column_name
+FROM
+  INFORMATION_SCHEMA.TABLES t
+  INNER JOIN
+    INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+    ON tc.table_catalog = t.table_catalog
+    AND tc.table_schema = t.table_schema
+    AND tc.table_name = t.table_name
+    AND tc.constraint_type = 'PRIMARY KEY'
+  LEFT JOIN
+    INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
+    ON kcu.table_catalog = tc.table_catalog
+    AND kcu.table_schema = tc.table_schema
+    AND kcu.table_name = tc.table_name
+    AND kcu.constraint_name = tc.constraint_name
+WHERE
+  t.table_catalog = :databaseName
+  AND t.table_name = :tableName
+ORDER BY
+  t.table_catalog,
+  t.table_schema,
+  t.table_name,
+  kcu.constraint_name,
+  kcu.ordinal_position;
+";
             break;
 
         case 'mysql':

@@ -40,6 +40,11 @@ class Input
     protected static $data;
 
     /**
+     * @var Object Holds the raw data
+     */
+    protected static $raw;
+
+    /**
      * @var String Holds the Http method
      */
     protected static $method;
@@ -171,6 +176,7 @@ class Input
         //  If the input is json
         if (Str::contains(self::getHeader('content-type'), "application/json")) {
             self::$data = json_decode($str, true);
+            self::$raw = $str;
             return;
         } // end if send json
 
@@ -213,6 +219,14 @@ class Input
             }
         }
     } // end function get
+
+    /**
+     * Returns the raw object
+     */
+    static function getRaw()
+    {
+        return self::$raw;
+    } // end function getRaw
 
     /**
      * Returns Json data
