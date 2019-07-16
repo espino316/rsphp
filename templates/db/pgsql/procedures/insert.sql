@@ -7,9 +7,9 @@ $$
 BEGIN
     INSERT INTO
       $tableName (
-        $tableColumns
+$tableColumns
       ) VALUES (
-        $paramsNames
+$paramsNames
       );
 END;
 $$ LANGUAGE plpgsql;

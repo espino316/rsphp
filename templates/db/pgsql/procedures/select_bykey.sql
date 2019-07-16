@@ -10,7 +10,7 @@ CREATE OR REPLACE FUNCTION udf_select_$tableName_bykey($pkParams)
 BEGIN
   RETURN QUERY
     SELECT
-      $tableColumns
+$tableColumns
     FROM
       $tableName
     WHERE

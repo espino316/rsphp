@@ -1976,7 +1976,6 @@ class RS
      */
     public static function schemaUpdate()
     {
-        $schema = new DbSchema;
         $schemaUpdatesHistory = array();
         $schemaUpdates = array();
         $timestamps = array();
@@ -2034,6 +2033,7 @@ class RS
                 $schemaUpdate = Db::resultSetFilter($schemaUpdates, "timestamp", $timestamp)[0];
 
                 //  Execute it
+                $schema = new DbSchema($schemaUpdate["connectionName"]);
                 $schema->parseYaml($schemaUpdate["file"]);
 
                 //  Add to history (already executed)

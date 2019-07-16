@@ -462,7 +462,7 @@ class DbSchema
             if (!Str::startsWith($tableName, "~")) {
 
                 //  Create new table
-                $table = new DbTable("default", $tableName);
+                $table = new DbTable($this->dbConn, $tableName);
 
                 //  Parse the column commands
                 foreach ($columns as $column) {
@@ -557,7 +557,7 @@ class DbSchema
         if (Str::startsWith($command, "create")) {
             $this->tableName = trim(Str::replace("create ", "", $command));
             $this->isCreate = true;
-            $this->table = new DbTable("default", $this->tableName);
+            $this->table = new DbTable($this->dbConn, $this->tableName);
         } // end if
 
         if (Str::startsWith($command, "insert")) {

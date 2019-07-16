@@ -33,7 +33,7 @@ class DbGen implements \RSPhp\Framework\IDbGen
     {
         $columnNames =  array_map(
             function($col) use ($tableName) {
-                return "    $tableName.".$col["column_name"]."";
+                return "      $tableName.".$col["column_name"]."";
             },
             $columns
         );
@@ -56,7 +56,7 @@ class DbGen implements \RSPhp\Framework\IDbGen
                 if ($col["column_name"] == $identityColumn) {
                     return null;
                 }
-                return "    ".$col["column_name"]."";
+                return "      ".$col["column_name"]."";
             },
             $columns
         );
@@ -79,7 +79,7 @@ class DbGen implements \RSPhp\Framework\IDbGen
                 if (in_array($col["column_name"], $primaryKeys)) {
                     return null;
                 }
-                return "    ".$col["column_name"]." = p_".$col["column_name"];
+                return "      ".$col["column_name"]." = p_".$col["column_name"];
             },
             $columns
         );
@@ -102,7 +102,7 @@ class DbGen implements \RSPhp\Framework\IDbGen
                 if ($col["column_name"] == $identityColumn) {
                     return null;
                 }
-                return "    p_".\RSPhp\Framework\Str::replace(' ', '_', $col["column_name"]);
+                return "      p_".\RSPhp\Framework\Str::replace(' ', '_', $col["column_name"]);
             },
             $columns
         );
@@ -470,6 +470,6 @@ class DbGen implements \RSPhp\Framework\IDbGen
             $procedures .= $delete;
         } // end for each table
 
-        return $procedures;
+        return \RSPhp\Framework\Str::replace("\r", "", $procedures);
     } // end function generateSelectAll
 } // end class DbGen

@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION udf_select_$tableName()
 BEGIN
   RETURN QUERY
     SELECT
-      $tableColumns
+$tableColumns
     FROM
       $tableName;
 END;
