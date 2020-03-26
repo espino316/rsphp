@@ -85,7 +85,7 @@ class RestApiModelController extends Controller
         Output::setStatusCode(500);
         //  MySql on error for rsMySql procedures
         $errorMessage = Str::replace('SQLSTATE[45000]: <<Unknown error>>: 55001', '', $errorMessage);
-        $this->jsonResponse(array("error" => trim($errorMessage)));
+        $this->jsonResponse(array("errorMessage" => trim($errorMessage)));
     } // end function error
 
     /**

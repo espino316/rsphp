@@ -353,7 +353,8 @@ class Str
      *
      * @return Array
      */
-    public static function pregMatchAll($pattern, $str) {
+    public static function pregMatchAll($pattern, $str)
+    {
         preg_match_all($pattern, $str, $matches);
         return $matches[0];
     } // end function pregMatchAll
@@ -382,4 +383,16 @@ class Str
     {
         $str = str_replace($delimiter, '', ucwords($string, $delimiter));
     } // end function toPascalCase
+
+    /**
+     * Return the lenght of a string
+     *
+     * @param string $str The string to calculate its length
+     *
+     * @return int
+     */
+    public static function len($str)
+    {
+        return strlen($str);
+    } // end function len
 } // end class
