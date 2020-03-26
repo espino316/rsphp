@@ -1,4 +1,8 @@
 <?php
+
+// API access key from Google API's Console
+define('API_ACCESS_KEY', App::get('GOOGLE_API_PUSH_KEY'));
+define('ANDROID_PUSH_URL', 'https://android.googleapis.com/gcm/send');
 /**
  * GcmPusher.php
  *
@@ -16,10 +20,6 @@
 
 namespace RSPhp\Framework;
 
-// API access key from Google API's Console
-define('API_ACCESS_KEY', App::get('GOOGLE_API_PUSH_KEY'));
-define('ANDROID_PUSH_URL', 'https://android.googleapis.com/gcm/send');
-
 /**
  * Does push notifications for android
  *
@@ -32,7 +32,7 @@ define('ANDROID_PUSH_URL', 'https://android.googleapis.com/gcm/send');
  * @license   MIT License
  * @link      https://rsphp.espino.info/
  */
-class GCMPusher
+class GcmPusher
 {
     public static $apiKey;
 
