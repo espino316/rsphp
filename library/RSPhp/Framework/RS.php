@@ -1719,14 +1719,14 @@ class RS
         foreach ($pks as $pk) {
             $arrayItem = "'$pk' => "."$"."this->$pk";
             $paramsWhere[] = "('$pk', $$pk)";
-            $arrayWhere .= ($arrayWhere) ? ",\n". $arrayItem : $arrayItem;
-            $constructorParams = ($constructorParams) ? ", $$pk" : "$$pk";
+            $arrayWhere .= ($arrayWhere) ? ", ". $arrayItem : $arrayItem;
+            $constructorParams .= ($constructorParams) ? ", $$pk" : "$$pk";
         } // end for each $pks
 
         $arrayWhere = "array($arrayWhere)";
 
         if (count($paramsWhere)) {
-            $paramsWhere = "\n\t\t\twhere".implode('->andWhere', $paramsWhere)."->\n\t\t\t";
+            $paramsWhere = "where".implode('->andWhere', $paramsWhere)."->";
         } else {
             $paramsWhere = '';
         } // end if then else are paramsWhere
@@ -1778,11 +1778,10 @@ class RS
                      "'$columnName' => $"."this->$columnName,\n";
         }
 
-        $setSerialFieldTemplate = '
-        if ( $this->@id === Undefined::instance() ) {
+        $setSerialFieldTemplate = 'if ( $this->@id === Undefined::instance() ) {
             $this->@id =
                 parent::$db->from($this->getTableName())->
-                @paramsWhere->
+                @paramsWhere
                 max("@id");
         }';
 
