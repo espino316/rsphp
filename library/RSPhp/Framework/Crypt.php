@@ -36,6 +36,7 @@ class Crypt
     protected $tripleDesKey;
     protected $tripleDesVector;
     private $tag;
+    private $cipher;
 
     /**
      * Creates an instance of a Crypt class
@@ -51,8 +52,10 @@ class Crypt
                 1
             );
         } // end is defineds
+
         $this->tripleDesKey = TRIPLEDES_KEY;
         $this->tripleDesVector = TRIPLEDES_IV;
+        $this->cipher = 'aes-128-ctr';
     } // end function __construct
 
     /**
@@ -77,7 +80,7 @@ class Crypt
      */
     function tripleDesEncrypt($buffer)
     {
-        return openssl_encrypt($buffer, 'aes-128-cbc', $this->tripleDesKey, 0, $this->tripleDesVector);
+        return openssl_encrypt($buffer, $this->cipher, $this->tripleDesKey, 0, $this->tripleDesVector);
     } // end function tripleDesEncrypt
 
     /**
@@ -89,6 +92,6 @@ class Crypt
      */
     function tripleDesDecrypt( $buffer )
     {
-        return openssl_decrypt($buffer, 'aes-128-cbc', $this->tripleDesKey, 0, $this->tripleDesVector);
+        return openssl_decrypt($buffer, $this->cipher, $this->tripleDesKey, 0, $this->tripleDesVector);
     } // end function tripleDesDecrypt
 } // end class Crypt

@@ -29,7 +29,7 @@ class CryptTest extends TestCase
     public function testDecrypt()
     {
         $data = "Some text";
-        $cipherText = "+Zzn8tb2xn7eAtxN1pmf+g==";
+        $cipherText = "TSTFnNRQYgK2";
         $crypt = new Crypt();
         $result = $crypt->tripleDesDecrypt($cipherText);
         $this->assertTrue(
@@ -41,11 +41,8 @@ class CryptTest extends TestCase
     {
         $crypt = new Crypt();
         $result = $crypt->generateKey(24);
-        echo "result: $result\n";
         $this->assertTrue(
             $result != ""
         ); // end assert
     } // end function testGenerateKey
-
-
 } // end class CrypTest

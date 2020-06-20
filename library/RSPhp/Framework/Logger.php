@@ -15,7 +15,9 @@
  */
 
 namespace RSPhp\Framework;
+
 date_default_timezone_set('America/Mexico_City');
+
 /**
  * Logs helper
  *

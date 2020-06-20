@@ -12,12 +12,19 @@ class Env {
      *
      * @param $varName The name of the environment variable
      *
-     * @return String
+     * @return Object
      */
     static function get($varName)
     {
-        print_r($varName, getenv($varName, true));
-        return getenv($varName, true) ?: getenv($varName);
+        if (!$varName) {
+            return getenv();
+        } // end if not varname
+
+        $result = getenv($varName, true) ?: getenv($varname);
+
+        $result = unserialize($result);
+
+        return $result;
     } // end function getVar
 
     /**
@@ -30,7 +37,18 @@ class Env {
      */
     static function set($varName, $value)
     {
+        $value = serialize($value);
         $put = "$varName=$value";
         putenv($put);
     } // end function setVar
+
+    /**
+     * Removes an environment variable
+     *
+     * @param $varName The name of the environment variable to remove
+     */
+    public static function remove($varName)
+    {
+        putenv($varName);
+    } // end function remove
 } // end class Env

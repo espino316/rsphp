@@ -41,7 +41,13 @@ class WebConnTest extends TestCase
 
         Web::setWebConnection("WebTestConnection", $webConn);
 
-        $ds = new DataSource("WebTestConnection", "dsJsonPlaceHolderPosts", "HTTP", "posts");
+        $ds = new DataSource(
+            "WebTestConnection",
+            "dsJsonPlaceHolderPosts",
+            "HTTP",
+            "posts"
+        );
+
         $resultSet = $ds->getResultSet();
 
         $this->assertTrue(
