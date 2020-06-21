@@ -15,7 +15,7 @@ class @tableNameModel extends Model {
     /**
      * Creates an instance of @tableNameModel
      */
-    public function __constructor()
+    public function __construct()
     {
         @undefinedProperties
 
@@ -45,7 +45,8 @@ class @tableNameModel extends Model {
             @saveProperties
         );
 
-        if ($forceInsert) {
+        if ($forceInsert || @serialCondition) {
+            $params = parent::removeUndefined($params);
             parent::$db->insert(
                 $this->getTableName(),
                 $params

@@ -1715,6 +1715,11 @@ class RS
         $arrayWhere = '';
         $arrayItem = '';
         $constructorParams = '';
+        $serialCondition = 'false';
+
+        if ($id) {
+            $serialCondition = '(!$this->'.$id.')';
+        } // end if
 
         foreach ($pks as $pk) {
             $arrayItem = "'$pk' => "."$"."this->$pk";
@@ -1808,6 +1813,7 @@ class RS
         $text = str_replace("@arrayWhere", $arrayWhere, $text);
         $text = str_replace("@paramsWhere", $paramsWhere, $text);
         $text = str_replace("@setSerialField", $setSerialField, $text);
+        $text = str_replace("@serialCondition", $serialCondition, $text);
         $text = str_replace("\r", "", $text);
 
         $filename = ROOT.DS.'application'.DS.'models'.DS.ucfirst($tableName) . "Model.php";

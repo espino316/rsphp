@@ -186,6 +186,20 @@ class Model
      *
      * @return Db
      */
+    static function andWhere($columnName, $value)
+    {
+        self::setDB();
+        return self::$db->andWhere($columnName, $value);
+    } // end static function orWhere
+
+    /**
+     * Sets and OR statement
+     *
+     * @param String $columnName The column name
+     * @param Object $value      The column value
+     *
+     * @return Db
+     */
     static function orWhere($columnName, $value)
     {
         self::setDB();

@@ -37,11 +37,7 @@ final class Undefined
      */
     public static function instance()
     {
-        static $instance = null;
-        if ( $instance == null ) {
-            $instance = new Undefined();
-        } // end if null
-        return $instance;
+        return new Undefined;
     } // end function Instance
 
     /**
