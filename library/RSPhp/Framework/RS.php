@@ -2166,7 +2166,14 @@ class RS
     {
         $dbGen = new DbGen($connName);
         $procedures = $dbGen->generateProcedures();
-        File::write(APPPATH.DS.'procedures.sql', $procedures);
-        RS::printLine('Procedures created at application/procedures.sql');
+        $folder = APPPATH.DS.'Data'.DS.$connName;
+
+        if (!File::exists($folder)) {
+            Directory::create($folder);
+        } // end if not file exists
+
+        $fileName = $folder.DS.'stored_procedures.sql';
+        File::write($fileName, $procedures);
+        RS::printLine('Procedures created at '.$fileName);
     } // end function generateProcedures
 } // end function class RS

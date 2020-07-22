@@ -313,7 +313,7 @@ if ($command == 'schema add') {
     }// end if params
 } // end if schema add
 
-if ($command == 'generate procedures') {
+if ($command == 'generate procedures' || $command == 'gen procs') {
     if (count($params) == 0) {
         $conn = 'default';
     } else if (!$params["conn"]) {
@@ -325,4 +325,16 @@ if ($command == 'generate procedures') {
 
     RS::generateProcedures($conn);
 } // end if generte procedures
+
+if ($command == "generate documentation" || $command == 'gen doc') {
+    //  List of data connections
+    //  List of data sources
+    //  List of controllers in the application
+    //  List of routes
+    //  List of models created
+    //  List of global configuration variables
+    //  List of schema updates
+    //  List of rest api created
+} // end function
+
 RS::printLine("");
