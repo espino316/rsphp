@@ -219,7 +219,7 @@ class RS
             Directory::create("$appPath/Views");
             self::printLine("Directory 'application/Views' created");
         } // end if exists $appPath/Views
-        
+
         //  Create the Data directory
         if (Directory::exists("$appPath/Data") ) {
             self::printLine("Directory 'application/Data' already exists");
@@ -664,6 +664,33 @@ class RS
         $url,
         $newUrl
     ) {
+
+        $arr = explode('/', $newUrl);
+        $controllerName = ucfirst(strtolower($arr[0]));
+        $functionName = $arr[1];
+
+        //  Perform validations
+        //  Controller file must exists
+        $controllerPath = APPPATH.DS.'controllers'.DS.$controllerName.'Controller.php';
+
+        if (!File::exists($controllerPath)) {
+            throw new Exception("Controller $controllerName do not exists");
+        } // end if no file exists
+
+        //  Controller class exists
+        try {
+            $controllerClass = new \ReflectionClass('Application\Controllers\\'.$controllerName);
+        } catch (Exception $ex) {
+            throw new Exception("Controller class $controllerName do not exists");
+        } // end function
+
+        //  Method exists in class
+        try {
+            $method = $controllerClass->getMethod($funtionName);
+        } catch (Exception $ex) {
+            throw new Exception("Controller class $controllerName method $functionName do not exists");
+        } // end function
+
         $configFile = ROOT.DS.'config'.DS.'app.json';
         $indexToRemove = null;
         $removeIndex = false;

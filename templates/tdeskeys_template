@@ -1,0 +1,11 @@
+<?php
+define(
+    'TRIPLEDES_KEY',
+    @tripleDesKey
+);
+
+define(
+    'TRIPLEDES_IV',
+    @tripleDesIV
+);
+
