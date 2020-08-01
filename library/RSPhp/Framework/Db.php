@@ -1118,7 +1118,7 @@ class Db
     {
         $cont = count($this->whereParams) + 1;
         $paramName1 = str_replace(".", "_", $colName) . $cont;
-        $paramName2 = str_replace(".", "_", $colName) . $cont + 1;
+        $paramName2 = str_replace(".", "_", $colName) . $cont . '1';
         $this->whereParams[$paramName1] = $value1;
         $this->whereParams[$paramName2] = $value2;
 
