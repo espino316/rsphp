@@ -8,7 +8,11 @@
     },
     "configFiles": [],
     "routes": [
+        {
+            "method": "*",
+            "url": "pruebas\/inicio",
+            "newUrl": "testing\/index"
+        }
     ],
-    "dbConnections": [
-    ]
+    "dbConnections": []
 }

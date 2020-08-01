@@ -1,1 +1,2 @@
+echo tests/$1.php
 phpunit --bootstrap $PWD/vendor/autoload.php tests/$1.php

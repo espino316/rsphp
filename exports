@@ -1,1 +1,2 @@
 lib=$PWD/library/RSPhp/Framework
+PATH=$PATH:/c/xampp/php

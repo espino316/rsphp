@@ -679,14 +679,14 @@ class RS
 
         //  Controller class exists
         try {
-            $controllerClass = new \ReflectionClass('Application\Controllers\\'.$controllerName);
+            $controllerClass = new \ReflectionClass('Application\Controllers\\'.$controllerName.'Controller');
         } catch (Exception $ex) {
             throw new Exception("Controller class $controllerName do not exists");
         } // end function
 
         //  Method exists in class
         try {
-            $method = $controllerClass->getMethod($funtionName);
+            $methodObject = $controllerClass->getMethod($functionName);
         } catch (Exception $ex) {
             throw new Exception("Controller class $controllerName method $functionName do not exists");
         } // end function
