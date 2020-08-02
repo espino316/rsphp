@@ -273,7 +273,13 @@ if ($command == "restapi create") {
         return;
     } // end if no params
 
-    RS::generateRestfulApi($params["controller"], $params["conn"], $params["except"]);
+    $except = null;
+
+    if (isset($params["except"])) {
+        $except = $params["except"];
+    } // end if is set param "except"
+
+    RS::generateRestfulApi($params["controller"], $params["conn"], $except);
 } // end if restapi create
 
 if ($command == 'schema update') {

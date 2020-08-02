@@ -1359,6 +1359,8 @@ class RS
                 throw new Exception("No connections are set. Try adding a connection first." );
             } // end if no connections
 
+            $controllerName = ucwords($controllerName);
+
             //  Get the class definition
             $path = dirname(__FILE__ );
             $path = dirname($path );
