@@ -105,7 +105,7 @@ class RS
      *
      * @return Bool
      */
-    static function init($dir )
+    static function init($dir)
     {
         $appName = self::forceReadLine("What's your app's name?:", "Must provide an app name");
         $email = self::defaultReadLine("What's your email?:", "admin@localhost.com");
@@ -229,7 +229,7 @@ class RS
         } // end if exists $appPath/Data
 
         //  Create the Data/Schema directory
-        if (Directory::exists("$appPath/Datai/Schema") ) {
+        if (Directory::exists("$appPath/Data/Schema") ) {
             self::printLine("Directory 'application/Data/Schema' already exists");
         } else {
             Directory::create("$appPath/Data/Schema");
@@ -952,7 +952,7 @@ class RS
         $url = self::$url;
         $method = self::$method;
 
-        $routes = App::get('routes');
+        $routes = Config::get('routes');
 
         $controller = '';
         $model = '';

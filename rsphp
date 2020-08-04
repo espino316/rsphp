@@ -15,13 +15,19 @@
 //  if the file is not existing only
 
 $cwd = getcwd();
-$rsPhpPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
 
-if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
-    chdir( $rsPhpPath );
-    shell_exec( "composer dump-autoload" );
-    chdir( $cwd );
-} // end if not exists
+if ( file_exists("vendor/espino316") ) {
+
+    $rsPhpPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
+    if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
+        chdir( $rsPhpPath );
+        shell_exec( "composer dump-autoload" );
+        chdir( $cwd );
+    } // end if not exists
+
+} else {
+    $rsPhpPath = $cwd;
+}
 
 require_once "$rsPhpPath/vendor/autoload.php";
 

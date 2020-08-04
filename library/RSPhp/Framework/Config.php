@@ -159,7 +159,7 @@ class Config
                     );
                 //print_r( Db:$connections['default'] );
             } // end foreach
-            App::set('routes', $routes);
+            self::set('routes', $routes);
         } // end if routes
 
         //	Global variables
