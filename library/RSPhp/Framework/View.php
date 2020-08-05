@@ -446,6 +446,15 @@ class View
     private static function viewsDataBind( $html, $data = null )
     {
 
+        if (!$data) {
+            return $html;
+        } // end if not data
+
+        $isFragment = true;
+        if (Str::contains($html, '<html') ) {
+            $isFragment = false;
+        } // end if contain html
+
         $dom = self::getDomFromHTML($html);
 
         //	Sections
@@ -487,11 +496,6 @@ class View
         } // end if count > -1
 
         /* Here begins data-source attribute for divs */
-        $isFragment = true;
-        if (Str::contains($html, '<html') ) {
-            $isFragment = false;
-        } // end if contain html
-
         //  Get the dom
         $dom = self::getDomFromHTML($html);
 
@@ -646,14 +650,14 @@ class View
             $item->removeAttribute("data-filter");
         } // end for
 
-        //  Save the dom
-        $html = $dom->saveHTML();
-
         /*	Here begins data-bind attibute */
         $isFragment = true;
         if (Str::contains($html, '<html') ) {
             $isFragment = false;
         }
+
+        //  Save the dom
+        $html = $dom->saveHTML();
 
         $toReplace = null;
         $dom = self::getDomFromHTML($html);
@@ -717,7 +721,7 @@ class View
                 } // end foreach $replacement
             } // end if $toReplace not empty
 
-            if ($isFragment ) {
+            if ($isFragment) {
                 $body = $dom->getElementsByTagName('body');
                 $body = $body->item(0);
                 $html = self::domInnerHTML($body);
@@ -766,6 +770,7 @@ class View
             } // end if $toReplace not empty
 
             if ( $isFragment ) {
+                throw new Exception("why?");
                 $body = $dom->getElementsByTagName('body');
                 $body = $body[0];
                 $html = self::domInnerHTML($body);
@@ -776,7 +781,7 @@ class View
         } // end if $count > -1
 
         return $html;
-    } // end function selectsDataBind
+    } // end function viewsDataBind
 
 
     /**
@@ -1088,6 +1093,9 @@ class View
      */
     private static function tablesDataBind( $html, $data = null )
     {
+        if (!$data) {
+            return $html;
+        } // end if not data
 
         $isFragment = true;
         if (Str::contains($html, '<html') ) {
@@ -1569,7 +1577,7 @@ class View
             } // end foreach $replacement
         } // end if $toReplace not empty
 
-        if ($isFragment ) {
+        if ($isFragment) {
             $body = $dom->getElementsByTagName('body');
             $body = $body[0];
             $html = self::domInnerHTML($body);
@@ -1591,9 +1599,12 @@ class View
      */
     public static function dataBind( $html, $data = null )
     {
+        Logger::debug($html);
         //	Remove strings, repopulate scripts at the end
         $html = self::viewsDataBind($html, $data);
+        Logger::debug($html);
         $html = self::tablesDataBind($html, $data);
+        Logger::debug($html);
         return $html;
     } // end function dataBind
 
