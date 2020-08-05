@@ -47,9 +47,13 @@ if ( $command == 'version' ) {
 	return;
 }
 
-if ( $command == "help" ) {
+if ( $command == "help" && !$params ) {
     $content = File::read( $rsPhpPath . DS . "rsphp_help" );
     RS::printLine( $content );
+}// end if help
+
+if ( $command == "help view" ) {
+    printHelpSection("view");
 }// end if help
 
 if ( $command == 'cleanapp' ) {
@@ -230,8 +234,26 @@ if ( $command == "view add" ) {
     } // end if not array key exists
 
     if ( ! array_key_exists( "type", $params ) ) {
+
         $params["type"] = "content";
-    } // end if not array key exists
+
+    } // end if not exists type in params
+
+    if ( array_key_exists("type", $params) && $params["type"] == "content") {
+
+        //  If not exists header and footer, create them
+        $headerPath = "$rsPhpPath/application/Views/Header.html";
+        $footerPath = "$rsPhpPath/application/Views/Footer.html";
+
+        if (!File::exists($headerPath)) {
+            RS::createView("Header", "header");
+        } // end if not exists headerPath
+
+        if (!File::exists($footerPath)) {
+            RS::createView("Footer", "footer");
+        } // end if not exists foote path
+
+    } // end if it's content
 
     RS::createView(
         $params["name"],
@@ -350,3 +372,35 @@ if ($command == "generate documentation" || $command == 'gen doc') {
 } // end function
 
 RS::printLine("");
+
+/**
+ * Reads and prints a section of the help file
+ */
+function printHelpSection($sectionName)
+{
+    global $rsPhpPath;
+
+    $content = File::read( $rsPhpPath . DS . "rsphp_help_sections" );
+    $lines = explode("\n", $content);
+    $contentLines = [];
+    $beginCopying = false;
+
+    foreach ($lines as $line) {
+
+        if ($line == "#end $sectionName") {
+            break;
+        } // end if end section name
+
+        if ($line == "#$sectionName") {
+            $beginCopying = true;
+            continue;
+        } // end if init section name
+
+        if ($beginCopying) {
+            $contentLines[] = $line;
+        } // end if begin copying
+
+    } // end for each line
+
+    RS::printLine( implode("\n", $contentLines) );
+} // end function printSection

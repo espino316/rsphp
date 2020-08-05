@@ -2002,6 +2002,24 @@ class RS
             ); // end File::write
         } // end if page
 
+        if ($viewType == "header" ) {
+            $templatesPath = dirname(dirname(dirname(dirname(__FILE__ ) ) ) );
+            $templatesPath .= DS."templates";
+            File::write(
+                $viewName,
+                File::read($templatesPath . "/page_header.html" )
+            ); // end File::write
+        } // end if page
+
+        if ($viewType == "footer" ) {
+            $templatesPath = dirname(dirname(dirname(dirname(__FILE__ ) ) ) );
+            $templatesPath .= DS."templates";
+            File::write(
+                $viewName,
+                File::read($templatesPath . "/page_footer.html" )
+            ); // end File::write
+        } // end if page
+
         self::printLine("View $viewName created." );
     } // end function createView
 
