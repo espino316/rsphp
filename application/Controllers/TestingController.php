@@ -27,7 +27,4 @@ class TestingController extends Controller
     {
     } // end function index
 
-    public function getName()
-    {
-    } // end function get name
 } // end class TestingController;

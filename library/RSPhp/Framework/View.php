@@ -650,6 +650,7 @@ class View
             $item->removeAttribute("data-filter");
         } // end for
 
+
         /*	Here begins data-bind attibute */
         $isFragment = true;
         if (Str::contains($html, '<html') ) {
@@ -770,7 +771,6 @@ class View
             } // end if $toReplace not empty
 
             if ( $isFragment ) {
-                throw new Exception("why?");
                 $body = $dom->getElementsByTagName('body');
                 $body = $body[0];
                 $html = self::domInnerHTML($body);

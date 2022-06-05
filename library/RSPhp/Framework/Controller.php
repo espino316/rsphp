@@ -110,9 +110,8 @@ class Controller
      */
     function loadContent($viewName, $data = null)
     {
-        View::load('Header', $data);
-        View::load($viewName, $data);
-        View::load('Footer', $data);
+        $data['$contentView'] = $viewName;
+        View::load('Master', $data);
     } // end function loadContent
 
     /**
