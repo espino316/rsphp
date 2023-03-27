@@ -2,7 +2,7 @@
 /**
  * DbConnection.php
  *
- * PHP Version 5
+ * PHP Version 7
  *
  * DbConnection File Doc Comment
  *

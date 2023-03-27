@@ -85,7 +85,7 @@ class RS
      *
      * @return void
      */
-    static function setEncryptionKeys($filePath )
+    static function setEncryptionKeys($filePath)
     {
         $tripleDesKey = Crypt::generateKey(24);
         $tripleDesVector = Crypt::generateKey(8);
@@ -125,7 +125,8 @@ class RS
 
         //  Check if is directory
         if (!is_dir($home) ) {
-            self::printLine("Not a directory.");
+            echo "$dir -- $home";
+            self::printLine("$home Not a directory.");
             return;
         } // end if not is dir
 
@@ -219,7 +220,7 @@ class RS
             Directory::create("$appPath/Views");
             self::printLine("Directory 'application/Views' created");
         } // end if exists $appPath/Views
-
+        
         //  Create the Data directory
         if (Directory::exists("$appPath/Data") ) {
             self::printLine("Directory 'application/Data' already exists");
@@ -229,7 +230,7 @@ class RS
         } // end if exists $appPath/Data
 
         //  Create the Data/Schema directory
-        if (Directory::exists("$appPath/Data/Schema") ) {
+        if (Directory::exists("$appPath/Datai/Schema") ) {
             self::printLine("Directory 'application/Data/Schema' already exists");
         } else {
             Directory::create("$appPath/Data/Schema");
@@ -361,33 +362,33 @@ class RS
      */
     static function listConnections()
     {
-        $fileApp = ROOT.DS.'config'.DS.'app.json';
+        //  get the connections file
+        $connectionsFile = ROOT.DS.'config'.DS.'data_connections';
+        
+        //  read the file
+        if (File::exists($connectionsFile)) {
+            //  get the connections
+            $connections = File::read($connectionsFile);
+            //  unserialize connections
+            $connections = unserialize($connections);
+        } else { 
+            $connections = array();
+        } // end if connections file exists
 
-        if (file_exists($fileApp) ) {
-            $app = json_decode(file_get_contents($fileApp), true);
+        foreach ($connections as $conn ) {
+            self::printLine("    - " . $conn["name"]);
+            self::printLine(
+                "        - driver: " . $conn["driver"]
+            );
+            self::printLine(
+                "        - host name: " . $conn["hostName"]
+            );
+            self::printLine(
+                "        - database: " . $conn["databaseName"]
+            );
 
-            if (!isset($app["dbConnections"]) ) {
-                self::printLine("No connections.");
-                return;
-            } // end if no connections
-
-            $connections = $app["dbConnections"];
-
-            foreach ($connections as $conn ) {
-                self::printLine("    - " . $conn["name"]);
-                self::printLine(
-                    "        - driver: " . $conn["driver"]
-                );
-                self::printLine(
-                    "        - host name: " . $conn["hostName"]
-                );
-                self::printLine(
-                    "        - database: " . $conn["databaseName"]
-                );
-
-                self::printLine("");
-            } // end foreach connection
-        } // end if file exists
+            self::printLine("");
+        } // end foreach connection
     } // end function connections
 
     /**
@@ -515,52 +516,11 @@ class RS
         $password,
         $port = null
     ) {
-        //  First we test the connection
-        $db = new Db(
-            array(
-                "driver" => $driver,
-                "hostName" => $hostName,
-                "databaseName" => $databaseName,
-                "userName" => $userName,
-                "password" => $password,
-                "port" => $port
-            ) // end array connection
-        ); // end new Db
 
-        //  Test connection
-        $db->connect();
-        $db->conn = null;
-
-        $configFile = ROOT.DS.'config'.DS.'app.json';
-        $indexToRemove = null;
-        $removeIndex = false;
-
-        if (!File::exists($configFile) ) {
-            $json["dbConnections"] = array();
-            $json = json_encode($json, JSON_PRETTY_PRINT);
-            File::write($configFile, $json);
-        } // end if not exists
-
-        $connections = array();
-        $appConfig = File::read($configFile);
-        $appConfig = json_decode($appConfig, true);
-
-        if (isset($appConfig["dbConnections"]) ) {
-            $connections = $appConfig["dbConnections"];
-        } // end if dbConnection exists
-
-        foreach ($connections as $index => $conn ) {
-            if ($conn["name"] == $name ) {
-                self::printLine("Data connection " . $name . " already exists");
-                self::printLine("Overriding...");
-                $removeIndex = true;
-                $indexToRemove = $index;
-            } // end if conn name
-        } // end foreach connection
-
-        if ($removeIndex ) {
-            array_splice($connections, $indexToRemove, 1);
-        } // end if removeIndex
+        //  create the connection
+        //  test it
+        //  override array
+        //  override file
 
         $connection = array(
             "name" => $name,
@@ -571,15 +531,57 @@ class RS
             "password" => $password
         );
 
-        if ($port ) {
+        if ($port) {
             $connection["port"] = $port;
         } // end if port
 
-        $connections[] = $connection;
-        $appConfig["dbConnections"] = $connections;
-        $json = json_encode($appConfig, JSON_PRETTY_PRINT);
-        File::write($configFile, $json);
+        //  check driver
+        //  if not in mysql, sqlsrv, dblib or pgsql then throw a proper error
 
+        //  First we test the connection
+        $db = new Db($connection); // end new Db
+
+        //  Test connection
+        $db->connect();
+        $db->conn = null;
+
+        //  encrypt the password
+        $crypt = new Crypt();
+        $connection["password"] = $crypt->tripleDesEncrypt($connection["password"]);
+
+        //  initialize the connections array
+        $connections = [];
+
+        //  if exists connections
+        if (DB_CONNECTIONS) {
+            //  unserialize the connections
+            $connections = DB_CONNECTIONS;
+        } // end if db connections
+
+        $indexToRemove = 0;
+        $removeIndex = false;
+        // look for same name connections
+        foreach ($connections as $index => $conn ) {
+            if ($conn["name"] == $name ) {
+                self::printLine("Data connection " . $name . " already exists");
+                self::printLine("Overriding...");
+                $removeIndex = true;
+                $indexToRemove = $index;
+                break;
+            } // end if conn name
+        } // end foreach connection
+
+        //  override
+        if ($removeIndex) {
+            array_splice($connections, $indexToRemove, 1);
+        } else { // or add
+            $connections[] = $connection;
+        } // end if removeIndex
+        
+        //  set the code
+        $content = '<?php define("DB_CONNECTIONS", '.var_export($connections, 1).');'; 
+        File::write(DB_CONNS_FILE, $content);
+        
         return $connection;
     } // end function add connection
 
@@ -664,33 +666,6 @@ class RS
         $url,
         $newUrl
     ) {
-
-        $arr = explode('/', $newUrl);
-        $controllerName = ucfirst(strtolower($arr[0]));
-        $functionName = $arr[1];
-
-        //  Perform validations
-        //  Controller file must exists
-        $controllerPath = APPPATH.DS.'controllers'.DS.$controllerName.'Controller.php';
-
-        if (!File::exists($controllerPath)) {
-            throw new Exception("Controller $controllerName do not exists");
-        } // end if no file exists
-
-        //  Controller class exists
-        try {
-            $controllerClass = new \ReflectionClass('Application\Controllers\\'.$controllerName.'Controller');
-        } catch (Exception $ex) {
-            throw new Exception("Controller class $controllerName do not exists");
-        } // end function
-
-        //  Method exists in class
-        try {
-            $methodObject = $controllerClass->getMethod($functionName);
-        } catch (Exception $ex) {
-            throw new Exception("Controller class $controllerName method $functionName do not exists");
-        } // end function
-
         $configFile = ROOT.DS.'config'.DS.'app.json';
         $indexToRemove = null;
         $removeIndex = false;
@@ -746,7 +721,7 @@ class RS
      *
      * @return array
      */
-    static function processStdIn($args )
+    static function processStdIn($args)
     {
         $command = array();
         $commandParams = array();
@@ -806,6 +781,7 @@ class RS
         $sapi = php_sapi_name();
         $url = "";
         $baseUrl = "";
+
         if ($sapi != 'cli' ) {
             //	Gets the protocol
             if (isset($_SERVER['HTTPS']) ) {
@@ -860,6 +836,7 @@ class RS
         if (! IS_CLI ) {
             self::doRouting();
         } // end if not cli
+
     } // end function startUp
 
     /**
@@ -905,11 +882,20 @@ class RS
      */
     static function removeMagicQuotes()
     {
-        if (get_magic_quotes_gpc() ) {
-            $_GET    = stripSlashesDeep($_GET);
-            $_POST   = stripSlashesDeep($_POST);
-            $_COOKIE = stripSlashesDeep($_COOKIE);
-        } // end if
+        $process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
+        foreach ($process as $key => $val) {
+            foreach ($val as $k => $v) {
+                unset($process[$key][$k]);
+                if (is_array($v)) {
+                    $process[$key][stripslashes($k)] = $v;
+                    $process[] = &$process[$key][stripslashes($k)];
+                } else {
+                    $process[$key][stripslashes($k)] = stripslashes($v);
+                } // end if then else $v is array
+            } // end for each val
+        } // end for each process
+        
+        unset($process);
     } // end function removeMagicQuotes
 
     /**
@@ -952,7 +938,7 @@ class RS
         $url = self::$url;
         $method = self::$method;
 
-        $routes = Config::get('routes');
+        $routes = App::get('routes');
 
         $controller = '';
         $model = '';
@@ -1080,7 +1066,7 @@ class RS
                     );
                 } // end try catch
             } // end if then else file method or file exists
-        } // end if then else method exists
+        } // end if then else method
     } // end callHook
 
     /**
@@ -1090,7 +1076,7 @@ class RS
      *
      * @return void
      */
-    static function serveFile($file )
+    static function serveFile($file)
     {
         ob_end_clean();
 
@@ -1217,17 +1203,17 @@ class RS
     {
 
         self::printLine('Creating view for new record, table ' . $tableName);
-        if (!isset(DB::$connections) ) {
+        if (!DB::hasDbConnections()) {
             throw new Exception("No connections are set up", 1);
         } // end if isset DBConn
         $db = new Db();
 
         $sql = "SELECT
-  		column_name,
-  		data_type,
-  		ordinal_position,
-  		is_nullable,
-  		character_maximum_length
+            column_name,
+            data_type,
+            ordinal_position,
+            is_nullable,
+            character_maximum_length
   		FROM
   			information_schema.columns
   		WHERE
@@ -1283,14 +1269,14 @@ class RS
                 $row2['display_field'] = $firstRow['display_field'];
 
                 $text = "SELECT value_field, display_field FROM table_name";
-                $text = Str::stringReplace($firstRow, $text);
+                $text = Str::replace($firstRow, $text);
 
                 $type = 'SQLQUERY';
                 $connection = 'default';
                 $name = 'ds'.$firstRow['table_name'].'ComboBox';
 
                 self::printLine('Before datasource');
-                addDataSource($connection, $name, $type, $text);
+                self::addDataSource($connection, $name, $type, $text);
 
             } else {
                 $row2['related_to'] = '';
@@ -1358,8 +1344,6 @@ class RS
             if (! Db::hasDbConnections() ) {
                 throw new Exception("No connections are set. Try adding a connection first." );
             } // end if no connections
-
-            $controllerName = ucwords($controllerName);
 
             //  Get the class definition
             $path = dirname(__FILE__ );
@@ -1744,23 +1728,18 @@ class RS
         $arrayWhere = '';
         $arrayItem = '';
         $constructorParams = '';
-        $serialCondition = 'false';
-
-        if ($id) {
-            $serialCondition = '(!$this->'.$id.')';
-        } // end if
 
         foreach ($pks as $pk) {
             $arrayItem = "'$pk' => "."$"."this->$pk";
             $paramsWhere[] = "('$pk', $$pk)";
-            $arrayWhere .= ($arrayWhere) ? ", ". $arrayItem : $arrayItem;
-            $constructorParams .= ($constructorParams) ? ", $$pk" : "$$pk";
+            $arrayWhere .= ($arrayWhere) ? ",\n". $arrayItem : $arrayItem;
+            $constructorParams = ($constructorParams) ? ", $$pk" : "$$pk";
         } // end for each $pks
 
         $arrayWhere = "array($arrayWhere)";
 
         if (count($paramsWhere)) {
-            $paramsWhere = "where".implode('->andWhere', $paramsWhere)."->";
+            $paramsWhere = "\n\t\t\twhere".implode('->andWhere', $paramsWhere)."->\n\t\t\t";
         } else {
             $paramsWhere = '';
         } // end if then else are paramsWhere
@@ -1812,10 +1791,11 @@ class RS
                      "'$columnName' => $"."this->$columnName,\n";
         }
 
-        $setSerialFieldTemplate = 'if ( $this->@id === Undefined::instance() ) {
+        $setSerialFieldTemplate = '
+        if ( $this->@id === Undefined::instance() ) {
             $this->@id =
                 parent::$db->from($this->getTableName())->
-                @paramsWhere
+                @paramsWhere->
                 max("@id");
         }';
 
@@ -1842,7 +1822,6 @@ class RS
         $text = str_replace("@arrayWhere", $arrayWhere, $text);
         $text = str_replace("@paramsWhere", $paramsWhere, $text);
         $text = str_replace("@setSerialField", $setSerialField, $text);
-        $text = str_replace("@serialCondition", $serialCondition, $text);
         $text = str_replace("\r", "", $text);
 
         $filename = ROOT.DS.'application'.DS.'models'.DS.ucfirst($tableName) . "Model.php";
@@ -1897,7 +1876,7 @@ class RS
      *
      * @return String
      */
-    private static function _getLoadProperties()
+    private static function _getLoadProperties($tableName)
     {
         $sql = 'SELECT \'$this->\' || column_name || \'' .
            ' = $result[\'\'\' || column_name || \'\'\'];\' AS property
@@ -1907,8 +1886,10 @@ class RS
 
         $queryParams['tableName'] = $tableName;
 
+        $db = new Db();
         $result = $db->query($sql, $queryParams);
 
+        $loadProperties = "";
         foreach ($result as $row ) {
             $loadProperties .= "\t\t" . $row['property'] . "\n";
         }
@@ -1999,24 +1980,6 @@ class RS
             File::write(
                 $viewName,
                 File::read($templatesPath . "/page.html" )
-            ); // end File::write
-        } // end if page
-
-        if ($viewType == "header" ) {
-            $templatesPath = dirname(dirname(dirname(dirname(__FILE__ ) ) ) );
-            $templatesPath .= DS."templates";
-            File::write(
-                $viewName,
-                File::read($templatesPath . "/page_header.html" )
-            ); // end File::write
-        } // end if page
-
-        if ($viewType == "footer" ) {
-            $templatesPath = dirname(dirname(dirname(dirname(__FILE__ ) ) ) );
-            $templatesPath .= DS."templates";
-            File::write(
-                $viewName,
-                File::read($templatesPath . "/page_footer.html" )
             ); // end File::write
         } // end if page
 
@@ -2142,7 +2105,7 @@ class RS
           $stdIn = readline('$ ');
         } // end if then else os is windows
 
-        return $stdIn;
+        return str_replace("\n", "", $stdIn);
     } // end function readLine
 
     public static function readLineSecret($promptMessage = 'Password:')
@@ -2213,14 +2176,7 @@ class RS
     {
         $dbGen = new DbGen($connName);
         $procedures = $dbGen->generateProcedures();
-        $folder = APPPATH.DS.'Data'.DS.$connName;
-
-        if (!File::exists($folder)) {
-            Directory::create($folder);
-        } // end if not file exists
-
-        $fileName = $folder.DS.'stored_procedures.sql';
-        File::write($fileName, $procedures);
-        RS::printLine('Procedures created at '.$fileName);
+        File::write(APPPATH.DS.'procedures.sql', $procedures);
+        RS::printLine('Procedures created at application/procedures.sql');
     } // end function generateProcedures
 } // end function class RS

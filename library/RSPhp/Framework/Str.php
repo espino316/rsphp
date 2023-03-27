@@ -33,9 +33,9 @@ class Str
     /**
      * Determines is the string is upper
      *
-     * @param Str $str The string to verify
+     * @param string $str The string to verify
      *
-     * @return Str
+     * @return string
      */
     static function isUppercase( $str )
     {
@@ -45,8 +45,8 @@ class Str
     /**
      * Returns true if $str contains $val
      *
-     * @param Str $str The string container
-     * @param Str $val The string to search in the container
+     * @param string $str The string container
+     * @param string $val The string to search in the container
      *
      * @return Boolean
      */
@@ -58,8 +58,8 @@ class Str
     /**
      * Determines if a string starts with another
      *
-     * @param Str $haystack The string to search in
-     * @param Str $needle   The string to search for
+     * @param string $haystack The string to search in
+     * @param string $needle   The string to search for
      *
      * @return Boolean
      */
@@ -74,8 +74,8 @@ class Str
     /**
      * Determines if a string ends with another
      *
-     * @param Str $haystack The string to search in
-     * @param Str $needle   The string to search for
+     * @param string $haystack The string to search in
+     * @param string $needle   The string to search for
      *
      * @return Boolean
      */
@@ -90,10 +90,10 @@ class Str
     /**
      * Returns the left part of an string
      *
-     * @param Str $str    The string to manipulate
-     * @param Int    $length The number of characters to return
+     * @param string $str    The string to manipulate
+     * @param int    $length The number of characters to return
      *
-     * @return Str
+     * @return string
      */
     static function left($str, $length)
     {
@@ -103,10 +103,10 @@ class Str
     /**
      * Returns the right part of an string
      *
-     * @param Str $str    The string to manipulate
-     * @param Int    $length The number of characters to return
+     * @param string $str    The string to manipulate
+     * @param int    $length The number of characters to return
      *
-     * @return Str
+     * @return string
      */
     static function right($str, $length)
     {
@@ -116,9 +116,9 @@ class Str
     /**
      * Remove the strip accents from a string
      *
-     * @param Str $str The string to modify
+     * @param string $str The string to modify
      *
-     * @return Str The string modified
+     * @return string The string modified
      */
     static function stripAccents( $str )
     {
@@ -140,13 +140,13 @@ class Str
     /**
      * Replaces a string within another
      *
-     * @param Str $search  The string to search
-     * @param Str $replace The string to replace
-     * @param Str $str  The string to search in
+     * @param string $search  The string to search
+     * @param string $replace The string to replace
+     * @param string $str  The string to search in
      *
-     * @return Str
+     * @return string
      */
-    static function replace( $search, $replace, $str = null )
+    static function replace($search, $replace, $str = null)
     {
         if ( is_array( $search ) && ! $str ) {
             return self::dictReplace( $search, $replace );
@@ -159,10 +159,10 @@ class Str
      * Replaces the key with the value of $dictionary in $str
      *
      * @param Array  $dictionary Dictionary with key and value
-     * @param Str $str     The string in which the replacements
+     * @param string $str     The string in which the replacements
      * are gonna be made
      *
-     * @return Str
+     * @return string
      */
     private static function dictReplace( $dictionary, $str )
     {
@@ -175,9 +175,9 @@ class Str
     /**
      * Converts special chars to HTML equivalents
      *
-     * @param Str $str The string to converts
+     * @param string $str The string to converts
      *
-     * @return Str
+     * @return string
      */
     static function specialCharsToHTML( $str )
     {
@@ -199,9 +199,9 @@ class Str
     /**
      * Converts to upper including accents
      *
-     * @param Str $str The string to modify
+     * @param string $str The string to modify
      *
-     * @return Str
+     * @return string
      */
     static function toUpper( $str )
     {
@@ -222,9 +222,9 @@ class Str
     /**
      * Converts to lower including accents
      *
-     * @param Str $str The string to modify
+     * @param string $str The string to modify
      *
-     * @return Str
+     * @return string
      */
     static function toLower( $str )
     {
@@ -245,11 +245,11 @@ class Str
     /**
      * Return a chunked string in unicode
      *
-     * @param Str $str The string to modify
-     * @param Int    $l   The number of chunks
-     * @param Str $e   The separator
+     * @param string $str The string to modify
+     * @param int    $l   The number of chunks
+     * @param string $e   The separator
      *
-     * @return Str
+     * @return string
      */
     static function chunkSplitUnicode($str, $l = 76, $e = "\r\n")
     {
@@ -266,7 +266,7 @@ class Str
     /**
      * Returns a GUID Str
      *
-     * @return Str
+     * @return string
      */
     static function GUID()
     {
@@ -291,10 +291,10 @@ class Str
     /**
      * Returns a random string of $len characters
      *
-     * @param Int     $len        The length of the desired string
-     * @param Boolean $useSymbols Indicates if the return string will have symbols
+     * @param int     $len        The length of the desired string
+     * @param boolean $useSymbols Indicates if the return string will have symbols
      *
-     * @return Str
+     * @return string
      */
     static function random( $len, $useSymbols = false )
     {
@@ -320,9 +320,9 @@ class Str
     /**
      * Determines if is a string is base 64
      *
-     * @param Str $str The string to verify
+     * @param string $str The string to verify
      *
-     * @return Boolean
+     * @return boolean
      */
     static function isBase64( $str )
     {
@@ -336,9 +336,9 @@ class Str
     /**
      * Trims a string
      *
-     * @param Str $str The string to trim
+     * @param string $str The string to trim
      *
-     * @return Str
+     * @return string
      */
     public static function trim($str, $charMask = " \t\n\r\0\x0B")
     {
@@ -348,8 +348,8 @@ class Str
     /**
      * Return regex matches
      *
-     * @param String $pattern The regex pattern
-     * @param String $str String The string to parse
+     * @param string $pattern The regex pattern
+     * @param string $str String The string to parse
      *
      * @return Array
      */
@@ -381,7 +381,7 @@ class Str
      */
     public static function toPascalCase($delimiter, $str)
     {
-        $str = str_replace($delimiter, '', ucwords($string, $delimiter));
+        $str = str_replace($delimiter, '', ucwords($str, $delimiter));
     } // end function toPascalCase
 
     /**

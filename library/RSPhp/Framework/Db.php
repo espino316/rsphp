@@ -2,7 +2,7 @@
 /**
  * Db.php
  *
- * PHP Version 5
+ * PHP Version 7
  *
  * Db File Doc Comment
  *
@@ -20,6 +20,7 @@ use PDO;
 use Exception;
 use InvalidArgumentException;
 use stdClass;
+
 /**
  * Helper for database manipulation
  *
@@ -189,7 +190,7 @@ class Db
     /**
      * Return true if connections are set, else return false
      *
-     * @return Bool
+     * @return boolean
      */
     public static function hasDbConnections()
     {
@@ -203,7 +204,7 @@ class Db
     /**
      * Set the class to return
      *
-     * @param String $returnClassName The name of the class to return
+     * @param string $returnClassName The name of the class to return
      *
      * @return void
      */
@@ -755,7 +756,7 @@ class Db
                 $sql,
                 array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY)
             );
-        $statement->execute($queryParams);
+        $statement->execute();
 
         //	Disconnect
         $this->disconnect();
@@ -894,7 +895,12 @@ class Db
                     $result = array();
                     foreach ( array_keys($v) as $colName ) {
                         if ($this->utf8) {
-                            $result[$colName] = utf8_encode($v[$colName]);
+                            $result[$colName] =
+                                mb_convert_encoding(
+                                    $v[$colName], 
+                                    "UTF-8", 
+                                    mb_detect_encoding($v[$colName])
+                                );
                         } else {
                             $result[$colName] = $v[$colName];
                         } // end if utf8
@@ -995,7 +1001,7 @@ class Db
     function getLastId($tableName, $idColName, $where)
     {
         $this->where($where);
-        return $this->max($idConName, $tableName);
+        return $this->max($idColName, $tableName);
     } // end function getLastId
 
     /**
@@ -1117,17 +1123,17 @@ class Db
     function whereBetween($columnName, $value1, $value2, $isOr = false)
     {
         $cont = count($this->whereParams) + 1;
-        $paramName1 = str_replace(".", "_", $colName) . $cont;
-        $paramName2 = str_replace(".", "_", $colName) . $cont . '1';
+        $paramName1 = str_replace(".", "_", $columnName) . $cont;
+        $paramName2 = str_replace(".", "_", $columnName) . ($cont + 1);
         $this->whereParams[$paramName1] = $value1;
         $this->whereParams[$paramName2] = $value2;
 
         $whereType = ($isOr) ? "OR" : "AND";
 
         if (empty($this->whereStatement) ) {
-            $this->whereStatement = "$colName BETWEEN :$paramName1 AND :$paramName2";
+            $this->whereStatement = "$columnName BETWEEN :$paramName1 AND :$paramName2";
         } else {
-            $this->whereStatement .= " $whereType $colName BETWEEN :$paramName1 AND :$paramName2";
+            $this->whereStatement .= " $whereType $columnName BETWEEN :$paramName1 AND :$paramName2";
         }
 
         //	Returns this same instance
@@ -1260,10 +1266,10 @@ class Db
     /**
      * Returns the first row in the resultset
      *
-     * @param String|null $tableName The table's name
-     * @param String|null $className The name of the class to return
+     * @param string|null $tableName The table's name
+     * @param string|null $className The name of the class to return
      *
-     * @return Assoc Array
+     * @return array Array
      */
     function first($tableName = null, $className = null)
     {
@@ -1326,7 +1332,7 @@ class Db
 
         if ($this->limitType == 3 ) {
             $sql = str_replace('SELECT', '', $sql);
-            $sql = str_replce('@selectStatement', $sql, $this->limitStatement);
+            $sql = str_replace('@selectStatement', $sql, $this->limitStatement);
             if ($this->orderByStatement ) {
                 $sql
                     = str_replace(
@@ -1356,10 +1362,10 @@ class Db
     /**
      * Performs a query to the database, constructed by the class
      *
-     * @param String|null $tableName The name of the table to query
-     * @param String|null $className The name of the class to return array of
+     * @param string|null $tableName The name of the table to query
+     * @param string|null $className The name of the class to return array of
      *
-     * @return Assoc Array
+     * @return array Array
      *
      * @throws Exception
      */
@@ -1715,11 +1721,10 @@ class Db
     {
 
         $sql = "SELECT COUNT(*) FROM ($query) AS A;";
-        $clone = clone $this;
         $count = $this->scalar($sql, $queryParams);
 
         //	Then, get the pages
-        $pagesCount = ceil($count / $pageItems);
+        $pagesCount = ceil((int)$count / $pageItems);
 
         //	Then the start at
         $startAt = ($page - 1) * $pageItems;
