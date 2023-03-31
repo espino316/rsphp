@@ -276,7 +276,7 @@ class DbSchema
         // TODO clean empty tokens
         // TODO make case insensitive
         if ($count < 2) {
-            throw new \Exception("Table $table->name column $line must specify at least column name and data type");
+            throw new \Exception("Table $table->tableName column $line must specify at least column name and data type");
         } // end if only one or no tokens
 
         $columnName = $tokens[0];
@@ -450,7 +450,15 @@ class DbSchema
         return $index->getSql();
     } // end function get index sql
 
-    public function parseYaml($fileName)
+    /**
+     * Takes a yaml file and creates a sql schema
+     * 
+     * @param string $fileName the route to the file
+     * @param bool $executeCommands indicates if the commands must be executed to the database, if false, only generate the sql file
+     * 
+     * @return null
+     */
+    public function parseYaml($fileName, $executeCommands = true)
     {
         $yaml  = new Yaml;
         $array = $yaml->load($fileName);
@@ -458,6 +466,7 @@ class DbSchema
 
         //  Loopt throught items
         foreach ($array as $tableName => $columns) {
+            
             //  If not directive
             if (!Str::startsWith($tableName, "~")) {
 
@@ -480,19 +489,32 @@ class DbSchema
         } // end foreach
 
         $content = "";
-        $db = new Db($this->dbConn);
+        if ($executeCommands) {
+            $db = new Db($this->dbConn);
+        } // end if execute commands
+        
+        //  Clear content
+        $content = "";
+
+        //  loop every table
         foreach($this->tables as $table) {
 
-            //  Clear content
-            $content = "";
+            //  if execute commands
+            if ($executeCommands) {
+                //  Clear content
+                $content = "";
+            } // end if execute commands
+            
             //  TODO Validate if table exists, if not exists then create, else
             //  must validate any columns and add only the new ones
 
-            if ($db->tableExists($table->tableName)) {
-                RS::printLine("Table $table->tableName already exists");
-                continue;
-            } // end exists exists
-
+            if ($executeCommands) {
+                if ($db->tableExists($table->tableName)) {
+                    RS::printLine("Table $table->tableName already exists");
+                    continue;
+                } // end exists exists
+            } // end if execute commands
+            
             $content.= "CREATE TABLE $table->tableName (";
             $isDirty = false;
 
@@ -512,8 +534,11 @@ class DbSchema
                 $content.="\n\n" . $this->getIndexSql($index);
             } // end for each index
 
-            $db->nonQuery($content);
+            if ($executeCommands) {
+                $db->nonQuery($content);
+            } // end if execute commands
 
+            //  loop every table name
             foreach ($dataTables as $tableName => $lines) {
 
                 if ($table->tableName == $tableName) {
@@ -623,7 +648,7 @@ class DbSchema
     private function parseInsertData($data)
     {
         $db = new Db($this->dbConn);
-        $db->insertTableData(
+        $db->insert(
             $this->tableName,
             $data
         );

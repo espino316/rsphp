@@ -118,7 +118,7 @@ class DbTable
 
             if (is_object($columns)) {
                 if ($columns->name && $columns->sortType) {
-                    $indexName = "idx_$this->table_name"."_$columns->name";
+                    $indexName = "idx_$this->tableName"."_$columns->name";
                     $index = new DbIndex($this, $indexName);
                     $index->column($columns->name, $columns->sortType);
                 } // end if correct object

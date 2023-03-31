@@ -2,7 +2,7 @@
 /**
  * File.php
  *
- * PHP Version 5
+ * PHP Version 7
  *
  * File File Doc Comment
  *

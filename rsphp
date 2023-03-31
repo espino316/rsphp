@@ -16,18 +16,12 @@
 
 $cwd = getcwd();
 
-if ( file_exists("vendor/espino316") ) {
-
-    $rsPhpPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
-    if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
-        chdir( $rsPhpPath );
-        shell_exec( "composer dump-autoload" );
-        chdir( $cwd );
-    } // end if not exists
-
-} else {
-    $rsPhpPath = $cwd;
-}
+$rsPhpPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
+if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
+    chdir( $rsPhpPath );
+    shell_exec( "composer dump-autoload" );
+    chdir( $cwd );
+} // end if not exists
 
 require_once "$rsPhpPath/vendor/autoload.php";
 
@@ -35,6 +29,7 @@ if ( file_exists( "$rsPhpPath/public/index.php" ) ) {
     require_once "$rsPhpPath/public/index.php";
 } // end if file exists
 
+use RSPhp\Framework\DbSchema;
 use RSPhp\Framework\RS;
 use RSPhp\Framework\File;
 
@@ -47,13 +42,9 @@ if ( $command == 'version' ) {
 	return;
 }
 
-if ( $command == "help" && !$params ) {
+if ( $command == "help" ) {
     $content = File::read( $rsPhpPath . DS . "rsphp_help" );
     RS::printLine( $content );
-}// end if help
-
-if ( $command == "help view" ) {
-    printHelpSection("view");
 }// end if help
 
 if ( $command == 'cleanapp' ) {
@@ -234,26 +225,8 @@ if ( $command == "view add" ) {
     } // end if not array key exists
 
     if ( ! array_key_exists( "type", $params ) ) {
-
         $params["type"] = "content";
-
-    } // end if not exists type in params
-
-    if ( array_key_exists("type", $params) && $params["type"] == "content") {
-
-        //  If not exists header and footer, create them
-        $headerPath = "$rsPhpPath/application/Views/Header.html";
-        $footerPath = "$rsPhpPath/application/Views/Footer.html";
-
-        if (!File::exists($headerPath)) {
-            RS::createView("Header", "header");
-        } // end if not exists headerPath
-
-        if (!File::exists($footerPath)) {
-            RS::createView("Footer", "footer");
-        } // end if not exists foote path
-
-    } // end if it's content
+    } // end if not array key exists
 
     RS::createView(
         $params["name"],
@@ -269,12 +242,15 @@ if ( $command == "view create new" ) {
 
 //  If create app, make directories structure
 if ( $command == "init" ) {
-    if ( !isset( $params["default"] ) ) {
+    if ( !isset( $params["dir"] ) ) {
         $dir = "default";
     } else {
-        $dir = $params["default"];
+        $dir = $params["dir"];
     } // end if
 
+    echo "$dir\n";
+    print_r(array($command, $params));
+    return;
     RS::init( $dir );
 } // end if create app
 
@@ -301,13 +277,7 @@ if ($command == "restapi create") {
         return;
     } // end if no params
 
-    $exclude = null;
-
-    if (isset($params["exclude"])) {
-        $exclude = $params["exclude"];
-    } // end if is set param "except"
-
-    RS::generateRestfulApi($params["controller"], $params["conn"], $exclude);
+    RS::generateRestfulApi($params["controller"], $params["conn"], $params["except"]);
 } // end if restapi create
 
 if ($command == 'schema update') {
@@ -347,11 +317,11 @@ if ($command == 'schema add') {
     }// end if params
 } // end if schema add
 
-if ($command == 'generate procedures' || $command == 'gen procs') {
+if ($command == 'generate procedures') {
     if (count($params) == 0) {
         $conn = 'default';
     } else if (!$params["conn"]) {
-        RS::priintLine("Must specify --conn parameter");
+        RS::printLine("Must specify --conn parameter");
         return;
     } else {
         $conn = $params["conn"];
@@ -360,47 +330,28 @@ if ($command == 'generate procedures' || $command == 'gen procs') {
     RS::generateProcedures($conn);
 } // end if generte procedures
 
-if ($command == "generate documentation" || $command == 'gen doc') {
-    //  List of data connections
-    //  List of data sources
-    //  List of controllers in the application
-    //  List of routes
-    //  List of models created
-    //  List of global configuration variables
-    //  List of schema updates
-    //  List of rest api created
-} // end function
+if ($command == "parse schema") {
+
+    $count = count($params);
+    if ($count != 1) {
+
+        RS::printLine('This command require one parameter (filename)');
+        return;
+
+    } else if ($count == 1 && $params["filename"]) {
+
+        $fileName = $params["filename"];
+
+        if (!File::exists($fileName)) {
+            RS::printLine("File do not exists.");
+            return;
+        }
+
+        $dbSchema = new DbSchema;
+        $dbSchema->parseYaml($fileName, false);
+        RS::printLine("The file $fileName.sql has been generated");
+
+    } // end if one param
+} // end if parse schema
 
 RS::printLine("");
-
-/**
- * Reads and prints a section of the help file
- */
-function printHelpSection($sectionName)
-{
-    global $rsPhpPath;
-
-    $content = File::read( $rsPhpPath . DS . "rsphp_help_sections" );
-    $lines = explode("\n", $content);
-    $contentLines = [];
-    $beginCopying = false;
-
-    foreach ($lines as $line) {
-
-        if ($line == "#end $sectionName") {
-            break;
-        } // end if end section name
-
-        if ($line == "#$sectionName") {
-            $beginCopying = true;
-            continue;
-        } // end if init section name
-
-        if ($beginCopying) {
-            $contentLines[] = $line;
-        } // end if begin copying
-
-    } // end for each line
-
-    RS::printLine( implode("\n", $contentLines) );
-} // end function printSection

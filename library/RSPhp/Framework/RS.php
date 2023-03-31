@@ -2065,7 +2065,7 @@ class RS
     /**
      * Creates a new empty schema file
      *
-     * @param $shortDescription Short description for the task
+     * @param string $shortDescription Short description for the task
      *
      * @return null
      */
@@ -2099,13 +2099,13 @@ class RS
     public static function readLine()
     {
         if (PHP_OS == 'WINNT') {
-            echo "\n$ ";
-            $stdIn = stream_get_line(STDIN, 1024, "\n");
+            echo "\r\n$ ";
+            $stdIn = stream_get_line(STDIN, 1024, "\r\n");
         } else {
           $stdIn = readline('$ ');
         } // end if then else os is windows
 
-        return str_replace("\n", "", $stdIn);
+        return $stdIn;
     } // end function readLine
 
     public static function readLineSecret($promptMessage = 'Password:')
