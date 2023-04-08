@@ -14,102 +14,104 @@
 //  to create the autoload file
 //  if the file is not existing only
 
-$cwd = getcwd();
+DEFINE("CWD", getcwd());
+DEFINE("RS_PHP_PATH", dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) );
 
-$rsPhpPath = dirname( dirname( dirname( dirname( __FILE__ ) ) ) );
-if ( !file_exists( "$rsPhpPath/vendor/autoload.php" ) ) {
-    chdir( $rsPhpPath );
+if ( !file_exists( RS_PHP_PATH."/vendor/autoload.php" ) ) {
+    chdir( RS_PHP_PATH );
     shell_exec( "composer dump-autoload" );
-    chdir( $cwd );
+    chdir( CWD );
 } // end if not exists
 
-require_once "$rsPhpPath/vendor/autoload.php";
+require_once RS_PHP_PATH."/vendor/autoload.php";
 
-if ( file_exists( "$rsPhpPath/public/index.php" ) ) {
-    require_once "$rsPhpPath/public/index.php";
+if ( file_exists( RS_PHP_PATH."/public/index.php" ) ) {
+    require_once RS_PHP_PATH."/public/index.php";
 } // end if file exists
 
 use RSPhp\Framework\DbSchema;
 use RSPhp\Framework\RS;
 use RSPhp\Framework\File;
 
-$command = RS::processStdIn( $argv );
-$params = $command["parameters"];
-$command = $command["command"];
+$commandLine = RS::processStdIn( $argv );
+$commandParameters = $commandLine["parameters"];
+$command = $commandLine["command"];
 
-if ( $command == 'version' ) {
-	echo RS::$version;
-	return;
-}
-
-if ( $command == "help" ) {
-    $content = File::read( $rsPhpPath . DS . "rsphp_help" );
+function printHelp() {
+    $content = File::read( RS_PHP_PATH . DS . "rsphp_help" );
     RS::printLine( $content );
-}// end if help
+} // end function printHelp
 
-if ( $command == 'cleanapp' ) {
-	RS::cleanApp();
-	return;
-} // end if cleanapp
+function printVersion() {
+    echo RS::$version;
+} // end function printVersion
 
-if ( $command == "connection list" ) {
+function routeCommand( $command, $commandParameters ) {
+    global $commandRoutes;
+    if ( isset( $commandRoutes[$command] ) ) {
+        $commandRoutes[$command]( $commandParameters );
+    } else {
+        RS::printLine( "Command not found" );
+        RS::printLine( "Type 'rsphp help' for help" );
+    } // end if command found
+} // end function routeCommand
+
+function cleanApp() {
+    RS::cleanApp();
+} // end function cleanApp
+
+function connectionList() {
     RS::listConnections();
-} // end if controller list
+} // end function connectionList
 
-if ( $command == "controller list" ) {
+function controllerList() {
     RS::listControllers();
-} // end if controller list
+} // end function controllerList
 
-if ( $command == "model list" ) {
+function modelLists() {
     RS::listModels();
-} // end if controller list
+} // end function modelList
 
-if ( $command == "route list" ) {
+function routeList() {
     RS::listRoutes();
-} // end if controller list
+} // end function routeList
 
-if ( $command == "datasource list" ) {
+function datasourceList() {
     RS::listDataSources();
-} // end if controller list
+} // end function datasourceList
 
-if ( $command == "controller create" ) {
-
-	if ( !isset( $params["name"] ) ) {
-		RS::printLine( "Controller name must be specified" );
-		return;
+function controllerCreate( $commandParameters ) {
+    if ( !isset( $commandParameters["name"] ) ) {
+        RS::printLine( "Controller name must be specified" );
+        return;
     } // end if not doc
 
-    if ( !isset( $params["doc"] ) ) {
-		RS::printLine( "Controller documentation must be specified" );
-		return;
+    if ( !isset( $commandParameters["doc"] ) ) {
+        RS::printLine( "Controller documentation must be specified" );
+        return;
     } // end if not doc
 
     RS::printLine("Creating controller");
-	RS::createController( $params["name"], $params["doc"] );
-	return;
-}
+    RS::createController( $commandParameters["name"], $commandParameters["doc"] );
+    return;
+} // end function controllerCreate
 
-//	function create model
-//	php rs.php model create <tableName>
-//	php rs.php model create attachments
-if ( $command == "model create" ) {
+function modelCreate( $commandParameters ) {
+    //  The table name
+    $tableName = strtolower( $commandParameters["table"] );
 
-	//	The table name
-	$tableName = strtolower( $params["table"] );
+    RS::printLine("Beginning creation of model for table $tableName...");
 
-	RS::printLine("Beginning creation of model for table $tableName...");
-
-	// Model Create
-	RS::createModel( $tableName );
+    // Model Create
+    RS::createModel( $tableName );
     //  Update autoload
     RS::dumpAutoload();
 
-	return;
-}
+    return;
+} // end function modelCreate
 
-if ( $command == "connection add" ) {
-
-    if (count($params) === 0) {
+function connectionAdd( $commandParameters ) {
+    if (count($commandParameters) === 0) {
         RS::printLine("What's your connection name?: (default)");
         $name = RS::readLine();
         $name = ($name) ? $name : 'default';
@@ -170,92 +172,94 @@ if ( $command == "connection add" ) {
 
     $port = null;
 
-    if ( isset( $params["port"] ) ) {
-        $port = $params["port"];
+    if ( isset( $commandParameters["port"] ) ) {
+        $port = $commandParameters["port"];
     } // end if port
 
     RS::addConnection(
-        $params["name"],
-        $params["driver"],
-        $params["hostName"],
-        $params["databaseName"],
-        $params["userName"],
-        $params["password"],
+        $commandParameters["name"],
+        $commandParameters["driver"],
+        $commandParameters["hostName"],
+        $commandParameters["databaseName"],
+        $commandParameters["userName"],
+        $commandParameters["password"],
         $port
     );
 
     RS::printLine( "Connection added." );
-} // end if command is connection add
+} // end function connectionAdd
 
-if ( $command == "datasource add" ) {
-    if ( isset( $params["text"] ) ) {
-        $text = $params["text"];
-        $isFile = false;
-    } // end if text
+function dataSourceAdd( $commandParameters ) {
+    $text = "";
+    $isFile = false;
 
-    if ( isset( $params["file"] ) ) {
-        $text = $params["file"];
+    if ( isset( $commandParameters["file"] ) ) {
+        $text = $commandParameters["file"];
         $isFile = true;
     } // end if file
 
     RS::addDataSource(
-        $params["connection"],
-        $params["name"],
-        $params["type"],
+        $commandParameters["connection"],
+        $commandParameters["name"],
+        $commandParameters["type"],
         $text,
         $isFile
     );
-} // end if command datasource add
+} // end function dataSourceAdd
 
-if ( $command == "route add" ) {
-
+function routeAdd( $commandParameters ) {
     RS::addRoute(
-        $params["method"],
-        $params["url"],
-        $params["newUrl"]
+        $commandParameters["method"],
+        $commandParameters["url"],
+        $commandParameters["newUrl"]
     );
 
     RS::printLine( "Route added." );
-} // end if command is connection add
+} // end function routeAdd
 
-if ( $command == "view add" ) {
+function viewAdd( $commandParameters ) {
 
-    if ( ! array_key_exists( "name", $params ) ) {
-        throw new Exception( "Must specify view name" );
-    } // end if not array key exists
+    if ( !isset( $commandParameters["name"] ) ) {
+        RS::printLine( "View name must be specified" );
+        return;
+    } // end if not doc
 
-    if ( ! array_key_exists( "type", $params ) ) {
-        $params["type"] = "content";
-    } // end if not array key exists
+    if ( !isset( $commandParameters["type"] ) ) {
+        $commandParameters["type"] = "content";
+    } // end if not doc
 
     RS::createView(
-        $params["name"],
-        $params["type"]
-    ); // end createView
-} // end if command is view add
+        $commandParameters["name"],
+        $commandParameters["type"]
+    );
 
-if ( $command == "view create new" ) {
-	$tableName = $params["table"];
-	RS::createViewNewRecord( $tableName );
-	return;
-} // end if view create new
+    return;
 
-//  If create app, make directories structure
-if ( $command == "init" ) {
-    if ( !isset( $params["dir"] ) ) {
+} // end function viewAdd
+
+function viewCreateNew( $commandParameters ) {
+    if ( !isset( $commandParameters["table"] ) ) {
+        RS::printLine( "Table name must be specified" );
+        return;
+    } // end if not doc
+
+    RS::createViewNewRecord( $commandParameters["table"] );
+    return;
+} // end function viewCreateNew
+
+function init( $commandParameters ) {
+    if ( !isset( $commandParameters["dir"] ) ) {
         $dir = "default";
     } else {
-        $dir = $params["dir"];
+        $dir = $commandParameters["dir"];
     } // end if
 
-    echo "$dir\n";
-    print_r(array($command, $params));
-    return;
     RS::init( $dir );
-} // end if create app
+} // end function init
 
-if ($command == "restapi create") {
-    if (count($params) == 0) {
+function restapiCreate( $commandParameters ) {
+
+    if (count($commandParameters) == 0) {
 
         $conn = RS::defaultReadLine("What's the connection? (default)?:", 'default');
         echo "conn $conn\n";
@@ -275,24 +279,23 @@ if ($command == "restapi create") {
         );
 
         return;
-    } // end if no params
+    } // end if no commandParameters$commandParameters
 
-    RS::generateRestfulApi($params["controller"], $params["conn"], $params["except"]);
-} // end if restapi create
+    RS::generateRestfulApi($commandParameters["controller"], $commandParameters["conn"], $commandParameters["except"]);
+} // end function restapiCreate
 
-if ($command == 'schema update') {
-    //  Review current schema and apply changes
-    if (count($params) > 0) {
+function schemaUpdate( $commandParameters ) {
+    if (count($commandParameters) > 0) {
         RS::printLine('This command doesn\'t require parameters');
         return;
-    } // end if params
+    } // end if commandParameters$commandParameters
 
     RS::schemaUpdate();
-} // end if schema update
+} // end function schemaUpdate
 
-if ($command == 'schema add') {
+function schemaAdd( $commandParameters ) {
     //  Creates a new schema file && prints it's location
-    $count = count($params);
+    $count = count($commandParameters);
     if ($count > 1) {
 
         RS::printLine('This command require just 1 parameter');
@@ -300,7 +303,7 @@ if ($command == 'schema add') {
 
     } else if ($count == 1) {
 
-        $fileName = RS::createEmptySchemaFile($params["description"]);
+        $fileName = RS::createEmptySchemaFile($commandParameters["description"]);
         RS::printLine("The file $fileName has been generated");
 
     } else if ($count == 0) {
@@ -314,33 +317,32 @@ if ($command == 'schema add') {
         $fileName = RS::createEmptySchemaFile($description);
         RS::printLine("The file $fileName has been generated");
 
-    }// end if params
-} // end if schema add
+    }// end if commandParameters$commandParameters
+}
 
-if ($command == 'generate procedures') {
-    if (count($params) == 0) {
+function generateProcedures( $commandParameters ) {
+    if (count($commandParameters) == 0) {
         $conn = 'default';
-    } else if (!$params["conn"]) {
+    } else if (!$commandParameters["conn"]) {
         RS::printLine("Must specify --conn parameter");
         return;
     } else {
-        $conn = $params["conn"];
-    } // end if then else count params
+        $conn = $commandParameters["conn"];
+    } // end if then else count commandParameters$commandParameters
 
     RS::generateProcedures($conn);
-} // end if generte procedures
+} // end function generateProcedures
 
-if ($command == "parse schema") {
-
-    $count = count($params);
+function parseSchema( $commandParameters ) {
+    $count = count($commandParameters);
     if ($count != 1) {
 
         RS::printLine('This command require one parameter (filename)');
         return;
 
-    } else if ($count == 1 && $params["filename"]) {
+    } else if ($count == 1 && $commandParameters["filename"]) {
 
-        $fileName = $params["filename"];
+        $fileName = $commandParameters["filename"];
 
         if (!File::exists($fileName)) {
             RS::printLine("File do not exists.");
@@ -352,6 +354,29 @@ if ($command == "parse schema") {
         RS::printLine("The file $fileName.sql has been generated");
 
     } // end if one param
-} // end if parse schema
+} // end function parseSchema
+
+$commandRoutes = [];
+$commandRoutes["help"] = "printHelp";
+$commandRoutes["version"] = "printVersion";
+$commandRoutes["cleanapp"] = "cleanApp";
+$commandRoutes["connection list"] = "connectionList";
+$commandRoutes["controller list"] = "controllerList";
+$commandRoutes["model list"] = "modelList";
+$commandRoutes["route list"] = "routeList";
+$commandRoutes["datasource list"] = "datasourceList";
+$commandRoutes["connection add"] = "connectionAdd";
+$commandRoutes["datasource add"] = "dataSourceAdd";
+$commandRoutes["route add"] = "routeAdd";
+$commandRoutes["view add"] = "viewAdd";
+$commandRoutes["view create new"] = "viewCreateNew";
+$commandRoutes["init"] = "init";
+$commandRoutes["restapi create"] = "restapiCreate";
+$commandRoutes["schema update"] = "schemaUpdate";
+$commandRoutes["schema add"] = "schemaAdd";
+$commandRoutes["generate procedures"] = "generateProcedures";
+$commandRoutes["parse schema"] = "parseSchema";
+
+routeCommand( $command, $commandParameters );
 
 RS::printLine("");
